@@ -1,0 +1,104 @@
+---
+import Inputs from "@components/partials/viewer/Inputs.astro";
+import Table from "@components/partials/viewer/Table.astro";
+const baseURL = import.meta.env.PUBLIC_BASE_URL;
+---
+
+<div class="mx-auto" id="data" data-base-url={baseURL}>
+  <Inputs />
+  <div class="inline-flex items-center justify-center w-full">
+    <hr class="w-1/2 h-px my-8 border-0 bg-gray-700" />
+  </div>
+  <Table />
+</div>
+
+<script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js"></script>
+<script is:inline>
+  const currentURL = window.location.origin;
+  let baseURL =
+    document.querySelector("[data-base-url]")?.getAttribute("data-base-url") ||
+    currentURL;
+  baseURL = baseURL.startsWith("http") ? baseURL : currentURL + baseURL;
+  let input = Alpine.reactive({
+    query: "",
+    file_path: "",
+    realtime: false,
+    reverse: true,
+    page: 1,
+    per_page: 100,
+  });
+  let results = Alpine.reactive({
+    result: {
+      lines: [],
+      match_pattern: "",
+      total: 0,
+      file_path: "",
+    },
+    file_paths: [],
+  });
+  let loading = Alpine.reactive({
+    fetching: false,
+    error: "",
+    errorJSON: "",
+    updated_at: "",
+  });
+  let intervalId = null;
+
+  const init = async () => {
+    loading.error = "";
+    loading.errorJSON = "";
+    loading.fetching = true;
+    const response = await fetch(
+      `${baseURL}/api?query=${input.query}&page=${input.page}&per_page=${input.per_page}&file_path=${input.file_path}&reverse=${input.reverse}`
+    ).catch((error) => {
+      loading.fetching = false;
+      loading.error = error;
+      return;
+    });
+    loading.updated_at = new Date().toLocaleString();
+
+    loading.fetching = false;
+    if (response.status !== 200) {
+      loading.error = response.statusText;
+      ej = await response.json();
+      try {
+        loading.errorJSON = JSON.stringify(ej, null, 2);
+      } catch (e) {
+        loading.errorJSON = ej;
+      }
+      return;
+    }
+
+    let res = await response.json();
+    if (input.reverse && res.result.lines) {
+      res.result.lines = res.result.lines.reverse();
+    }
+    results.file_paths = res.file_paths;
+    results.result = res.result;
+    input.file_path = res.result.file_path;
+
+    manageRealtimeUpdates();
+  };
+  init();
+
+  const submit = async () => {
+    init();
+  };
+
+  const manageRealtimeUpdates = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+    if (input.realtime) {
+      intervalId = setInterval(init, 2*1000);// 2 seconds
+    }
+  };
+
+  const data = {
+    submit,
+  };
+  document.getElementById("data").setAttribute("x-data", JSON.stringify(data));
+  Alpine.start();
+</script>
+
+<style></style>

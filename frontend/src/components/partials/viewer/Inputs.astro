@@ -1,0 +1,134 @@
+---
+
+---
+
+<div class="max-w-4xl mx-auto mt-10">
+  <div class="relative">
+    <div
+      class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md font-bold"
+    >
+      REGEX
+    </div>
+    <input
+      type="search"
+      x-model="input.query"
+      @keyup="submit"
+      class="block font-mono w-full pl-22 p-3 ps-20 text-sm text-slate-300 hover:text-slate-100 border border-gray-300 hover:border-gray-100 rounded-lg bg-gray-900 focus:outline-none"
+      placeholder=".*"
+      required
+    />
+    <template x-if="loading.fetching">
+      <button
+        x-bind:disabled="loading.fetching"
+        type="button"
+        @click="submit"
+        class="text-white disabled:text-slate-400 absolute end-2.5 bottom-1.5 bg-blue-700 disabled:bg-gray-800 hover:bg-blue-800 focus:outline-none font-bold rounded-lg text-sm px-4 py-2"
+      >
+        <svg
+          aria-hidden="true"
+          role="status"
+          class="inline w-4 h-4 me-3 text-white animate-spin"
+          viewBox="0 0 100 101"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="#E5E7EB"></path>
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentColor"></path>
+        </svg>
+        <span>Updating</span>
+      </button>
+    </template>
+
+  </div>
+  <template x-if="loading.error">
+    <span x-text="loading.error" class="text-rose-600 text-sm block mt-5"
+    ></span>
+  </template>
+  <template x-if="loading.errorJSON">
+    <pre
+      x-text="loading.errorJSON"
+      class="text-rose-100 break-words text-sm block mt-2 text-wrap bg-rose-800 rounded mb-5 p-3">
+    </pre>
+  </template>
+
+  <!-- Dropdown menu -->
+  <div class="z-10 rounded-lg shadow w-full bg-gray-700 pb-5 mt-5">
+    <div class="p-3">
+      <label for="input-group-search" class="sr-only">Search</label>
+      <div class="relative">
+        <div
+          class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-2 pointer-events-none"
+        >
+          <svg
+            class="w-4 h-4 text-blue-400"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
+          </svg>
+        </div>
+        <span class="block w-full p-2 ps-10 text-sm text-gray-200"
+          >File Paths</span
+        >
+      </div>
+    </div>
+    <ul
+      class="max-h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
+    >
+      <template x-for="(filepath, index) in results.file_paths">
+        <li :class="{'shadow-2xl': filepath === results.result.file_path}">
+          <div
+            class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
+            :class="{'bg-gray-800 border-2 border-gray-900': filepath === results.result.file_path}"
+            @click="input.page=1; input.file_path = filepath; submit()"
+          >
+            <input
+              type="radio"
+              :value="filepath"
+              class="w-5 h-5 rounded"
+              x-model="input.file_path"
+            />
+            <label
+              :class="{'text-blue-400': filepath === results.result.file_path, 'text-slate-400': filepath !== results.result.file_path}"
+              class="w-full py-2 ms-2 text-sm font-mono rounded flex items-center"
+            >
+              <span
+                x-text="filepath.split('/').slice(0, -1).join('/')"
+                :class="{'text-gray-100': filepath === results.result.file_path}"
+                class="text-gray-400 w-1/2 truncate"></span>
+              <span class="text-slate-400">/</span>
+              <span
+                x-text="filepath.split('/').pop()"
+                class="text-gray-200 truncate"
+                :class="{'font-bold': filepath === results.result.file_path}"
+              ></span>
+            </label>
+          </div>
+        </li>
+      </template>
+    </ul>
+  </div>
+</div>
+
+<style>
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+</style>

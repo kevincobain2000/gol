@@ -1,0 +1,133 @@
+---
+
+---
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="text-left">
+    <label class="inline-flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        x-model="input.realtime"
+        @change="input.reverse=true;input.page=1;submit()"
+        class="sr-only peer"
+      />
+      <div
+        class="relative w-11 h-6 rounded-full peer bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-green-400"
+      >
+      </div>
+      <span class="ms-3 text-sm font-medium text-gray-300">Realtime</span>
+    </label>
+    <label class="inline-flex items-center cursor-pointer xl:ml-10">
+      <input
+        type="checkbox"
+        x-model="input.reverse"
+        @change="input.page=1;submit()"
+        class="sr-only peer"
+      />
+      <div
+        class="relative w-11 h-6 rounded-full peer bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-blue-400"
+      >
+      </div>
+      <span class="ms-3 text-sm font-medium text-gray-300">Reverse</span>
+    </label>
+    <div class="text-sm pt-5">
+      Updated at <span x-text="loading.updated_at"></span>
+    </div>
+  </div>
+  <div class="text-right">
+    <label class="inline-flex items-center cursor-pointer mt-4">
+      <span class="mr-2 text-sm font-medium text-gray-400">Per page:</span>
+      <select
+        x-model="input.per_page"
+        @change="input.page=1;submit()"
+        class="bg-gray-700 text-gray-300 rounded px-2 py-1"
+      >
+        <option value="15">15</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="1000">1000</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div>
+  <div class="overflow-x-auto mt-5 rounded">
+    <table class="w-full text-sm font-mono text-left text-gray-400">
+      <thead class="text-xs bg-gray-700 text-gray-400">
+        <tr>
+          <th scope="col" class="px-3 py-3 uppercase">Line No.</th>
+          <th scope="col" class="px-3 py-3 uppercase">Level</th>
+          <th scope="col" class="px-3 py-3">
+            <span class="font-mono" x-text="results.result.file_path"></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="(item, index) in results.result.lines" :key="index">
+          <tr class="border-b bg-gray-800 border-gray-700">
+            <td class="px-3 py-2 w-1/12" x-text="item.line_number"></td>
+            <td class="px-3 py-2 w-1/12">
+                <template x-if="item.level == 'info'">
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-blue-500 text-white">Info</span>
+                </template>
+                <template x-if="item.level == 'error'">
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-500 text-white">Error</span>
+                </template>
+                <template x-if="item.level == 'warn'">
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-yellow-500 text-gray-900">Warn</span>
+                </template>
+                <template x-if="item.level == 'danger'">
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-700 text-white">Danger</span>
+                </template>
+                <template x-if="item.level == 'debug'">
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-green-500 text-white">Debug</span>
+                </template>
+                <template x-if="item.level == ''">
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-700 text-gray-300">Line</span>
+                </template>
+            </td>
+            <td class="px-3 py-2 w-2/3 text-blue-200" x-text="item.content"
+            ></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="max-w-3xl mx-auto text-center">
+  <div class="text-sm"></div>
+
+  <nav aria-label="Page navigation example" class="mt-5">
+    <ul class="inline-flex -space-x-px text-sm">
+      <li>
+        <button
+          :disabled="input.page === 1"
+          @click="input.page > 1 ? input.page-- : null; submit();"
+          class="flex items-center justify-center px-3 h-8 ms-0 leading-tight border-e-0 rounded-s-lg bg-gray-700 border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-white"
+          :class="{'cursor-not-allowed opacity-50': input.page === 1}"
+          >Previous</button
+        >
+      </li>
+      <li>&nbsp;</li>
+      <li>
+        <button
+          type="button"
+          :disabled="input.page >= Math.ceil(results.result.total / input.per_page)"
+          @click="input.page++; submit();"
+          class="flex items-center justify-center px-3 h-8 leading-tight rounded-e-lg bg-gray-700 border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-white"
+          :class="{'cursor-not-allowed opacity-50': input.page >= Math.ceil(results.result.total / input.per_page)}"
+          >Next</button
+        >
+      </li>
+    </ul>
+  </nav>
+  <div class="pt-3 text-sm">
+    Page <span x-text="input.page.toLocaleString()"></span> of <span
+      x-text="Math.ceil(results.result.total / input.per_page).toLocaleString()"
+    ></span> (<span x-text="results.result.total.toLocaleString()"></span> rows)
+  </div>
+</div>
+<style>
+</style>

@@ -1,0 +1,50 @@
+---
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-mobile-web-app-title" content="GOL - Log Viewer" />
+    <meta name="application-name" content="GOL - Log Viewer" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="/favicon.ico" />
+    <meta name="msapplication-config" content="/favicon.ico" />
+
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+
+  </head>
+  <body
+    class="leading-normal tracking-normal text-slate-400 m-6 bg-cover bg-gradient"
+  >
+    <slot />
+  </body>
+</html>
+<style is:global>
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+    font-optical-sizing: auto;
+    font-style: normal;
+  }
+
+  .bg-gradient {
+    @apply bg-gray-800;
+  }
+</style>

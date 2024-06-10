@@ -1,0 +1,105 @@
+on:
+  pull_request:
+  push:
+    tags-ignore:
+      - '**'
+    branches:
+      - '**'
+
+name: "Cover It Up v2"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+jobs:
+  coveritup:
+    strategy:
+      matrix:
+        go-version: [latest]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: kevincobain2000/action-gobrew@v2
+        with:
+          version: ${{ matrix.go-version }}
+      - name: Setup Node.js ${{ matrix.node-versions }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
+      - name: Install Tools
+        run: |
+          go install github.com/axw/gocov/gocov@latest
+          go install github.com/AlekSi/gocov-xml@latest
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          curl -sLk https://raw.githubusercontent.com/kevincobain2000/cover-totalizer/master/install.sh | sh
+      - name: Setup Node.js ${{ matrix.node-versions }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+      - uses: shogo82148/actions-setup-mysql@v1
+        with:
+          mysql-version: "8.0"
+
+      - name: NPM Install
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: npm-install-time
+          command: cd frontend; npm install
+          record: runtime
+
+      - name: NPM Build
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: npm-build-time
+          command: cd frontend; npm run build
+          record: runtime
+
+      - name: Go Build
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: go-build-time
+          command: go mod tidy;go build -ldflags '-s -w' -o main main.go
+          record: runtime
+
+      - name: Lint Errors
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: go-lint-errors
+          command: golangci-lint run ./... | grep  -c "\^"
+
+      - name: Test
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: go-test-run-time
+          command: go test -race -v ./... -count=1 -coverprofile=coverage.out
+          record: runtime
+
+      - name: Coverage
+        run: |
+          gocov convert coverage.out | gocov-xml > coverage.xml
+      - name: Coveritup
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: coverage
+          command: ./cover-totalizer app/coverage.xml
+
+      - name: Go Binary Size
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: go-binary-size
+          command: du -sk main | awk '{print $1}'
+
+      - name: Number of dependencies
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: go-mod-dependencies
+          command: go list -m all|wc -l|awk '{$1=$1};1'
+
+      - uses: kevincobain2000/action-coveritup@v2
+        with:
+          pr_comment: true
+      - uses: kevincobain2000/action-coveritup@v2
+        with:
+          pr_comment: true
+          types: coverage,go-mod-dependencies
