@@ -77,13 +77,15 @@ mv gol /usr/local/bin/
 ```sh
 # run in current directory
 gol
+```
 
+## Advanced Examples
+
+```sh
 gol -f="/var/log/*.log"
 gol -f="/var/log/*.log.tar.gz"
 gol -f="/var/log/*.log*"
 ```
-
-**All done!**
 
 ## CHANGE LOG
 
