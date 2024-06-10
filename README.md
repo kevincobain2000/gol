@@ -1,9 +1,15 @@
+<p align="center">
+  <a href="https://github.com/kevincobain2000/gol">
+    <img alt="gol" src="https://imgur.com/sktoYPP.png" width="120">
+  </a>
+</p>
 <h1 align="center">
   Logs Viewer
 </h1>
+
 <p align="center">
   View realtime logs in browser<br>
-  With advanced regex search.<br>
+  Advanced regex search<br>
   Zero dependency
 </p>
 
@@ -23,7 +29,9 @@
 
 **Realtime** Tail logs in real time in browser.
 
-### Install using go
+
+
+### Install using [go](https://github.com/kevincobain2000/gobrew)
 
 ```bash
 go install github.com/kevincobain2000/gol@latest

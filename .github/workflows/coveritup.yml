@@ -82,7 +82,7 @@ jobs:
         uses: kevincobain2000/action-coveritup@v2
         with:
           type: coverage
-          command: ./cover-totalizer app/coverage.xml
+          command: ./cover-totalizer coverage.xml
 
       - name: Go Binary Size
         uses: kevincobain2000/action-coveritup@v2
