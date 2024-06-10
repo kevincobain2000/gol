@@ -8,13 +8,12 @@ import (
 )
 
 type APIHandler struct {
-	filepaths []string
 }
 
-func NewAPIHandler(filepaths []string) *APIHandler {
-	return &APIHandler{
-		filepaths: filepaths,
-	}
+var GlobalFilePaths []string
+
+func NewAPIHandler() *APIHandler {
+	return &APIHandler{}
 }
 
 type APIRequest struct {
@@ -40,12 +39,15 @@ func (h *APIHandler) Get(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, msgs)
 	}
-
-	if req.FilePath == "" {
-		req.FilePath = h.filepaths[0]
+	if len(GlobalFilePaths) == 0 {
+		return echo.NewHTTPError(http.StatusNotFound, "filepath not found")
 	}
 
-	if !StringInSlice(req.FilePath, h.filepaths) {
+	if req.FilePath == "" {
+		req.FilePath = GlobalFilePaths[0]
+	}
+
+	if !StringInSlice(req.FilePath, GlobalFilePaths) {
 		return echo.NewHTTPError(http.StatusNotFound, "file not found")
 	}
 
@@ -61,6 +63,6 @@ func (h *APIHandler) Get(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, APIResponse{
 		Result:    *result,
-		FilePaths: h.filepaths,
+		FilePaths: GlobalFilePaths,
 	})
 }

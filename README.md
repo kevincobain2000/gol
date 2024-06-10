@@ -21,13 +21,15 @@
 
 **Flexible:** Works with multiple logs file, with massive size support.
 
-**Supports** Log rotation or tar and gz compressed.
+**Supports** Plain text, ansii outputs, tar and gz compressed.
 
 **Intelligent** Judges log level based on non patented algorithm.
 
 **Search** Fast search with regex.
 
 **Realtime** Tail logs in real time in browser.
+
+**Watch Changes** Supports log rotation and watch for new log files.
 
 ## Reports from [coveritup](https://coveritup.app/readme?org=kevincobain2000&repo=gol&branch=master)
 

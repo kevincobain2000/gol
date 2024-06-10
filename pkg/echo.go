@@ -21,7 +21,6 @@ type EchoOptions struct {
 	Cors      int64
 	BaseURL   string
 	PublicDir *embed.FS
-	FilePaths []string
 }
 
 type EchoOption func(*EchoOptions) error
@@ -33,7 +32,6 @@ func NewEcho(opts ...EchoOption) error {
 		Host:      "localhost", // default host
 		Port:      3000,        // default port
 		PublicDir: nil,
-		FilePaths: nil,
 	}
 	for _, opt := range opts {
 		err := opt(options)
@@ -67,7 +65,7 @@ func SetupRoutes(e *echo.Echo, options *EchoOptions) {
 	e.GET(options.BaseURL+"ads.txt", NewAssetsHandler(options.PublicDir, "ads.txt").GetPlain)
 
 	e.GET(options.BaseURL+"favicon.ico", NewAssetsHandler(options.PublicDir, "favicon.ico").GetICO)
-	e.GET(options.BaseURL+"api", NewAPIHandler(options.FilePaths).Get)
+	e.GET(options.BaseURL+"api", NewAPIHandler().Get)
 }
 
 func SetupCors(e *echo.Echo, options *EchoOptions) {

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"time"
 
 	"github.com/gookit/color"
 	"github.com/k0kubun/pp"
@@ -21,6 +22,7 @@ type Flags struct {
 	host     string
 	port     int64
 	cors     int64
+	every    int64
 	baseURL  string
 	filePath string
 	open     bool
@@ -34,9 +36,14 @@ var version = "dev"
 func main() {
 	flags()
 	wantsVersion()
-	filePaths := validateFilePath()
-	pp.Sprint(f)
-	pp.Sprint("filePaths", filePaths)
+	if f.filePath == "" {
+		color.Danger.Println("-f filepath is required")
+		os.Exit(1)
+	}
+	pkg.GlobalFilePaths = getFilePaths()
+	go watchFilePaths(f.every)
+	pp.Sprintln(f)
+	pp.Sprintln("filePaths", pkg.GlobalFilePaths)
 
 	if f.open {
 		openBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
@@ -48,12 +55,22 @@ func main() {
 		o.Cors = f.cors
 		o.BaseURL = f.baseURL
 		o.PublicDir = &publicDir
-		o.FilePaths = filePaths
 		return nil
 	})
 	if err != nil {
-		color.Danger.Print(err)
+		color.Danger.Println(err)
 		os.Exit(1)
+	}
+}
+
+func watchFilePaths(seconds int64) {
+	interval := time.Duration(seconds) * time.Second
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		color.Info.Println("Checking for filepaths every", interval)
+		pkg.GlobalFilePaths = getFilePaths()
 	}
 }
 
@@ -76,30 +93,25 @@ func openBrowser(url string) {
 	}
 }
 
-func validateFilePath() []string {
-	if f.filePath == "" {
-		color.Danger.Print("file-path is required")
-		os.Exit(1)
-	}
-
+func getFilePaths() []string {
 	filePaths, err := pkg.FilesByPattern(f.filePath)
 	if err != nil {
-		color.Danger.Print(err)
-		os.Exit(1)
+		color.Danger.Println(err)
+		return nil
 	}
 	if len(filePaths) == 0 {
-		color.Danger.Print("no files found", f.filePath)
-		os.Exit(1)
+		color.Danger.Println("no files found ", f.filePath)
+		return nil
 	}
 	readableFilePaths := make([]string, 0)
 	for _, filePath := range filePaths {
 		isText, err := pkg.IsReadableFile(filePath)
 		if err != nil {
-			color.Danger.Print(err)
-			os.Exit(1)
+			color.Danger.Println(err)
+			return nil
 		}
 		if !isText {
-			color.Warn.Print("file is not a text file", filePath)
+			color.Warn.Println("file is not a text file ", filePath)
 			continue
 		}
 		readableFilePaths = append(readableFilePaths, filePath)
@@ -113,6 +125,7 @@ func flags() {
 	flag.BoolVar(&f.version, "version", false, "")
 	flag.StringVar(&f.host, "host", "localhost", "host to serve")
 	flag.Int64Var(&f.port, "port", 3003, "port to serve")
+	flag.Int64Var(&f.every, "every", 5, "check for file paths every n seconds")
 	flag.Int64Var(&f.cors, "cors", 0, "cors port to allow")
 	flag.BoolVar(&f.open, "open", true, "open browser on start")
 	flag.StringVar(&f.baseURL, "base-url", "/", "base url with slash")

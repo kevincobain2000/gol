@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"compress/gzip"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -44,7 +45,7 @@ func IsReadableFile(filename string) (bool, error) {
 		defer gzipReader.Close()
 
 		n, err = gzipReader.Read(buffer)
-		if err != nil && err != io.EOF {
+		if err != nil && !errors.Is(err, io.EOF) {
 			return false, tracerr.New(err.Error())
 		}
 

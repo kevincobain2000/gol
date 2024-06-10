@@ -55,7 +55,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
       loading.error = error;
       return;
     });
-    loading.updated_at = new Date().toLocaleString();
+    loading.updated_at = new Date().toLocaleTimeString();
 
     loading.fetching = false;
     if (response.status !== 200) {

@@ -78,7 +78,7 @@ func ConsistentFormat(logLines []string) (bool, int) {
 		return false, -1
 	}
 
-	var positions []int
+	positions := []int{}
 
 	for _, line := range logLines {
 		line = strings.ToLower(line)
