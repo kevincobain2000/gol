@@ -26,6 +26,7 @@ func JudgeLogLevel(line string, keywordPosition int) string {
 	line = strings.ToLower(line) // Convert the line to lowercase for easier comparison
 
 	// Keywords for different log levels
+	successKeywords := []string{"success"}
 	infoKeywords := []string{"info"}
 	errorKeywords := []string{"error"}
 	warnKeywords := []string{"warn", "warning"}
@@ -38,6 +39,11 @@ func JudgeLogLevel(line string, keywordPosition int) string {
 	}
 
 	// Check for keywords at the specified position
+	for _, keyword := range successKeywords {
+		if isKeywordAtPosition(line, keyword, keywordPosition) {
+			return "success"
+		}
+	}
 	for _, keyword := range infoKeywords {
 		if isKeywordAtPosition(line, keyword, keywordPosition) {
 			return "info"

@@ -68,6 +68,9 @@
           <tr class="border-b bg-gray-800 border-gray-700">
             <td class="px-3 py-2 w-1/12" x-text="item.line_number"></td>
             <td class="px-3 py-2 w-1/12">
+                <template x-if="item.level == 'success'">
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-green-500 text-gray-900">Success</span>
+                </template>
                 <template x-if="item.level == 'info'">
                     <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-blue-500 text-white">Info</span>
                 </template>
@@ -81,7 +84,7 @@
                     <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-700 text-white">Danger</span>
                 </template>
                 <template x-if="item.level == 'debug'">
-                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-green-500 text-white">Debug</span>
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-500 text-white">Debug</span>
                 </template>
                 <template x-if="item.level == ''">
                     <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-700 text-gray-300">Line</span>
