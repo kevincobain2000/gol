@@ -2,8 +2,9 @@
   Logs Viewer
 </h1>
 <p align="center">
-  View realtime logs in browser, with advanced regex search.
-  Zero dependency<br>
+  View realtime logs in browser<br>
+  With advanced regex search.<br>
+  Zero dependency
 </p>
 
 **Quick Setup:** One command to install and run.
@@ -16,7 +17,7 @@
 
 **Supports** Log rotation or tar and gz compressed.
 
-**Intelli** Judges log level based on non patented algorithm.
+**Intelligent** Judges log level based on non patented algorithm.
 
 **Search** Fast search with regex.
 
