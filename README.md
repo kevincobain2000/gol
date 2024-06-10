@@ -3,6 +3,7 @@
     <img alt="gol" src="https://imgur.com/sktoYPP.png" width="120">
   </a>
 </p>
+
 <h1 align="center">
   Logs Viewer
 </h1>
@@ -30,6 +31,16 @@
 **Realtime** Tail logs in real time in browser.
 
 **Watch Changes** Supports log rotation and watch for new log files.
+
+<h1 align="center">
+  View in Browser
+</h1>
+
+<p align="center">
+  <a href="https://github.com/kevincobain2000/gol">
+    <img alt="gol" src="https://imgur.com/MJmCAsw.png">
+  </a>
+</p>
 
 ## Reports from [coveritup](https://coveritup.app/readme?org=kevincobain2000&repo=gol&branch=master)
 
