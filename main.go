@@ -23,6 +23,7 @@ type Flags struct {
 	cors     int64
 	baseURL  string
 	filePath string
+	open     bool
 	version  bool
 }
 
@@ -36,7 +37,10 @@ func main() {
 	filePaths := validateFilePath()
 	pp.Sprint(f)
 	pp.Sprint("filePaths", filePaths)
-	openBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
+
+	if f.open {
+		openBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
+	}
 
 	err := pkg.NewEcho(func(o *pkg.EchoOptions) error {
 		o.Host = f.host
@@ -105,11 +109,12 @@ func validateFilePath() []string {
 
 func flags() {
 	dir, _ := os.Getwd()
-	flag.StringVar(&f.filePath, "f", dir, "full path to the log file")
+	flag.StringVar(&f.filePath, "f", dir+"/*log", "full path to the log file")
 	flag.BoolVar(&f.version, "version", false, "")
 	flag.StringVar(&f.host, "host", "localhost", "host to serve")
 	flag.Int64Var(&f.port, "port", 3003, "port to serve")
 	flag.Int64Var(&f.cors, "cors", 0, "cors port to allow")
+	flag.BoolVar(&f.open, "open", true, "open browser on start")
 	flag.StringVar(&f.baseURL, "base-url", "/", "base url with slash")
 
 	flag.Parse()
