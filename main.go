@@ -25,6 +25,7 @@ type Flags struct {
 	every    int64
 	baseURL  string
 	filePath string
+	access   bool
 	open     bool
 	version  bool
 }
@@ -53,6 +54,7 @@ func main() {
 		o.Host = f.host
 		o.Port = f.port
 		o.Cors = f.cors
+		o.Access = f.access
 		o.BaseURL = f.baseURL
 		o.PublicDir = &publicDir
 		return nil
@@ -68,8 +70,9 @@ func watchFilePaths(seconds int64) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
+	color.Info.Println("Checking for filepaths every", interval)
+
 	for range ticker.C {
-		color.Info.Println("Checking for filepaths every", interval)
 		pkg.GlobalFilePaths = getFilePaths()
 	}
 }
@@ -123,9 +126,10 @@ func flags() {
 	dir, _ := os.Getwd()
 	flag.StringVar(&f.filePath, "f", dir+"/*log", "full path to the log file")
 	flag.BoolVar(&f.version, "version", false, "")
+	flag.BoolVar(&f.access, "access", false, "print access logs")
 	flag.StringVar(&f.host, "host", "localhost", "host to serve")
 	flag.Int64Var(&f.port, "port", 3003, "port to serve")
-	flag.Int64Var(&f.every, "every", 5, "check for file paths every n seconds")
+	flag.Int64Var(&f.every, "every", 10, "check for file paths every n seconds")
 	flag.Int64Var(&f.cors, "cors", 0, "cors port to allow")
 	flag.BoolVar(&f.open, "open", true, "open browser on start")
 	flag.StringVar(&f.baseURL, "base-url", "/", "base url with slash")

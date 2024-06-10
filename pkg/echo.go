@@ -20,6 +20,7 @@ type EchoOptions struct {
 	Port      int64
 	Cors      int64
 	BaseURL   string
+	Access    bool
 	PublicDir *embed.FS
 }
 
@@ -31,6 +32,7 @@ func NewEcho(opts ...EchoOption) error {
 		BaseURL:   "/",
 		Host:      "localhost", // default host
 		Port:      3000,        // default port
+		Access:    false,
 		PublicDir: nil,
 	}
 	for _, opt := range opts {
@@ -42,6 +44,9 @@ func NewEcho(opts ...EchoOption) error {
 	e := echo.New()
 
 	SetupMiddlewares(e)
+	if options.Access {
+		e.Use(middleware.Logger())
+	}
 	SetupRoutes(e, options)
 	SetupCors(e, options)
 
@@ -54,9 +59,6 @@ func SetupMiddlewares(e *echo.Echo) {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: ltsv(),
-	}))
 }
 
 func SetupRoutes(e *echo.Echo, options *EchoOptions) {
@@ -103,27 +105,4 @@ func HTTPErrorHandler(err error, c echo.Context) {
 	if err = c.JSON(code, &HTTPErrorResponse{Error: message}); err != nil {
 		color.Danger.Println(err.Error())
 	}
-}
-
-func ltsv() string {
-	var format string
-	format += "time:${time_rfc3339}\t"
-	format += "host:${remote_ip}\t"
-	format += "forwardedfor:${header:x-forwarded-for}\t"
-	format += "req:-\t"
-	format += "status:${status}\t"
-	format += "method:${method}\t"
-	format += "uri:${uri}\t"
-	format += "size:${bytes_out}\t"
-	format += "referer:${referer}\t"
-	format += "ua:${user_agent}\t"
-	format += "reqtime_ns:${latency}\t"
-	format += "cache:-\t"
-	format += "runtime:-\t"
-	format += "apptime:-\t"
-	format += "vhost:${host}\t"
-	format += "reqtime_human:${latency_human}\t"
-	format += "x-request-id:${id}\t"
-	format += "host:${host}\n"
-	return format
 }
