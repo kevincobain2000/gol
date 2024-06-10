@@ -4,7 +4,6 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/exec"
 	"runtime"
@@ -35,8 +34,8 @@ func main() {
 	flags()
 	wantsVersion()
 	filePaths := validateFilePath()
-	slog.Info(pp.Sprint(f))
-	slog.Info(pp.Sprint("filePaths", filePaths))
+	pp.Sprint(f)
+	pp.Sprint("filePaths", filePaths)
 	openBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
 
 	err := pkg.NewEcho(func(o *pkg.EchoOptions) error {
@@ -49,7 +48,7 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		slog.Error(color.Danger.Sprint(err))
+		color.Danger.Print(err)
 		os.Exit(1)
 	}
 }
@@ -75,28 +74,28 @@ func openBrowser(url string) {
 
 func validateFilePath() []string {
 	if f.filePath == "" {
-		slog.Error(color.Danger.Sprint("file-path is required"))
+		color.Danger.Print("file-path is required")
 		os.Exit(1)
 	}
 
 	filePaths, err := pkg.FilesByPattern(f.filePath)
 	if err != nil {
-		slog.Error(color.Danger.Sprint(err))
+		color.Danger.Print(err)
 		os.Exit(1)
 	}
 	if len(filePaths) == 0 {
-		slog.Error(color.Danger.Sprint("no files found", f.filePath))
+		color.Danger.Print("no files found", f.filePath)
 		os.Exit(1)
 	}
 	readableFilePaths := make([]string, 0)
 	for _, filePath := range filePaths {
 		isText, err := pkg.IsReadableFile(filePath)
 		if err != nil {
-			slog.Error(color.Danger.Sprint(err))
+			color.Danger.Print(err)
 			os.Exit(1)
 		}
 		if !isText {
-			slog.Warn(color.Warn.Sprint("file is not a text file", filePath))
+			color.Warn.Print("file is not a text file", filePath)
 			continue
 		}
 		readableFilePaths = append(readableFilePaths, filePath)

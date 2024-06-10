@@ -21,4 +21,4 @@ tmp/
 *.log
 *.db
 .DS_Store
-go-watch-logs
+main

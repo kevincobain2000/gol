@@ -29,6 +29,32 @@
 
 **Realtime** Tail logs in real time in browser.
 
+## Reports from [coveritup](https://coveritup.app/readme?org=kevincobain2000&repo=gol&branch=master)
+
+<p align="center">
+  <a href="https://coveritup.app/readme?org=kevincobain2000&repo=gol&branch=master">
+    <img alt="gol" src="https://coveritup.app/progress?org=kevincobain2000&repo=gol&branch=master&type=coverage&theme=dark&style=bar" width="150">
+  </a>
+</p>
+
+![npm-install-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=npm-install-time)
+![npm-build-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=npm-build-time)
+![go-build-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-build-time)
+![go-lint-errors](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-lint-errors)
+
+![go-test-run-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-test-run-time)
+![coverage](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=coverage)
+![go-binary-size](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-binary-size)
+![go-mod-dependencies](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-mod-dependencies)
+
+![npm-install-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=npm-install-time&theme=light&line=fill&width=150&height=150&output=svg)
+![npm-build-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=npm-build-time&theme=light&line=fill&width=150&height=150&output=svg)
+![go-build-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-build-time&theme=light&line=fill&width=150&height=150&output=svg)
+![go-lint-errors](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-lint-errors&theme=light&line=fill&width=150&height=150&output=svg)
+![go-test-run-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-test-run-time&theme=light&line=fill&width=150&height=150&output=svg)
+![coverage](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=coverage&theme=light&line=fill&width=150&height=150&output=svg)
+![go-binary-size](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-binary-size&theme=light&line=fill&width=150&height=150&output=svg)
+![go-mod-dependencies](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-mod-dependencies&theme=light&line=fill&width=150&height=150&output=svg)
 
 
 ### Install using [go](https://github.com/kevincobain2000/gobrew)
@@ -52,9 +78,9 @@ mv gol /usr/local/bin/
 # run in current directory
 gol
 
-gol -f=/var/log/*.log
-gol -f=/var/log/*.log.tar.gz
-gol -f=/var/log/*.log*
+gol -f="/var/log/*.log"
+gol -f="/var/log/*.log.tar.gz"
+gol -f="/var/log/*.log*"
 ```
 
 **All done!**
