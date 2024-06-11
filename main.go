@@ -17,21 +17,33 @@ import (
 //go:embed all:frontend/dist/*
 var publicDir embed.FS
 
+type sliceFlags []string
+
+func (i *sliceFlags) String() string {
+	return "my string representation"
+}
+func (i *sliceFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 type Flags struct {
-	host     string
-	port     int64
-	cors     int64
-	every    int64
-	baseURL  string
-	filePath string
-	access   bool
-	open     bool
-	version  bool
+	host      string
+	port      int64
+	cors      int64
+	every     int64
+	baseURL   string
+	filePaths sliceFlags
+	access    bool
+	open      bool
+	version   bool
 }
 
 var f Flags
 
 var version = "dev"
+
+var filePaths []string
 
 func main() {
 	flags()
@@ -40,15 +52,11 @@ func main() {
 	if pkg.IsInputFromPipe() {
 		go pkg.ReadLinesFromPipe()
 	}
-	if f.filePath == "" {
-		dir, _ := os.Getwd()
-		f.filePath = dir + "/*log"
-		color.Info.Println("no file path provided, using ", f.filePath)
-	}
-	pkg.GlobalFilePaths = getFilePaths()
+	setGlobalFilePaths()
+
 	go watchFilePaths(f.every)
 	pp.Println(f)
-	pp.Println("filePaths", pkg.GlobalFilePaths)
+	pp.Println("global filepaths", pkg.GlobalFilePaths)
 
 	if f.open {
 		pkg.OpenBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
@@ -69,6 +77,22 @@ func main() {
 		color.Danger.Println(err)
 		os.Exit(1)
 	}
+}
+
+func setGlobalFilePaths() {
+	if f.filePaths == nil {
+		dir, _ := os.Getwd()
+		f.filePaths = []string{
+			dir + "/*/*log",
+			dir + "/*log",
+		}
+		color.Info.Println("no file path provided, using ", f.filePaths)
+	}
+	for _, pattern := range f.filePaths {
+		filePaths = getFilePaths(pattern)
+		pkg.GlobalFilePaths = append(pkg.GlobalFilePaths, filePaths...)
+	}
+	pkg.GlobalFilePaths = pkg.UniqueStrings(pkg.GlobalFilePaths)
 }
 
 func handleCltrC() {
@@ -103,18 +127,22 @@ func watchFilePaths(seconds int64) {
 	color.Info.Println("Checking for filepaths every", interval)
 
 	for range ticker.C {
-		pkg.GlobalFilePaths = getFilePaths()
+		for _, pattern := range f.filePaths {
+			filePaths = getFilePaths(pattern)
+			pkg.GlobalFilePaths = append(pkg.GlobalFilePaths, filePaths...)
+		}
+		pkg.GlobalFilePaths = pkg.UniqueStrings(pkg.GlobalFilePaths)
 	}
 }
 
-func getFilePaths() []string {
-	filePaths, err := pkg.FilesByPattern(f.filePath)
+func getFilePaths(pattern string) []string {
+	filePaths, err := pkg.FilesByPattern(pattern)
 	if err != nil {
 		color.Danger.Println(err)
 		return nil
 	}
 	if len(filePaths) == 0 {
-		color.Danger.Println("no files found:", f.filePath)
+		color.Danger.Println("no files found:", pattern)
 		return nil
 	}
 	readableFilePaths := make([]string, 0)
@@ -135,7 +163,7 @@ func getFilePaths() []string {
 
 func flags() {
 
-	flag.StringVar(&f.filePath, "f", "", "full path to the log file")
+	flag.Var(&f.filePaths, "f", "full path pattern to the log file")
 	flag.BoolVar(&f.version, "version", false, "")
 	flag.BoolVar(&f.access, "access", false, "print access logs")
 	flag.StringVar(&f.host, "host", "localhost", "host to serve")

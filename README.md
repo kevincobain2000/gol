@@ -70,12 +70,6 @@
 ![go-mod-dependencies](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-mod-dependencies&theme=light&line=fill&width=150&height=150&output=svg)
 
 
-### Install using [go](https://github.com/kevincobain2000/gobrew)
-
-```bash
-go install github.com/kevincobain2000/gol@latest
-```
-
 ### Install using curl
 
 Use this method if go is not installed on your server

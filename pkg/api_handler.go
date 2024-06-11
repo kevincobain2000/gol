@@ -44,7 +44,7 @@ func (h *APIHandler) Get(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "filepath not found")
 	}
 
-	if !StringInSlice(GlobalTempFilePath, GlobalFilePaths) {
+	if GlobalTempFilePath != "" && !StringInSlice(GlobalTempFilePath, GlobalFilePaths) {
 		GlobalFilePaths = append([]string{GlobalTempFilePath}, GlobalFilePaths...)
 	}
 
