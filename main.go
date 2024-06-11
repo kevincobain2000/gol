@@ -5,8 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
-	"runtime"
+	"os/signal"
 	"time"
 
 	"github.com/gookit/color"
@@ -37,18 +36,25 @@ var version = "dev"
 func main() {
 	flags()
 	wantsVersion()
+
+	if pkg.IsInputFromPipe() {
+		go pkg.ReadLinesFromPipe()
+	}
 	if f.filePath == "" {
-		color.Danger.Println("-f filepath is required")
-		os.Exit(1)
+		dir, _ := os.Getwd()
+		f.filePath = dir + "/*log"
+		color.Info.Println("no file path provided, using ", f.filePath)
 	}
 	pkg.GlobalFilePaths = getFilePaths()
 	go watchFilePaths(f.every)
-	pp.Sprintln(f)
-	pp.Sprintln("filePaths", pkg.GlobalFilePaths)
+	pp.Println(f)
+	pp.Println("filePaths", pkg.GlobalFilePaths)
 
 	if f.open {
-		openBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
+		pkg.OpenBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
 	}
+	defer cleanup()
+	handleCltrC()
 
 	err := pkg.NewEcho(func(o *pkg.EchoOptions) error {
 		o.Host = f.host
@@ -65,6 +71,30 @@ func main() {
 	}
 }
 
+func handleCltrC() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		s := <-c
+		color.Warn.Println("got signal:", s)
+		cleanup()
+		close(c)
+		os.Exit(1)
+	}()
+}
+
+func cleanup() {
+	color.Info.Println("cleaning up")
+	if pkg.GlobalTempFilePath != "" {
+		err := os.Remove(pkg.GlobalTempFilePath)
+		if err != nil {
+			color.Danger.Println("error removing tmp file:", err)
+			return
+		}
+		color.New(color.FgYellow).Println("tmp file removed:", pkg.GlobalTempFilePath)
+	}
+}
+
 func watchFilePaths(seconds int64) {
 	interval := time.Duration(seconds) * time.Second
 	ticker := time.NewTicker(interval)
@@ -77,25 +107,6 @@ func watchFilePaths(seconds int64) {
 	}
 }
 
-func openBrowser(url string) {
-	var err error
-
-	switch runtime.GOOS {
-	case "linux":
-		err = exec.Command("xdg-open", url).Start()
-	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		err = exec.Command("open", url).Start()
-	default:
-		err = exec.Command("xdg-open", url).Start()
-	}
-
-	if err != nil {
-		color.Warn.Println("Failed to open browser")
-	}
-}
-
 func getFilePaths() []string {
 	filePaths, err := pkg.FilesByPattern(f.filePath)
 	if err != nil {
@@ -103,7 +114,7 @@ func getFilePaths() []string {
 		return nil
 	}
 	if len(filePaths) == 0 {
-		color.Danger.Println("no files found ", f.filePath)
+		color.Danger.Println("no files found:", f.filePath)
 		return nil
 	}
 	readableFilePaths := make([]string, 0)
@@ -114,7 +125,7 @@ func getFilePaths() []string {
 			return nil
 		}
 		if !isText {
-			color.Warn.Println("file is not a text file ", filePath)
+			color.Warn.Println("file is not a text file:", filePath)
 			continue
 		}
 		readableFilePaths = append(readableFilePaths, filePath)
@@ -123,8 +134,8 @@ func getFilePaths() []string {
 }
 
 func flags() {
-	dir, _ := os.Getwd()
-	flag.StringVar(&f.filePath, "f", dir+"/*log", "full path to the log file")
+
+	flag.StringVar(&f.filePath, "f", "", "full path to the log file")
 	flag.BoolVar(&f.version, "version", false, "")
 	flag.BoolVar(&f.access, "access", false, "print access logs")
 	flag.StringVar(&f.host, "host", "localhost", "host to serve")
