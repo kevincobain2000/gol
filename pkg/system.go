@@ -7,6 +7,7 @@ import (
 	"runtime"
 
 	"github.com/gookit/color"
+	"github.com/k0kubun/pp"
 	g "github.com/kevincobain2000/go-human-uuid/lib"
 )
 
@@ -40,15 +41,24 @@ func ReadLinesFromPipe() error {
 	color.Info.Println("tmp file created for stdin: ", GlobalTempFilePath)
 	defer tmpfile.Close()
 
+	GlobalFilePaths = append([]string{GlobalTempFilePath}, GlobalFilePaths...)
+	color.Info.Println("tmp file created added to global filepaths: ", pp.Sprint(GlobalFilePaths))
+
 	lineCount := 0
 	for scanner.Scan() {
 		line := scanner.Text()
 		if lineCount >= 10000 {
-			tmpfile.Truncate(0)
-			tmpfile.Seek(0, 0)
+			if err := tmpfile.Truncate(0); err != nil {
+				color.Danger.Println("error truncating file: ", err)
+			}
+			if _, err := tmpfile.Seek(0, 0); err != nil {
+				color.Danger.Println("error seeking file: ", err)
+			}
 			lineCount = 0
 		}
-		tmpfile.WriteString(line + "\n")
+		if _, err := tmpfile.WriteString(line + "\n"); err != nil {
+			color.Danger.Println("error writing to file: ", err)
+		}
 		lineCount++
 	}
 

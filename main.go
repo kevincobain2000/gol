@@ -50,7 +50,13 @@ func main() {
 	wantsVersion()
 
 	if pkg.IsInputFromPipe() {
-		go pkg.ReadLinesFromPipe()
+		go func() {
+			err := pkg.ReadLinesFromPipe()
+			if err != nil {
+				color.Danger.Println(err)
+				return
+			}
+		}()
 	}
 	setGlobalFilePaths()
 
@@ -75,12 +81,12 @@ func main() {
 	})
 	if err != nil {
 		color.Danger.Println(err)
-		os.Exit(1)
+		return
 	}
 }
 
 func setGlobalFilePaths() {
-	if f.filePaths == nil {
+	if f.filePaths == nil && !pkg.IsInputFromPipe() {
 		dir, _ := os.Getwd()
 		f.filePaths = []string{
 			dir + "/*/*log",
@@ -162,7 +168,6 @@ func getFilePaths(pattern string) []string {
 }
 
 func flags() {
-
 	flag.Var(&f.filePaths, "f", "full path pattern to the log file")
 	flag.BoolVar(&f.version, "version", false, "")
 	flag.BoolVar(&f.access, "access", false, "print access logs")
