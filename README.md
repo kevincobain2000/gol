@@ -38,7 +38,7 @@
 
 <p align="center">
   <a href="https://github.com/kevincobain2000/gol">
-    <img alt="gol" src="https://imgur.com/MJmCAsw.png">
+    <img alt="gol" src="https://imgur.com/UJzkytB.png">
   </a>
 </p>
 
@@ -82,16 +82,23 @@ mv gol /usr/local/bin/
 ## Examples
 
 ```sh
-# run in current directory
+# run in current directory for *log and ./*/*log files
 gol
 ```
 
 ## Advanced Examples
 
 ```sh
+# search using file pattern
 gol -f="/var/log/*.log"
 gol -f="/var/log/*.log.tar.gz"
 gol -f="/var/log/*.log*"
+
+# search using multiple file patterns
+gol -f="/var/log/*.log*" -f="./app/*log"
+
+# search using pipe and file patterns
+demsg | gol -f="/var/log/*.log"
 ```
 
 ## CHANGE LOG
