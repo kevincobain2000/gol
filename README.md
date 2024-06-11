@@ -76,7 +76,6 @@ Use this method if go is not installed on your server
 
 ```bash
 curl -sL https://raw.githubusercontent.com/kevincobain2000/gol/master/install.sh | sh
-mv gol /usr/local/bin/
 ```
 
 ## Examples

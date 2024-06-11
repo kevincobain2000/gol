@@ -1,12 +1,17 @@
 #!/bin/sh
 
-BIN_DIR=$(pwd)
+if [ -z "$BIN_DIR" ]; then
+  BIN_DIR=/usr/local/bin
+fi
+
+echo "Installing gol to $BIN_DIR"
 
 THE_ARCH_BIN=''
 THIS_PROJECT_NAME='gol'
 
 THISOS=$(uname -s)
 ARCH=$(uname -m)
+DEST=$BIN_DIR/$THIS_PROJECT_NAME
 
 case $THISOS in
    Linux*)
@@ -49,9 +54,20 @@ if [ -z "$THE_ARCH_BIN" ]; then
    exit 1
 fi
 
-curl -kL --progress-bar https://github.com/kevincobain2000/$THIS_PROJECT_NAME/releases/latest/download/$THE_ARCH_BIN -o "$BIN_DIR"/$THIS_PROJECT_NAME
+SUDO=""
 
-chmod +x "$BIN_DIR"/$THIS_PROJECT_NAME
+# check if $DEST is writable and suppress an error message
+touch "$DEST" 2>/dev/null
+
+# we need sudo powers to write to DEST
+if [ $? -eq 1 ]; then
+    echo "You do not have permission to write to $DEST, enter your password to grant sudo powers"
+    SUDO="sudo"
+fi
+
+$SUDO curl -kL --progress-bar https://github.com/kevincobain2000/$THIS_PROJECT_NAME/releases/latest/download/$THE_ARCH_BIN -o "$DEST"
+
+$SUDO chmod +x "$BIN_DIR"/$THIS_PROJECT_NAME
 
 echo "Installed successfully to: $BIN_DIR/$THIS_PROJECT_NAME"
 
