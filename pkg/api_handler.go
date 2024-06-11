@@ -11,6 +11,7 @@ type APIHandler struct {
 }
 
 var GlobalFilePaths []string
+var GlobalTempFilePath string
 
 func NewAPIHandler() *APIHandler {
 	return &APIHandler{}
@@ -41,6 +42,10 @@ func (h *APIHandler) Get(c echo.Context) error {
 	}
 	if len(GlobalFilePaths) == 0 {
 		return echo.NewHTTPError(http.StatusNotFound, "filepath not found")
+	}
+
+	if GlobalTempFilePath != "" && !StringInSlice(GlobalTempFilePath, GlobalFilePaths) {
+		GlobalFilePaths = append([]string{GlobalTempFilePath}, GlobalFilePaths...)
 	}
 
 	if req.FilePath == "" {
