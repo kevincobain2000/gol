@@ -22,7 +22,7 @@
 
 **Flexible:** Works with multiple logs file, with massive size support.
 
-**Supports** Plain text, ansii outputs, tar and gz compressed.
+**Supports** Plain text, piped inputs, ansii outputs, tar and gz compressed.
 
 **Intelligent** Smartly judges log level.
 
@@ -103,3 +103,4 @@ demsg | gol -f="/var/log/*.log"
 ## CHANGE LOG
 
 - **v1.0.0** - Initial release
+- **v1.0.3** - Multiple file patterns, and pipe input support.
