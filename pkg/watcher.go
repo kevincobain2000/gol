@@ -46,60 +46,72 @@ func (w *Watcher) Scan(page, pageSize int, reverse bool) (*ScanResult, error) {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 
-	counts := 0
-	var lines []LineResult
-
-	file, err := os.Open(w.filePath)
+	file, scanner, err := w.initializeScanner()
 	if err != nil {
-		return nil, tracerr.New(err.Error())
+		return nil, err
 	}
 	defer file.Close()
 
-	// Check if the file is empty
+	allLines, counts, err := w.collectMatchingLines(scanner)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := w.paginateLines(allLines, page, pageSize, reverse)
+
+	w.appendLogLevel(&lines)
+
+	return &ScanResult{
+		FilePath:     w.filePath,
+		MatchPattern: w.matchPattern,
+		Total:        counts,
+		Lines:        lines,
+	}, nil
+}
+
+func (w *Watcher) initializeScanner() (*os.File, *bufio.Scanner, error) {
+	file, err := os.Open(w.filePath)
+	if err != nil {
+		return nil, nil, tracerr.New(err.Error())
+	}
+
 	fileInfo, err := file.Stat()
 	if err != nil {
-		return nil, tracerr.New(err.Error())
+		return nil, nil, tracerr.New(err.Error())
 	}
 	if fileInfo.Size() == 0 {
-		return &ScanResult{
-			Total:        counts,
-			Lines:        lines,
-			FilePath:     w.filePath,
-			MatchPattern: w.matchPattern,
-		}, nil
+		return file, bufio.NewScanner(file), nil
 	}
 
-	var scanner *bufio.Scanner
-
-	// Check if the file is gzip compressed
 	buffer := make([]byte, 2)
 	if _, err := file.Read(buffer); err != nil {
-		return nil, tracerr.New(err.Error())
+		return nil, nil, tracerr.New(err.Error())
 	}
 	_, err = file.Seek(0, 0)
 	if err != nil {
-		return nil, tracerr.New(err.Error())
+		return nil, nil, tracerr.New(err.Error())
 	}
 
 	if IsGzip(buffer) {
 		gzipReader, err := gzip.NewReader(file)
 		if err != nil {
-			return nil, tracerr.New(err.Error())
+			return nil, nil, tracerr.New(err.Error())
 		}
-		defer gzipReader.Close()
-		scanner = bufio.NewScanner(gzipReader)
-	} else {
-		scanner = bufio.NewScanner(file)
+		return file, bufio.NewScanner(gzipReader), nil
 	}
 
+	return file, bufio.NewScanner(file), nil
+}
+
+func (w *Watcher) collectMatchingLines(scanner *bufio.Scanner) ([]LineResult, int, error) {
 	re, err := regexp.Compile(w.matchPattern)
 	if err != nil {
-		return nil, tracerr.New(err.Error())
+		return nil, 0, tracerr.New(err.Error())
 	}
 
-	// Collect all matching lines
 	var allLines []LineResult
 	lineNumber := 0
+	counts := 0
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -114,10 +126,13 @@ func (w *Watcher) Scan(page, pageSize int, reverse bool) (*ScanResult, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, tracerr.New(err.Error())
+		return nil, 0, tracerr.New(err.Error())
 	}
 
-	// Determine the start and end indices based on the page and pageSize
+	return allLines, counts, nil
+}
+
+func (w *Watcher) paginateLines(allLines []LineResult, page, pageSize int, reverse bool) []LineResult {
 	var start, end int
 	if reverse {
 		start = len(allLines) - (page * pageSize)
@@ -136,29 +151,24 @@ func (w *Watcher) Scan(page, pageSize int, reverse bool) (*ScanResult, error) {
 		}
 	}
 
-	// Slice the lines to get the required page
 	if start < len(allLines) {
-		lines = allLines[start:end]
+		return allLines[start:end]
 	}
 
-	// append log level
+	return []LineResult{}
+}
+
+func (w *Watcher) appendLogLevel(lines *[]LineResult) {
 	logLines := []string{}
-	for index := range lines {
-		lines[index].Content = stripansi.Strip(lines[index].Content)
-		logLines = append(logLines, lines[index].Content)
+	for _, line := range *lines {
+		line.Content = stripansi.Strip(line.Content)
+		logLines = append(logLines, line.Content)
 	}
 
 	isConsistent, keywordPosition := ConsistentFormat(logLines)
 	if isConsistent {
-		for index := range lines {
-			lines[index].Level = JudgeLogLevel(lines[index].Content, keywordPosition)
+		for i, line := range *lines {
+			(*lines)[i].Level = JudgeLogLevel(line.Content, keywordPosition)
 		}
 	}
-
-	return &ScanResult{
-		FilePath:     w.filePath,
-		MatchPattern: w.matchPattern,
-		Total:        counts,
-		Lines:        lines,
-	}, nil
 }
