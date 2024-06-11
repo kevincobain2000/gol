@@ -11,7 +11,7 @@
 <p align="center">
   View realtime logs in browser<br>
   Advanced regex search<br>
-  Zero dependency
+  Single binary
 </p>
 
 **Quick Setup:** One command to install and run.
@@ -24,7 +24,7 @@
 
 **Supports** Plain text, ansii outputs, tar and gz compressed.
 
-**Intelligent** Judges log level based on non patented algorithm.
+**Intelligent** Smartly judges log level.
 
 **Search** Fast search with regex.
 
