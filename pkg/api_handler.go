@@ -18,8 +18,8 @@ func NewAPIHandler() *APIHandler {
 }
 
 type APIRequest struct {
-	Query    string `json:"query" query:"query" message:"query is required"`
-	FilePath string `json:"file_path" query:"file_path" message:"file_path is required"`
+	Query    string `json:"query" query:"query"`
+	FilePath string `json:"file_path" query:"file_path"`
 	Page     int    `json:"page" query:"page" default:"1" validate:"required,gte=1" message:"page >=1 is required"`
 	PerPage  int    `json:"per_page" query:"per_page" default:"15" validate:"required" message:"per_page is required"`
 	Reverse  bool   `json:"reverse" query:"reverse" default:"false"`
