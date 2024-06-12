@@ -19,8 +19,15 @@ func TestAPIHandler_Get(t *testing.T) {
 	e := echo.New()
 
 	// Set up global variables for testing
-	GlobalFilePaths = []string{"test.log"}
-	GlobalTempFilePath = "temp.log"
+	GlobalFilePaths = []FileInfo{
+		{
+			FilePath:   "test.log",
+			LinesCount: 4,
+			FileSize:   0,
+			Type:       "file",
+		},
+	}
+	GlobalTmpFilePath = "temp.log"
 
 	// Create a temporary log file for testing
 	// nolint:goconst
@@ -28,9 +35,9 @@ func TestAPIHandler_Get(t *testing.T) {
 ERROR An error occurred
 INFO Service running
 ERROR Another error occurred`
-	err := os.WriteFile(GlobalFilePaths[0], []byte(content), 0600)
+	err := os.WriteFile(GlobalFilePaths[0].FilePath, []byte(content), 0600)
 	assert.NoError(t, err)
-	defer os.Remove(GlobalFilePaths[0])
+	defer os.Remove(GlobalFilePaths[0].FilePath)
 
 	// Create a test request
 	req := httptest.NewRequest(http.MethodGet, "/api?query=ERROR&page=1&per_page=10", nil)
@@ -59,7 +66,14 @@ ERROR Another error occurred`
 					}
 				]
 			},
-			"file_paths": ["test.log"]
+			"file_paths": [
+				{
+					"file_path": "test.log",
+					"lines_count": 4,
+					"file_size": 0,
+					"type": "file"
+				}
+			]
 		}`
 		assert.JSONEq(t, expected, rec.Body.String())
 	}

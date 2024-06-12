@@ -4,27 +4,6 @@ import (
 	"testing"
 )
 
-func TestTruncate(t *testing.T) {
-	tests := []struct {
-		input string
-		n     int
-		want  string
-	}{
-		{"hello", 3, "hel..."},
-		{"world", 10, "world"},
-		{"GoLang", 2, "Go..."},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			got := Truncate(tt.input, tt.n)
-			if got != tt.want {
-				t.Errorf("Truncate(%s, %d) = %s; want %s", tt.input, tt.n, got, tt.want)
-			}
-		})
-	}
-}
-
 func TestStringInSlice(t *testing.T) {
 	tests := []struct {
 		s    string

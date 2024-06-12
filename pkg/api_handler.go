@@ -9,9 +9,15 @@ import (
 
 type APIHandler struct {
 }
+type FileInfo struct {
+	FilePath   string `json:"file_path"`
+	LinesCount int    `json:"lines_count"`
+	FileSize   int64  `json:"file_size"`
+	Type       string `json:"type"`
+}
 
-var GlobalFilePaths []string
-var GlobalTempFilePath string
+var GlobalFilePaths []FileInfo
+var GlobalTmpFilePath string
 
 func NewAPIHandler() *APIHandler {
 	return &APIHandler{}
@@ -27,7 +33,7 @@ type APIRequest struct {
 
 type APIResponse struct {
 	Result    ScanResult `json:"result"`
-	FilePaths []string   `json:"file_paths"`
+	FilePaths []FileInfo `json:"file_paths"`
 }
 
 func (h *APIHandler) Get(c echo.Context) error {
@@ -40,15 +46,16 @@ func (h *APIHandler) Get(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, msgs)
 	}
+
 	if len(GlobalFilePaths) == 0 {
 		return echo.NewHTTPError(http.StatusNotFound, "filepath not found")
 	}
 
 	if req.FilePath == "" {
-		req.FilePath = GlobalFilePaths[0]
+		req.FilePath = GlobalFilePaths[0].FilePath
 	}
 
-	if !StringInSlice(req.FilePath, GlobalFilePaths) {
+	if !FilePathInGlobalFilePaths(req.FilePath) {
 		return echo.NewHTTPError(http.StatusNotFound, "file not found")
 	}
 
@@ -66,4 +73,12 @@ func (h *APIHandler) Get(c echo.Context) error {
 		Result:    *result,
 		FilePaths: GlobalFilePaths,
 	})
+}
+func FilePathInGlobalFilePaths(filePath string) bool {
+	for _, fileInfo := range GlobalFilePaths {
+		if fileInfo.FilePath == filePath {
+			return true
+		}
+	}
+	return false
 }

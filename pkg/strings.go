@@ -1,29 +1,25 @@
 package pkg
 
 import (
+	"strconv"
 	"strings"
 	"unicode"
 )
 
-func Truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
+func F64NumberToK(num *float64) string {
+	if num == nil {
+		return "0"
 	}
-	return s[:n] + "..."
-}
 
-func UniqueStrings(s []string) []string {
-	seen := make(map[string]struct{}, len(s))
-	j := 0
-	for _, v := range s {
-		if _, ok := seen[v]; ok {
-			continue
-		}
-		seen[v] = struct{}{}
-		s[j] = v
-		j++
+	if *num < 1000 {
+		return strconv.FormatFloat(*num, 'f', -1, 64)
 	}
-	return s[:j]
+
+	if *num < 1000000 {
+		return strconv.FormatFloat(*num/1000, 'f', 1, 64) + "k"
+	}
+
+	return strconv.FormatFloat(*num/1000000, 'f', 1, 64) + "m"
 }
 
 func StringInSlice(s string, ss []string) bool {
