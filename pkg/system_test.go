@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"os"
+	"sync"
 	"testing"
 )
 
@@ -12,8 +13,6 @@ func TestGetHomedir(t *testing.T) {
 		t.Error("Expected a non-empty home directory")
 	}
 }
-
-// TestIsInputFromPipe tests the IsInputFromPipe function
 func TestIsInputFromPipe(t *testing.T) {
 	// Create a pipe to simulate input from stdin
 	reader, writer, err := os.Pipe()
@@ -28,10 +27,20 @@ func TestIsInputFromPipe(t *testing.T) {
 	defer func() { os.Stdin = oldStdin }()
 	os.Stdin = reader
 
+	var wg sync.WaitGroup
+	wg.Add(1)
+
 	go func() {
-		writer.WriteString("test input\n")
+		defer wg.Done()
+		_, err := writer.WriteString("test input\n")
+		if err != nil {
+			t.Errorf("Failed to write to pipe: %v", err)
+		}
 		writer.Close()
 	}()
+
+	// Wait for the goroutine to finish writing to the pipe
+	wg.Wait()
 
 	if !IsInputFromPipe() {
 		t.Error("Expected IsInputFromPipe to return true")

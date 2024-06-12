@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/gookit/color"
@@ -32,6 +32,7 @@ type Flags struct {
 	port      int64
 	cors      int64
 	every     int64
+	limit     int
 	baseURL   string
 	filePaths sliceFlags
 	access    bool
@@ -43,22 +44,27 @@ var f Flags
 
 var version = "dev"
 
-var filePaths []string
-
 func main() {
 	flags()
 	wantsVersion()
 
 	if pkg.IsInputFromPipe() {
-		go func() {
-			err := pkg.ReadLinesFromPipe()
+		tmpfile, err := os.Create(pkg.GetTmpFileName())
+		if err != nil {
+			color.New(color.FgRed).Println("error creating temp file: ", err)
+			return
+		}
+		pkg.GlobalTmpFilePath = tmpfile.Name()
+		defer tmpfile.Close()
+		go func(tmpfile *os.File) {
+			err := pkg.PipeLinesToTmp(tmpfile)
 			if err != nil {
 				color.Danger.Println(err)
 				return
 			}
-		}()
+		}(tmpfile)
 	}
-	setGlobalFilePaths()
+	defaultFilePaths()
 
 	go watchFilePaths(f.every)
 	pp.Println(f)
@@ -68,7 +74,7 @@ func main() {
 		pkg.OpenBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
 	}
 	defer cleanup()
-	handleCltrC()
+	pkg.HandleCltrC(cleanup)
 
 	err := pkg.NewEcho(func(o *pkg.EchoOptions) error {
 		o.Host = f.host
@@ -85,7 +91,24 @@ func main() {
 	}
 }
 
-func setGlobalFilePaths() {
+func defaultFilePaths() {
+	if len(os.Args) > 1 {
+		filePaths := sliceFlags{}
+		for _, arg := range os.Args[1:] {
+			if strings.HasPrefix(arg, "-") {
+				filePaths = []string{}
+				break
+			}
+			filePaths = append(filePaths, arg)
+		}
+		if len(filePaths) > 0 {
+			f.filePaths = filePaths
+		}
+	}
+	if pkg.GlobalTmpFilePath != "" {
+		f.filePaths = append(f.filePaths, pkg.GlobalTmpFilePath)
+	}
+
 	if f.filePaths == nil && !pkg.IsInputFromPipe() {
 		dir, _ := os.Getwd()
 		f.filePaths = []string{
@@ -94,34 +117,34 @@ func setGlobalFilePaths() {
 		}
 		color.Info.Println("no file path provided, using ", f.filePaths)
 	}
-	for _, pattern := range f.filePaths {
-		filePaths = getFilePaths(pattern)
-		pkg.GlobalFilePaths = append(pkg.GlobalFilePaths, filePaths...)
-	}
-	pkg.GlobalFilePaths = pkg.UniqueStrings(pkg.GlobalFilePaths)
+
+	updateGlobalFilePaths()
 }
 
-func handleCltrC() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		s := <-c
-		color.Warn.Println("got signal:", s)
-		cleanup()
-		close(c)
-		os.Exit(1)
-	}()
+func updateGlobalFilePaths() {
+	fileInfos := []pkg.FileInfo{}
+	for _, pattern := range f.filePaths {
+		fileInfo := pkg.GetFileInfos(pattern, f.limit)
+		fileInfos = append(fileInfo, fileInfos...)
+	}
+	// update type to stdin in GlobalFilePaths if it has a file with name tmpfile.Name()
+	for i, fileInfo := range fileInfos {
+		if fileInfo.FilePath == pkg.GlobalTmpFilePath {
+			fileInfos[i].Type = "stdin"
+		}
+	}
+	pkg.GlobalFilePaths = uniqueFileInfos(fileInfos)
 }
 
 func cleanup() {
 	color.Info.Println("cleaning up")
-	if pkg.GlobalTempFilePath != "" {
-		err := os.Remove(pkg.GlobalTempFilePath)
+	if pkg.GlobalTmpFilePath != "" {
+		err := os.Remove(pkg.GlobalTmpFilePath)
 		if err != nil {
 			color.Danger.Println("error removing tmp file:", err)
 			return
 		}
-		color.New(color.FgYellow).Println("tmp file removed:", pkg.GlobalTempFilePath)
+		color.New(color.FgYellow).Println("tmp file removed:", pkg.GlobalTmpFilePath)
 	}
 }
 
@@ -133,38 +156,20 @@ func watchFilePaths(seconds int64) {
 	color.Info.Println("Checking for filepaths every", interval)
 
 	for range ticker.C {
-		for _, pattern := range f.filePaths {
-			filePaths = getFilePaths(pattern)
-			pkg.GlobalFilePaths = append(pkg.GlobalFilePaths, filePaths...)
-		}
-		pkg.GlobalFilePaths = pkg.UniqueStrings(pkg.GlobalFilePaths)
+		updateGlobalFilePaths()
 	}
 }
 
-func getFilePaths(pattern string) []string {
-	filePaths, err := pkg.FilesByPattern(pattern)
-	if err != nil {
-		color.Danger.Println(err)
-		return nil
-	}
-	if len(filePaths) == 0 {
-		color.Danger.Println("no files found:", pattern)
-		return nil
-	}
-	readableFilePaths := make([]string, 0)
-	for _, filePath := range filePaths {
-		isText, err := pkg.IsReadableFile(filePath)
-		if err != nil {
-			color.Danger.Println(err)
-			return nil
+func uniqueFileInfos(fileInfos []pkg.FileInfo) []pkg.FileInfo {
+	keys := make(map[string]bool)
+	list := []pkg.FileInfo{}
+	for _, entry := range fileInfos {
+		if _, value := keys[entry.FilePath]; !value {
+			keys[entry.FilePath] = true
+			list = append(list, entry)
 		}
-		if !isText {
-			color.Warn.Println("file is not a text file:", filePath)
-			continue
-		}
-		readableFilePaths = append(readableFilePaths, filePath)
 	}
-	return readableFilePaths
+	return list
 }
 
 func flags() {
@@ -174,6 +179,7 @@ func flags() {
 	flag.StringVar(&f.host, "host", "localhost", "host to serve")
 	flag.Int64Var(&f.port, "port", 3003, "port to serve")
 	flag.Int64Var(&f.every, "every", 10, "check for file paths every n seconds")
+	flag.IntVar(&f.limit, "limit", 1000, "limit the number of files to read from the file path pattern")
 	flag.Int64Var(&f.cors, "cors", 0, "cors port to allow")
 	flag.BoolVar(&f.open, "open", true, "open browser on start")
 	flag.StringVar(&f.baseURL, "base-url", "/", "base url with slash")

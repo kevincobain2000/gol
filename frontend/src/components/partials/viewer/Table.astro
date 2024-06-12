@@ -17,19 +17,6 @@
       </div>
       <span class="ms-3 text-sm font-medium text-gray-300">Realtime</span>
     </label>
-    <label class="inline-flex items-center cursor-pointer xl:ml-10">
-      <input
-        type="checkbox"
-        x-model="input.reverse"
-        @change="input.page=1;submit()"
-        class="sr-only peer"
-      />
-      <div
-        class="relative w-11 h-6 rounded-full peer bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-blue-400"
-      >
-      </div>
-      <span class="ms-3 text-sm font-medium text-gray-300">Reverse</span>
-    </label>
     <div class="text-sm pt-5">
       Updated at <span x-text="loading.updated_at"></span>
     </div>
@@ -56,7 +43,21 @@
     <table class="w-full text-sm font-mono text-left text-gray-400">
       <thead class="text-xs bg-gray-700 text-gray-400">
         <tr>
-          <th scope="col" class="px-3 py-3 uppercase">Line No.</th>
+          <th scope="col" class="px-3 py-3 uppercase">
+            Line No
+            <template x-if="input.reverse">
+              <button
+                class="text-white"
+                @click="input.reverse=false;input.page=1;submit()">▼</button
+              >
+            </template>
+            <template x-if="!input.reverse">
+              <button
+                class="text-white"
+                @click="input.reverse=true;input.page=1;submit()">▲</button
+              >
+            </template>
+          </th>
           <th scope="col" class="px-3 py-3 uppercase">Level</th>
           <th scope="col" class="px-3 py-3">
             <span class="font-mono" x-text="results.result.file_path"></span>
@@ -68,27 +69,48 @@
           <tr class="border-b bg-gray-800 border-gray-700">
             <td class="px-3 py-2 w-1/12" x-text="item.line_number"></td>
             <td class="px-3 py-2 w-1/12">
-                <template x-if="item.level == 'success'">
-                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-green-500 text-gray-900">Success</span>
-                </template>
-                <template x-if="item.level == 'info'">
-                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-blue-500 text-white">Info</span>
-                </template>
-                <template x-if="item.level == 'error'">
-                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-500 text-white">Error</span>
-                </template>
-                <template x-if="item.level == 'warn'">
-                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-yellow-500 text-gray-900">Warn</span>
-                </template>
-                <template x-if="item.level == 'danger'">
-                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-700 text-white">Danger</span>
-                </template>
-                <template x-if="item.level == 'debug'">
-                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-500 text-white">Debug</span>
-                </template>
-                <template x-if="item.level == ''">
-                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-700 text-gray-300">Line</span>
-                </template>
+              <template x-if="item.level == 'success'">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-green-500 text-gray-900"
+                  >Success</span
+                >
+              </template>
+              <template x-if="item.level == 'info'">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-blue-500 text-white"
+                  >Info</span
+                >
+              </template>
+              <template x-if="item.level == 'error'">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-500 text-gray-800"
+                  >Error</span
+                >
+              </template>
+              <template x-if="item.level == 'warn'">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-yellow-500 text-gray-900"
+                  >Warn</span
+                >
+              </template>
+              <template x-if="item.level == 'danger'">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-700 text-white"
+                  >Danger</span
+                >
+              </template>
+              <template x-if="item.level == 'debug'">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-500 text-white"
+                  >Debug</span
+                >
+              </template>
+              <template x-if="item.level == ''">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-700 text-gray-300"
+                  >Line</span
+                >
+              </template>
             </td>
             <td class="px-3 py-2 w-2/3 text-blue-200" x-text="item.content"
             ></td>
@@ -132,5 +154,4 @@
     ></span> (<span x-text="results.result.total.toLocaleString()"></span> rows)
   </div>
 </div>
-<style>
-</style>
+<style></style>

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"os/exec"
+	"os/signal"
 	"runtime"
 
 	"github.com/gookit/color"
@@ -30,18 +31,17 @@ func IsInputFromPipe() bool {
 	return (fileInfo.Mode() & os.ModeCharDevice) == 0
 }
 
-func ReadLinesFromPipe() error {
+func PipeLinesToTmp(tmpfile *os.File) error {
 	scanner := bufio.NewScanner(os.Stdin)
-	tmpfile, err := os.Create(getTmpFileName())
-	if err != nil {
-		color.New(color.FgRed).Println("error creating temp file: ", err)
-		return err
-	}
-	GlobalTempFilePath = tmpfile.Name()
-	color.Info.Println("tmp file created for stdin: ", GlobalTempFilePath)
-	defer tmpfile.Close()
 
-	GlobalFilePaths = append([]string{GlobalTempFilePath}, GlobalFilePaths...)
+	color.Info.Println("tmp file created for stdin: ", GlobalTmpFilePath)
+
+	tempFileInfo, err := createTmpFileInfo(GlobalTmpFilePath)
+	if err != nil {
+		color.Danger.Println("error creating FileInfo for temp file:", err)
+	} else {
+		GlobalFilePaths = append([]FileInfo{tempFileInfo}, GlobalFilePaths...)
+	}
 	color.Info.Println("tmp file created added to global filepaths: ", pp.Sprint(GlobalFilePaths))
 
 	lineCount := 0
@@ -70,7 +70,15 @@ func ReadLinesFromPipe() error {
 	return nil
 }
 
-func getTmpFileName() string {
+func createTmpFileInfo(filePath string) (FileInfo, error) {
+	linesCount, fileSize, err := FileStats(filePath)
+	if err != nil {
+		return FileInfo{}, err
+	}
+	return FileInfo{FilePath: filePath, LinesCount: linesCount, FileSize: fileSize, Type: "stdin"}, nil
+}
+
+func GetTmpFileName() string {
 	gen, _ := g.NewGenerator([]g.Option{
 		func(opt *g.Options) error {
 			opt.Length = 2
@@ -97,4 +105,16 @@ func OpenBrowser(url string) {
 	if err != nil {
 		color.Warn.Println("Failed to open browser")
 	}
+}
+
+func HandleCltrC(f func()) {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		s := <-c
+		color.Warn.Println("got signal:", s)
+		f()
+		close(c)
+		os.Exit(1)
+	}()
 }

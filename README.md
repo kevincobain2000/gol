@@ -81,8 +81,13 @@ curl -sL https://raw.githubusercontent.com/kevincobain2000/gol/master/install.sh
 ## Examples
 
 ```sh
-# run in current directory for *log and ./*/*log files
+# run in current directory (auto pick *log and ./*/*log)
 gol
+```
+
+```sh
+# run in current directory by specifying files
+gol storage/*log access/*log
 ```
 
 ## Advanced Examples
@@ -102,5 +107,7 @@ demsg | gol -f="/var/log/*.log"
 
 ## CHANGE LOG
 
-- **v1.0.0** - Initial release
+- **v1.0.0** - Initial release.
 - **v1.0.3** - Multiple file patterns, and pipe input support.
+- **v1.0.4** - Support os.Args for quick view.
+-

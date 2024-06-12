@@ -33,6 +33,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
       match_pattern: "",
       total: 0,
       file_path: "",
+
     },
     file_paths: [],
   });
@@ -43,6 +44,19 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     updated_at: "",
   });
   let intervalId = null;
+
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  function numberToK(number) {
+    return number > 999 ? (number / 1000).toFixed(1) + 'k' : number;
+  }
 
   const init = async () => {
     loading.error = "";
@@ -77,6 +91,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     results.result = res.result;
     input.file_path = res.result.file_path;
 
+
     manageRealtimeUpdates();
   };
   init();
@@ -96,6 +111,8 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
 
   const data = {
     submit,
+    formatBytes,
+    numberToK,
   };
   document.getElementById("data").setAttribute("x-data", JSON.stringify(data));
   Alpine.start();

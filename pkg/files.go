@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"bufio"
 	"compress/gzip"
 	"errors"
 	"io"
@@ -8,6 +9,7 @@ import (
 	"path/filepath"
 	"unicode/utf8"
 
+	"github.com/gookit/color"
 	"github.com/ztrue/tracerr"
 )
 
@@ -87,4 +89,68 @@ func FilesByPattern(pattern string) ([]string, error) {
 		return nil, err
 	}
 	return files, nil
+}
+
+// FileStats returns the number of lines and size of the file at the given path.
+func FileStats(filePath string) (int, int64, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return 0, 0, err
+	}
+	defer file.Close()
+
+	var linesCount int
+	var fileSize int64
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		linesCount++
+	}
+
+	if err := scanner.Err(); err != nil {
+		return 0, 0, err
+	}
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return 0, 0, err
+	}
+	fileSize = fileInfo.Size()
+
+	return linesCount, fileSize, nil
+}
+
+func GetFileInfos(pattern string, limit int) []FileInfo {
+	filePaths, err := FilesByPattern(pattern)
+	if err != nil {
+		color.Danger.Println(err)
+		return nil
+	}
+	if len(filePaths) == 0 {
+		color.Danger.Println("no files found:", pattern)
+		return nil
+	}
+	fileInfos := make([]FileInfo, 0)
+	if len(filePaths) > limit {
+		color.Warn.Printf("limiting to %d files\n", limit)
+		filePaths = filePaths[:limit]
+	}
+	for _, filePath := range filePaths {
+		isText, err := IsReadableFile(filePath)
+		if err != nil {
+			color.Danger.Println(err)
+			return nil
+		}
+		if !isText {
+			color.Warn.Println("file is not a text file:", filePath)
+			continue
+		}
+		linesCount, fileSize, err := FileStats(filePath)
+		if err != nil {
+			color.Danger.Println(err)
+			return nil
+		}
+		fileInfos = append(fileInfos, FileInfo{FilePath: filePath, LinesCount: linesCount, FileSize: fileSize, Type: "file"})
+	}
+	return fileInfos
 }
