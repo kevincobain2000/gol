@@ -23,11 +23,12 @@ func TestAPIHandler_Get(t *testing.T) {
 	GlobalTempFilePath = "temp.log"
 
 	// Create a temporary log file for testing
+	// nolint:goconst
 	content := `INFO Starting service
 ERROR An error occurred
 INFO Service running
 ERROR Another error occurred`
-	err := os.WriteFile(GlobalFilePaths[0], []byte(content), 0644)
+	err := os.WriteFile(GlobalFilePaths[0], []byte(content), 0600)
 	assert.NoError(t, err)
 	defer os.Remove(GlobalFilePaths[0])
 

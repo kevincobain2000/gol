@@ -3,6 +3,8 @@ package pkg
 import (
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestGetHomedir tests the GetHomedir function
@@ -29,7 +31,8 @@ func TestIsInputFromPipe(t *testing.T) {
 	os.Stdin = reader
 
 	go func() {
-		writer.WriteString("test input\n")
+		_, err := writer.WriteString("test input\n")
+		assert.NoError(t, err)
 		writer.Close()
 	}()
 

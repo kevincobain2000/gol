@@ -29,7 +29,7 @@ func TestWatcher_Scan(t *testing.T) {
 ERROR An error occurred
 INFO Service running
 ERROR Another error occurred`
-	err := os.WriteFile(logFile, []byte(content), 0644)
+	err := os.WriteFile(logFile, []byte(content), 0600)
 	assert.NoError(t, err)
 
 	// Create the Watcher
@@ -59,7 +59,7 @@ func TestWatcher_InitializeScanner(t *testing.T) {
 	_, err := gz.Write([]byte("INFO Starting service\nERROR An error occurred\n"))
 	assert.NoError(t, err)
 	assert.NoError(t, gz.Close())
-	err = os.WriteFile(logFile, []byte(buf.String()), 0644)
+	err = os.WriteFile(logFile, []byte(buf.String()), 0600)
 	assert.NoError(t, err)
 
 	// Create the Watcher
@@ -92,7 +92,7 @@ func TestWatcher_CollectMatchingLines(t *testing.T) {
 ERROR An error occurred
 INFO Service running
 ERROR Another error occurred`
-	err := os.WriteFile(logFile, []byte(content), 0644)
+	err := os.WriteFile(logFile, []byte(content), 0600)
 	assert.NoError(t, err)
 
 	// Create the Watcher

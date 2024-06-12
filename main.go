@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/gookit/color"
@@ -42,8 +43,6 @@ type Flags struct {
 var f Flags
 
 var version = "dev"
-
-var filePaths []string
 
 func main() {
 	flags()
@@ -86,6 +85,20 @@ func main() {
 }
 
 func setGlobalFilePaths() {
+	if len(os.Args) > 1 {
+		filePaths := sliceFlags{}
+		for _, arg := range os.Args[1:] {
+			if strings.HasPrefix(arg, "-") {
+				filePaths = []string{}
+				break
+			}
+			filePaths = append(filePaths, arg)
+		}
+		if len(filePaths) > 0 {
+			f.filePaths = filePaths
+		}
+	}
+
 	if f.filePaths == nil && !pkg.IsInputFromPipe() {
 		dir, _ := os.Getwd()
 		f.filePaths = []string{
@@ -95,7 +108,7 @@ func setGlobalFilePaths() {
 		color.Info.Println("no file path provided, using ", f.filePaths)
 	}
 	for _, pattern := range f.filePaths {
-		filePaths = getFilePaths(pattern)
+		filePaths := getFilePaths(pattern)
 		pkg.GlobalFilePaths = append(pkg.GlobalFilePaths, filePaths...)
 	}
 	pkg.GlobalFilePaths = pkg.UniqueStrings(pkg.GlobalFilePaths)
@@ -134,7 +147,7 @@ func watchFilePaths(seconds int64) {
 
 	for range ticker.C {
 		for _, pattern := range f.filePaths {
-			filePaths = getFilePaths(pattern)
+			filePaths := getFilePaths(pattern)
 			pkg.GlobalFilePaths = append(pkg.GlobalFilePaths, filePaths...)
 		}
 		pkg.GlobalFilePaths = pkg.UniqueStrings(pkg.GlobalFilePaths)

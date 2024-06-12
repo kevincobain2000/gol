@@ -14,7 +14,7 @@ func TestIsReadableFile(t *testing.T) {
 
 	// Create a temporary UTF-8 encoded file
 	utf8File := filepath.Join(dir, "utf8.txt")
-	if err := os.WriteFile(utf8File, []byte("hello, world!"), 0644); err != nil {
+	if err := os.WriteFile(utf8File, []byte("hello, world!"), 0600); err != nil {
 		t.Fatalf("failed to create UTF-8 file: %v", err)
 	}
 
@@ -27,7 +27,7 @@ func TestIsReadableFile(t *testing.T) {
 		t.Fatalf("failed to write gzip content: %v", err)
 	}
 	gzipWriter.Close()
-	if err := os.WriteFile(gzipFile, buf.Bytes(), 0644); err != nil {
+	if err := os.WriteFile(gzipFile, buf.Bytes(), 0600); err != nil {
 		t.Fatalf("failed to create gzip file: %v", err)
 	}
 
@@ -88,7 +88,7 @@ func TestFilesByPattern(t *testing.T) {
 		filepath.Join(dir, "file3.log"),
 	}
 	for _, file := range files {
-		if err := os.WriteFile(file, []byte("test"), 0644); err != nil {
+		if err := os.WriteFile(file, []byte("test"), 0600); err != nil {
 			t.Fatalf("failed to create file %q: %v", file, err)
 		}
 	}
