@@ -77,11 +77,43 @@ ERROR Another error occurred`
 		}`
 		assert.JSONEq(t, expected, rec.Body.String())
 	}
+}
+func TestAPIHandler_Get404(t *testing.T) {
+	e := echo.New()
 
-	// TODO fix test (instead of code)
-	// req = httptest.NewRequest(http.MethodGet, "/api?file_path=wrong", nil)
-	// rec = httptest.NewRecorder()
-	// c = e.NewContext(req, rec)
-	// assert.Error(t, handler.Get(c))
-	// assert.Equal(t, http.StatusNotFound, rec.Code)
+	// Set up global variables for testing
+	GlobalFilePaths = []FileInfo{
+		{
+			FilePath:   "test.log",
+			LinesCount: 4,
+			FileSize:   0,
+			Type:       "file",
+		},
+	}
+	GlobalTmpFilePath = "temp.log"
+
+	// nolint:goconst
+	content := `INFO Starting service
+	ERROR An error occurred
+	INFO Service running
+	ERROR Another error occurred`
+	err := os.WriteFile(GlobalFilePaths[0].FilePath, []byte(content), 0600)
+	assert.NoError(t, err)
+	defer os.Remove(GlobalFilePaths[0].FilePath)
+
+	handler := NewAPIHandler()
+
+	req := httptest.NewRequest(http.MethodGet, "/api?file_path=wrong", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	//print response
+	resp := handler.Get(c)
+
+	assert.Error(t, resp)
+	if he, ok := resp.(*echo.HTTPError); ok {
+		assert.Equal(t, http.StatusNotFound, he.Code)
+	} else {
+		assert.Fail(t, "response is not an HTTP error")
+	}
+
 }
