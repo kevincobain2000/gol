@@ -24,10 +24,10 @@ func TestAPIHandler_Get(t *testing.T) {
 			FilePath:   "test.log",
 			LinesCount: 4,
 			FileSize:   0,
-			Type:       "file",
+			Type:       TypeFile,
 		},
 	}
-	GlobalTmpFilePath = "temp.log"
+	GlobalPipeTmpFilePath = "temp.log"
 
 	// Create a temporary log file for testing
 	// nolint:goconst
@@ -50,6 +50,7 @@ ERROR Another error occurred`
 		assert.Equal(t, http.StatusOK, rec.Code)
 		expected := `{
 			"result": {
+				"host": "",
 				"file_path": "test.log",
 				"match_pattern": "ERROR",
 				"total": 2,
@@ -71,7 +72,8 @@ ERROR Another error occurred`
 					"file_path": "test.log",
 					"lines_count": 4,
 					"file_size": 0,
-					"type": "file"
+					"type": "file",
+					"host": ""
 				}
 			]
 		}`
@@ -87,10 +89,10 @@ func TestAPIHandler_Get404(t *testing.T) {
 			FilePath:   "test.log",
 			LinesCount: 4,
 			FileSize:   0,
-			Type:       "file",
+			Type:       TypeFile,
 		},
 	}
-	GlobalTmpFilePath = "temp.log"
+	GlobalPipeTmpFilePath = "temp.log"
 
 	// nolint:goconst
 	content := `INFO Starting service
@@ -106,14 +108,13 @@ func TestAPIHandler_Get404(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api?file_path=wrong", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	//print response
 	resp := handler.Get(c)
 
 	assert.Error(t, resp)
+	// nolint: errorlint
 	if he, ok := resp.(*echo.HTTPError); ok {
 		assert.Equal(t, http.StatusNotFound, he.Code)
 	} else {
 		assert.Fail(t, "response is not an HTTP error")
 	}
-
 }

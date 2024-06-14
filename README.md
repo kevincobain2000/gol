@@ -22,6 +22,10 @@
 
 **Flexible:** Works with multiple logs file, with massive size support.
 
+**Remote:** Works over ssh.
+
+**Pipe:** Supports piped inputs.
+
 **Supports** Plain text, piped inputs, ansii outputs, tar and gz compressed.
 
 **Intelligent** Smartly judges log level.
@@ -93,16 +97,18 @@ gol storage/*log access/*log
 ## Advanced Examples
 
 ```sh
-# search using file pattern
-gol -f="/var/log/*.log"
-gol -f="/var/log/*.log.tar.gz"
-gol -f="/var/log/*.log*"
-
 # search using multiple file patterns
-gol -f="/var/log/*.log*" -f="./app/*log"
+demsg | gol -f="/var/log/*.log" -f="./app/*log" -f="/var/log/httpd/*log.tar.gz"
 
 # search using pipe and file patterns
 demsg | gol -f="/var/log/*.log"
+
+# over ssh
+# port optional (default 22), password optional (default ''), private_key optional (default $HOME/.ssh/id_rsa)
+gol -s="user@host[:port] [password=/path/to/password] [private_key=/path/to/key] /app/*logs"
+
+# all other options
+gol -h
 ```
 
 ## CHANGE LOG

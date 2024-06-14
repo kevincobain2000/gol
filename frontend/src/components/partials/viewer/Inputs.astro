@@ -42,7 +42,6 @@
         <span>Updating</span>
       </button>
     </template>
-
   </div>
   <template x-if="loading.error">
     <span x-text="loading.error" class="text-rose-600 text-sm block mt-5"
@@ -51,13 +50,12 @@
   <template x-if="loading.errorJSON">
     <pre
       x-text="loading.errorJSON"
-      class="text-rose-100 break-words text-sm block mt-2 text-wrap bg-rose-800 rounded mb-5 p-3">
+    class="text-rose-100 break-words text-sm block mt-2 text-wrap bg-rose-800 rounded mb-5 p-3">
     </pre>
   </template>
 
   <div class="z-10 rounded-lg shadow w-full bg-gray-900 pb-5 mt-5">
     <div class="p-3">
-      <label for="input-group-search" class="sr-only">Search</label>
       <div class="relative">
         <div
           class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-2 pointer-events-none"
@@ -86,41 +84,63 @@
       class="max-h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
     >
       <template x-for="(filepath, index) in results.file_paths">
-        <li :class="{'shadow-2xl': filepath.file_path === results.result.file_path}">
+        <li
+          :class="{'shadow-2xl': filepath.file_path === results.result.file_path}"
+        >
           <div
             class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
             :class="{'bg-gray-800 border-2 border-gray-900': filepath.file_path === results.result.file_path}"
-            @click="input.page=1; input.file_path = filepath.file_path; submit()"
+            @click="input.page=1; input.file_path = filepath.file_path; input.host = filepath.host; submit()"
           >
             <input
               type="radio"
               :value="filepath.file_path"
-              class="w-5 h-5 rounded"
+              class="w-5 h-5 rounded border-blue-500 accent-blue-500"
               x-model="input.file_path"
             />
-
 
             <label
               :class="{'text-blue-400': filepath.file_path === results.result.file_path, 'text-slate-400': filepath.file_path !== results.result.file_path}"
               class="w-full py-2 ms-2 text-sm font-mono rounded flex items-center"
             >
-                <template x-if="filepath.type == 'stdin'">
-                    <span class="w-1/12 text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300">STDIN</span>
-                </template>
-                <template x-if="filepath.type == 'file'">
-                    <span class="w-1/12 text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300">FILE</span>
-                </template>
+              <template x-if="filepath.type === 'ssh'">
+                <div>
+                  <span
+                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300"
+                    >SSH</span
+                  >
+                </div>
+              </template>
+              <template x-if="filepath.type == 'stdin'">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-blue-300"
+                  >STDIN</span
+                >
+              </template>
+              <template x-if="filepath.type == 'file'">
+                <span
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300"
+                  >FILE</span
+                >
+              </template>
+              <span
+                x-show="filepath.host"
+                class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300"
+                x-text="filepath.host"></span>
               <span
                 x-text="filepath.file_path.split('/').slice(0, -1).join('/')"
-                :class="{'text-blue-500': filepath.file_path === results.result.file_path}"
+                :class="{'text-green-500 font-bold': filepath.file_path === results.result.file_path}"
                 class="truncate"></span>
               <span class="text-slate-400">/</span>
               <span
                 x-text="filepath.file_path.split('/').pop()"
                 class="truncate"
-                :class="{'font-bold text-gray-200': filepath.file_path === results.result.file_path}"
+                :class="{'font-bold text-blue-400': filepath.file_path === results.result.file_path}"
               ></span>
-              <span class="text-gray-400 ml-2" x-text="`(${formatBytes(filepath.file_size)} - ${numberToK(filepath.lines_count)} lines)`"></span>
+              <span
+                class="text-gray-400 ml-2"
+                x-text="`(${formatBytes(filepath.file_size)} - ${numberToK(filepath.lines_count)} lines)`"
+              ></span>
             </label>
           </div>
         </li>
