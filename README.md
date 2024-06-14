@@ -85,29 +85,32 @@ curl -sL https://raw.githubusercontent.com/kevincobain2000/gol/master/install.sh
 ## Examples
 
 ```sh
-# run in current directory (auto pick *log and ./*/*log)
+# run in current directory
+# (auto pick *log and ./*/*log)
 gol
 ```
 
 ```sh
-# run in current directory by specifying files
-gol storage/*log access/*log
+# run in current directory for pattern
+gol "storage/*log" "access/*log"
 ```
 
 ## Advanced Examples
 
-```sh
-# search using multiple file patterns
-demsg | gol -f="/var/log/*.log" -f="./app/*log" -f="/var/log/httpd/*log.tar.gz"
+All patterns work in combination with each other.
 
+```sh
 # search using pipe and file patterns
 demsg | gol -f="/var/log/*.log"
 
 # over ssh
 # port optional (default 22), password optional (default ''), private_key optional (default $HOME/.ssh/id_rsa)
 gol -s="user@host[:port] [password=/path/to/password] [private_key=/path/to/key] /app/*logs"
+```
 
-# all other options
+Full Options
+
+```sh
 gol -h
 ```
 
