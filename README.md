@@ -22,7 +22,7 @@
 
 **Flexible:** Works with multiple logs file, with massive size support.
 
-**Remote:** Works over ssh.
+**Remote:** View remote logs over ssh in browser.
 
 **Pipe:** Supports piped inputs.
 
@@ -119,4 +119,4 @@ gol -h
 - **v1.0.0** - Initial release.
 - **v1.0.3** - Multiple file patterns, and pipe input support.
 - **v1.0.4** - Support os.Args for quick view.
--
+- **v1.0.5** - Support ssh logs.
