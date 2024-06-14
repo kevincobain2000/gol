@@ -2,28 +2,67 @@ package pkg
 
 import (
 	"bufio"
+	"bytes"
 	"compress/gzip"
+	"fmt"
 	"os"
 	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/acarl005/stripansi"
 	"github.com/ztrue/tracerr"
+	"golang.org/x/crypto/ssh"
 )
 
 type Watcher struct {
 	filePath     string
 	matchPattern string
 	mutex        sync.Mutex
+	sshConfig    *ssh.ClientConfig
+	sshHost      string
+	sshPort      string
+	isRemote     bool
 }
 
 func NewWatcher(
 	filePath string,
 	matchPattern string,
+	isRemote bool,
+	sshHost string,
+	sshPort string,
+	sshUser string,
+	sshPassword string,
+	sshPrivateKeyPath string,
 ) (*Watcher, error) {
+	var authMethod ssh.AuthMethod
+	if sshPrivateKeyPath != "" {
+		key, err := os.ReadFile(sshPrivateKeyPath)
+		if err != nil {
+			return nil, tracerr.New(fmt.Sprintf("Failed to read private key: %v", err))
+		}
+		signer, err := ssh.ParsePrivateKey(key)
+		if err != nil {
+			return nil, tracerr.New(fmt.Sprintf("Failed to parse private key: %v", err))
+		}
+		authMethod = ssh.PublicKeys(signer)
+	} else {
+		authMethod = ssh.Password(sshPassword)
+	}
+
 	watcher := &Watcher{
 		filePath:     filePath,
 		matchPattern: matchPattern,
+		isRemote:     isRemote,
+		sshHost:      sshHost,
+		sshPort:      sshPort,
+		sshConfig: &ssh.ClientConfig{
+			User: sshUser,
+			Auth: []ssh.AuthMethod{
+				authMethod,
+			},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), // nolint:gosec
+		},
 	}
 
 	return watcher, nil
@@ -37,6 +76,7 @@ type LineResult struct {
 
 type ScanResult struct {
 	FilePath     string       `json:"file_path"`
+	Host         string       `json:"host"`
 	MatchPattern string       `json:"match_pattern"`
 	Total        int          `json:"total"`
 	Lines        []LineResult `json:"lines"`
@@ -50,7 +90,9 @@ func (w *Watcher) Scan(page, pageSize int, reverse bool) (*ScanResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	if file != nil {
+		defer file.Close()
+	}
 
 	allLines, counts, err := w.collectMatchingLines(scanner)
 	if err != nil {
@@ -63,6 +105,7 @@ func (w *Watcher) Scan(page, pageSize int, reverse bool) (*ScanResult, error) {
 
 	return &ScanResult{
 		FilePath:     w.filePath,
+		Host:         w.sshHost,
 		MatchPattern: w.matchPattern,
 		Total:        counts,
 		Lines:        lines,
@@ -70,6 +113,10 @@ func (w *Watcher) Scan(page, pageSize int, reverse bool) (*ScanResult, error) {
 }
 
 func (w *Watcher) initializeScanner() (*os.File, *bufio.Scanner, error) {
+	if w.isRemote {
+		return w.initializeRemoteScanner()
+	}
+
 	file, err := os.Open(w.filePath)
 	if err != nil {
 		return nil, nil, tracerr.New(err.Error())
@@ -101,6 +148,32 @@ func (w *Watcher) initializeScanner() (*os.File, *bufio.Scanner, error) {
 	}
 
 	return file, bufio.NewScanner(file), nil
+}
+
+func (w *Watcher) initializeRemoteScanner() (*os.File, *bufio.Scanner, error) {
+	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%s", w.sshHost, w.sshPort), w.sshConfig)
+	if err != nil {
+		return nil, nil, tracerr.New(err.Error())
+	}
+
+	session, err := client.NewSession()
+	if err != nil {
+		return nil, nil, tracerr.New(err.Error())
+	}
+
+	var b bytes.Buffer
+	session.Stdout = &b
+	err = session.Run(fmt.Sprintf("cat %s", w.filePath))
+	if err != nil {
+		return nil, nil, tracerr.New(err.Error())
+	}
+
+	session.Close()
+	client.Close()
+
+	scanner := bufio.NewScanner(strings.NewReader(b.String()))
+
+	return nil, scanner, nil
 }
 
 func (w *Watcher) collectMatchingLines(scanner *bufio.Scanner) ([]LineResult, int, error) {

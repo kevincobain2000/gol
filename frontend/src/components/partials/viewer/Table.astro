@@ -66,8 +66,12 @@
       </thead>
       <tbody>
         <template x-for="(item, index) in results.result.lines" :key="index">
-          <tr class="border-b bg-gray-800 border-gray-700">
-            <td class="px-3 py-2 w-1/12" x-text="item.line_number"></td>
+          <tr
+                class="border-b bg-gray-800 border-gray-700"
+                :class="{'highlight': input.realtime == true && highlighter.line_from  > 0 && item.line_number-1 >= highlighter.line_from}"
+            >
+            <td class="px-3 py-2 w-1/12" x-text="item.line_number">
+            </td>
             <td class="px-3 py-2 w-1/12">
               <template x-if="item.level == 'success'">
                 <span
@@ -154,4 +158,17 @@
     ></span> (<span x-text="results.result.total.toLocaleString()"></span> rows)
   </div>
 </div>
-<style></style>
+<style>
+    @keyframes highlight {
+      from {
+        @apply bg-yellow-800;
+      }
+      to {
+        background-color: transparent;
+      }
+    }
+
+    .highlight {
+      animation: highlight 2s backwards;
+    }
+</style>

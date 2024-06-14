@@ -34,14 +34,16 @@ func IsInputFromPipe() bool {
 func PipeLinesToTmp(tmpfile *os.File) error {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	color.Info.Println("tmp file created for stdin: ", GlobalTmpFilePath)
+	color.Info.Println("tmp file created for stdin: ", GlobalPipeTmpFilePath)
 
-	tempFileInfo, err := createTmpFileInfo(GlobalTmpFilePath)
+	linesCount, fileSize, err := FileStats(GlobalPipeTmpFilePath, false, nil)
 	if err != nil {
 		color.Danger.Println("error creating FileInfo for temp file:", err)
-	} else {
-		GlobalFilePaths = append([]FileInfo{tempFileInfo}, GlobalFilePaths...)
+		return err
 	}
+	tempFileInfo := FileInfo{FilePath: GlobalPipeTmpFilePath, LinesCount: linesCount, FileSize: fileSize, Type: TypeStdin}
+
+	GlobalFilePaths = append([]FileInfo{tempFileInfo}, GlobalFilePaths...)
 	color.Info.Println("tmp file created added to global filepaths: ", pp.Sprint(GlobalFilePaths))
 
 	lineCount := 0
@@ -68,14 +70,6 @@ func PipeLinesToTmp(tmpfile *os.File) error {
 	}
 
 	return nil
-}
-
-func createTmpFileInfo(filePath string) (FileInfo, error) {
-	linesCount, fileSize, err := FileStats(filePath)
-	if err != nil {
-		return FileInfo{}, err
-	}
-	return FileInfo{FilePath: filePath, LinesCount: linesCount, FileSize: fileSize, Type: "stdin"}, nil
 }
 
 func GetTmpFileName() string {

@@ -35,6 +35,7 @@ type Flags struct {
 	limit     int
 	baseURL   string
 	filePaths sliceFlags
+	sshPaths  sliceFlags
 	access    bool
 	open      bool
 	version   bool
@@ -49,20 +50,20 @@ func main() {
 	wantsVersion()
 
 	if pkg.IsInputFromPipe() {
-		tmpfile, err := os.Create(pkg.GetTmpFileName())
+		tmpFile, err := os.Create(pkg.GetTmpFileName())
 		if err != nil {
 			color.New(color.FgRed).Println("error creating temp file: ", err)
 			return
 		}
-		pkg.GlobalTmpFilePath = tmpfile.Name()
-		defer tmpfile.Close()
-		go func(tmpfile *os.File) {
-			err := pkg.PipeLinesToTmp(tmpfile)
+		pkg.GlobalPipeTmpFilePath = tmpFile.Name()
+		defer tmpFile.Close()
+		go func(tmpFile *os.File) {
+			err := pkg.PipeLinesToTmp(tmpFile)
 			if err != nil {
 				color.Danger.Println(err)
 				return
 			}
-		}(tmpfile)
+		}(tmpFile)
 	}
 	defaultFilePaths()
 
@@ -105,8 +106,8 @@ func defaultFilePaths() {
 			f.filePaths = filePaths
 		}
 	}
-	if pkg.GlobalTmpFilePath != "" {
-		f.filePaths = append(f.filePaths, pkg.GlobalTmpFilePath)
+	if pkg.GlobalPipeTmpFilePath != "" {
+		f.filePaths = append(f.filePaths, pkg.GlobalPipeTmpFilePath)
 	}
 
 	if f.filePaths == nil && !pkg.IsInputFromPipe() {
@@ -118,33 +119,68 @@ func defaultFilePaths() {
 		color.Info.Println("no file path provided, using ", f.filePaths)
 	}
 
+	if f.sshPaths != nil {
+		for _, sshPath := range f.sshPaths {
+			sshFilePathConfig, err := pkg.StringToSSHPathConfig(sshPath)
+			if err != nil {
+				color.Danger.Println(err)
+				break
+			}
+			if sshFilePathConfig != nil {
+				sshConfig := pkg.SSHConfig{
+					Host:           sshFilePathConfig.Host,
+					Port:           sshFilePathConfig.Port,
+					User:           sshFilePathConfig.User,
+					Password:       sshFilePathConfig.Password,
+					PrivateKeyPath: sshFilePathConfig.PrivateKeyPath,
+				}
+				fileInfos := pkg.GetFileInfos(sshFilePathConfig.FilePath, f.limit, true, &sshConfig)
+				pkg.GlobalFilePaths = append(pkg.GlobalFilePaths, fileInfos...)
+			}
+		}
+	}
+
 	updateGlobalFilePaths()
 }
 
 func updateGlobalFilePaths() {
 	fileInfos := []pkg.FileInfo{}
 	for _, pattern := range f.filePaths {
-		fileInfo := pkg.GetFileInfos(pattern, f.limit)
+		fileInfo := pkg.GetFileInfos(pattern, f.limit, false, nil)
 		fileInfos = append(fileInfo, fileInfos...)
 	}
-	// update type to stdin in GlobalFilePaths if it has a file with name tmpfile.Name()
-	for i, fileInfo := range fileInfos {
-		if fileInfo.FilePath == pkg.GlobalTmpFilePath {
-			fileInfos[i].Type = "stdin"
+	for _, pattern := range f.sshPaths {
+		sshFilePathConfig, err := pkg.StringToSSHPathConfig(pattern)
+		if err != nil {
+			color.Danger.Println(err)
+			break
+		}
+		if sshFilePathConfig != nil {
+			sshConfig := pkg.SSHConfig{
+				Host:           sshFilePathConfig.Host,
+				Port:           sshFilePathConfig.Port,
+				User:           sshFilePathConfig.User,
+				Password:       sshFilePathConfig.Password,
+				PrivateKeyPath: sshFilePathConfig.PrivateKeyPath,
+			}
+			pkg.GlobalPathSSHConfig = append(pkg.GlobalPathSSHConfig, *sshFilePathConfig)
+			fileInfo := pkg.GetFileInfos(sshFilePathConfig.FilePath, f.limit, true, &sshConfig)
+			fileInfos = append(fileInfo, fileInfos...)
 		}
 	}
+
 	pkg.GlobalFilePaths = uniqueFileInfos(fileInfos)
 }
 
 func cleanup() {
 	color.Info.Println("cleaning up")
-	if pkg.GlobalTmpFilePath != "" {
-		err := os.Remove(pkg.GlobalTmpFilePath)
+	if pkg.GlobalPipeTmpFilePath != "" {
+		err := os.Remove(pkg.GlobalPipeTmpFilePath)
 		if err != nil {
 			color.Danger.Println("error removing tmp file:", err)
 			return
 		}
-		color.New(color.FgYellow).Println("tmp file removed:", pkg.GlobalTmpFilePath)
+		color.New(color.FgYellow).Println("tmp file removed:", pkg.GlobalPipeTmpFilePath)
 	}
 }
 
@@ -164,8 +200,9 @@ func uniqueFileInfos(fileInfos []pkg.FileInfo) []pkg.FileInfo {
 	keys := make(map[string]bool)
 	list := []pkg.FileInfo{}
 	for _, entry := range fileInfos {
-		if _, value := keys[entry.FilePath]; !value {
-			keys[entry.FilePath] = true
+		key := entry.FilePath + entry.Type + entry.Host
+		if _, value := keys[key]; !value {
+			keys[key] = true
 			list = append(list, entry)
 		}
 	}
@@ -174,13 +211,14 @@ func uniqueFileInfos(fileInfos []pkg.FileInfo) []pkg.FileInfo {
 
 func flags() {
 	flag.Var(&f.filePaths, "f", "full path pattern to the log file")
+	flag.Var(&f.sshPaths, "s", "full ssh path pattern to the log file")
 	flag.BoolVar(&f.version, "version", false, "")
 	flag.BoolVar(&f.access, "access", false, "print access logs")
 	flag.StringVar(&f.host, "host", "localhost", "host to serve")
 	flag.Int64Var(&f.port, "port", 3003, "port to serve")
 	flag.Int64Var(&f.every, "every", 10, "check for file paths every n seconds")
 	flag.IntVar(&f.limit, "limit", 1000, "limit the number of files to read from the file path pattern")
-	flag.Int64Var(&f.cors, "cors", 0, "cors port to allow")
+	flag.Int64Var(&f.cors, "cors", 0, "cors port to allow the api (for development)")
 	flag.BoolVar(&f.open, "open", true, "open browser on start")
 	flag.StringVar(&f.baseURL, "base-url", "/", "base url with slash")
 

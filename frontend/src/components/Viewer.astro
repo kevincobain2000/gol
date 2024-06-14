@@ -12,7 +12,8 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   <Table />
 </div>
 
-<script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js"></script>
+<script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js">
+</script>
 <script is:inline>
   const currentURL = window.location.origin;
   let baseURL =
@@ -24,8 +25,13 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     file_path: "",
     realtime: false,
     reverse: true,
+    host: "",
     page: 1,
-    per_page: 100,
+    per_page: 15,
+  });
+  let highlighter = Alpine.reactive({
+    line_from: 0,
+    line_upto: 0
   });
   let results = Alpine.reactive({
     result: {
@@ -59,12 +65,14 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   }
 
   const init = async () => {
+    input.host = input.host.trim();
     loading.error = "";
     loading.errorJSON = "";
     loading.fetching = true;
-    const response = await fetch(
-      `${baseURL}/api?query=${input.query}&page=${input.page}&per_page=${input.per_page}&file_path=${input.file_path}&reverse=${input.reverse}`
-    ).catch((error) => {
+
+    const url = `${baseURL}/api?query=${input.query}&page=${input.page}&per_page=${input.per_page}&file_path=${input.file_path}&host=${input.host || ""}&reverse=${input.reverse}`;
+
+    const response = await fetch(url).catch((error) => {
       loading.fetching = false;
       loading.error = error;
       return;
@@ -86,10 +94,15 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     let res = await response.json();
     if (input.reverse && res.result.lines) {
       res.result.lines = res.result.lines.reverse();
+      highlighter.line_from =  highlighter.line_upto
+      highlighter.line_upto =  res.result.lines[0].line_number
     }
-    results.file_paths = res.file_paths;
-    results.result = res.result;
-    input.file_path = res.result.file_path;
+    setTimeout(() => {
+        results.file_paths = res.file_paths;
+        results.result = res.result;
+        input.file_path = res.result.file_path
+        input.host = res.result.host
+    }, 100);
 
 
     manageRealtimeUpdates();

@@ -44,7 +44,7 @@ func TestIsReadableFile(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.filename, func(t *testing.T) {
-			result, err := IsReadableFile(test.filename)
+			result, err := IsReadableFile(test.filename, false, nil)
 			if (err != nil) != test.expectErr {
 				t.Errorf("IsReadableFile(%q) error = %v, wantErr %v", test.filename, err, test.expectErr)
 				return
@@ -107,7 +107,7 @@ func TestFilesByPattern(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.pattern, func(t *testing.T) {
-			result, err := FilesByPattern(test.pattern)
+			result, err := FilesByPattern(test.pattern, false, nil)
 			if (err != nil) != test.expectErr {
 				t.Errorf("FilesByPattern(%q) error = %v, wantErr %v", test.pattern, err, test.expectErr)
 				return

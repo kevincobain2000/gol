@@ -8,24 +8,30 @@ import (
 )
 
 type APIHandler struct {
+	API *API
 }
 type FileInfo struct {
 	FilePath   string `json:"file_path"`
 	LinesCount int    `json:"lines_count"`
 	FileSize   int64  `json:"file_size"`
 	Type       string `json:"type"`
+	Host       string `json:"host"`
 }
 
 var GlobalFilePaths []FileInfo
-var GlobalTmpFilePath string
+var GlobalPipeTmpFilePath string
+var GlobalPathSSHConfig []SSHPathConfig
 
 func NewAPIHandler() *APIHandler {
-	return &APIHandler{}
+	return &APIHandler{
+		API: NewAPI(),
+	}
 }
 
 type APIRequest struct {
 	Query    string `json:"query" query:"query"`
 	FilePath string `json:"file_path" query:"file_path"`
+	Host     string `json:"host" query:"host"`
 	Page     int    `json:"page" query:"page" default:"1" validate:"required,gte=1" message:"page >=1 is required"`
 	PerPage  int    `json:"per_page" query:"per_page" default:"15" validate:"required" message:"per_page is required"`
 	Reverse  bool   `json:"reverse" query:"reverse" default:"false"`
@@ -52,16 +58,31 @@ func (h *APIHandler) Get(c echo.Context) error {
 	}
 
 	if req.FilePath == "" {
-		req.FilePath = GlobalFilePaths[0].FilePath
+		first := GlobalFilePaths[0]
+		req.FilePath = first.FilePath
+		req.Host = first.Host
 	}
 
 	if !FilePathInGlobalFilePaths(req.FilePath) {
 		return echo.NewHTTPError(http.StatusNotFound, "file not found")
 	}
+	var watcher *Watcher
 
-	watcher, err := NewWatcher(req.FilePath, req.Query)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	if req.Host != "" {
+		sshConfig := h.API.FindSSHConfig(req.Host)
+		if sshConfig == nil {
+			return echo.NewHTTPError(http.StatusNotFound, "ssh config not found")
+		}
+		watcher, err = NewWatcher(req.FilePath, req.Query, true, sshConfig.Host, sshConfig.Port, sshConfig.User, sshConfig.Password, sshConfig.PrivateKeyPath)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
+	}
+	if req.Host == "" {
+		watcher, err = NewWatcher(req.FilePath, req.Query, false, "", "", "", "", "")
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
 	}
 
 	result, err := watcher.Scan(req.Page, req.PerPage, req.Reverse)

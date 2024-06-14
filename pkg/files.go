@@ -2,19 +2,30 @@ package pkg
 
 import (
 	"bufio"
+	"bytes"
 	"compress/gzip"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/gookit/color"
 	"github.com/ztrue/tracerr"
+	"golang.org/x/crypto/ssh"
 )
 
-func IsReadableFile(filename string) (bool, error) {
-	file, err := os.Open(filename)
+func IsReadableFile(filename string, isRemote bool, sshConfig *SSHConfig) (bool, error) {
+	var file *os.File
+	var err error
+
+	if isRemote {
+		file, err = sshOpenFile(filename, sshConfig)
+	} else {
+		file, err = os.Open(filename)
+	}
 	if err != nil {
 		return false, tracerr.New(err.Error())
 	}
@@ -62,7 +73,11 @@ func IsGzip(buffer []byte) bool {
 	return len(buffer) >= 2 && buffer[0] == 0x1f && buffer[1] == 0x8b
 }
 
-func FilesByPattern(pattern string) ([]string, error) {
+func FilesByPattern(pattern string, isRemote bool, sshConfig *SSHConfig) ([]string, error) {
+	if isRemote {
+		return sshFilesByPattern(pattern, sshConfig)
+	}
+
 	// Check if the pattern is a directory
 	info, err := os.Stat(pattern)
 	if err == nil && info.IsDir() {
@@ -92,8 +107,15 @@ func FilesByPattern(pattern string) ([]string, error) {
 }
 
 // FileStats returns the number of lines and size of the file at the given path.
-func FileStats(filePath string) (int, int64, error) {
-	file, err := os.Open(filePath)
+func FileStats(filePath string, isRemote bool, sshConfig *SSHConfig) (int, int64, error) {
+	var file *os.File
+	var err error
+
+	if isRemote {
+		file, err = sshOpenFile(filePath, sshConfig)
+	} else {
+		file, err = os.Open(filePath)
+	}
 	if err != nil {
 		return 0, 0, err
 	}
@@ -120,8 +142,8 @@ func FileStats(filePath string) (int, int64, error) {
 	return linesCount, fileSize, nil
 }
 
-func GetFileInfos(pattern string, limit int) []FileInfo {
-	filePaths, err := FilesByPattern(pattern)
+func GetFileInfos(pattern string, limit int, isRemote bool, sshConfig *SSHConfig) []FileInfo {
+	filePaths, err := FilesByPattern(pattern, isRemote, sshConfig)
 	if err != nil {
 		color.Danger.Println(err)
 		return nil
@@ -136,7 +158,7 @@ func GetFileInfos(pattern string, limit int) []FileInfo {
 		filePaths = filePaths[:limit]
 	}
 	for _, filePath := range filePaths {
-		isText, err := IsReadableFile(filePath)
+		isText, err := IsReadableFile(filePath, isRemote, sshConfig)
 		if err != nil {
 			color.Danger.Println(err)
 			return nil
@@ -145,12 +167,181 @@ func GetFileInfos(pattern string, limit int) []FileInfo {
 			color.Warn.Println("file is not a text file:", filePath)
 			continue
 		}
-		linesCount, fileSize, err := FileStats(filePath)
+		linesCount, fileSize, err := FileStats(filePath, isRemote, sshConfig)
 		if err != nil {
 			color.Danger.Println(err)
 			return nil
 		}
-		fileInfos = append(fileInfos, FileInfo{FilePath: filePath, LinesCount: linesCount, FileSize: fileSize, Type: "file"})
+		t := TypeFile
+		h := ""
+		if isRemote {
+			t = TypeSSH
+			h = sshConfig.Host
+		}
+		if filePath == GlobalPipeTmpFilePath {
+			t = TypeStdin
+		}
+		fileInfos = append(fileInfos, FileInfo{FilePath: filePath, LinesCount: linesCount, FileSize: fileSize, Type: t, Host: h})
 	}
 	return fileInfos
+}
+
+// SSHConfig holds the SSH connection parameters
+type SSHConfig struct {
+	Host           string
+	Port           string
+	User           string
+	Password       string
+	PrivateKeyPath string
+}
+
+type SSHPathConfig struct {
+	Host           string
+	Port           string
+	User           string
+	Password       string
+	PrivateKeyPath string
+	FilePath       string
+}
+
+// s is an input of the form "user@host[:port] [password=/path/to/password] [private_key=/path/to/key] /path/to/file"
+func StringToSSHPathConfig(s string) (*SSHPathConfig, error) {
+	config := &SSHPathConfig{}
+
+	// Split the input string into parts
+	parts := strings.Fields(s)
+
+	// There should be at least 2 parts: "user@host[:port]" and "/path/to/file"
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("input string does not have the correct format")
+	}
+
+	// Extract user@host[:port]
+	userHostPort := strings.Split(parts[0], "@")
+	if len(userHostPort) != 2 {
+		return nil, fmt.Errorf("user@host[:port] part does not have the correct format")
+	}
+
+	userHost := strings.Split(userHostPort[1], ":")
+	config.User = userHostPort[0]
+	config.Host = userHost[0]
+
+	// Set the default port if not specified
+	if len(userHost) == 2 {
+		config.Port = userHost[1]
+	} else {
+		config.Port = "22" // Default SSH port
+	}
+
+	// Default private key path
+	config.PrivateKeyPath = fmt.Sprintf("%s/.ssh/id_rsa", os.Getenv("HOME"))
+
+	// Extract optional parts and file path
+	for _, part := range parts[1:] {
+		// nolint: gocritic
+		if strings.HasPrefix(part, "password=") {
+			config.Password = strings.TrimPrefix(part, "password=")
+		} else if strings.HasPrefix(part, "private_key=") {
+			config.PrivateKeyPath = strings.TrimPrefix(part, "private_key=")
+		} else {
+			config.FilePath = part
+		}
+	}
+
+	if config.FilePath == "" {
+		return nil, fmt.Errorf("file path is missing")
+	}
+
+	return config, nil
+}
+
+func sshConnect(config *SSHConfig) (*ssh.Client, error) {
+	var auth []ssh.AuthMethod
+
+	if config.Password != "" {
+		auth = append(auth, ssh.Password(config.Password))
+	}
+	if config.PrivateKeyPath != "" {
+		key, err := os.ReadFile(config.PrivateKeyPath)
+		if err != nil {
+			return nil, err
+		}
+		signer, err := ssh.ParsePrivateKey(key)
+		if err != nil {
+			return nil, err
+		}
+		auth = append(auth, ssh.PublicKeys(signer))
+	}
+
+	clientConfig := &ssh.ClientConfig{
+		User:            config.User,
+		Auth:            auth,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // nolint:gosec
+	}
+
+	client, err := ssh.Dial("tcp", config.Host+":"+config.Port, clientConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
+func sshOpenFile(filename string, config *SSHConfig) (*os.File, error) {
+	client, err := sshConnect(config)
+	if err != nil {
+		return nil, err
+	}
+	session, err := client.NewSession()
+	if err != nil {
+		return nil, err
+	}
+	defer session.Close()
+
+	tmpFile, err := os.Create(GetTmpFileName())
+	if err != nil {
+		return nil, err
+	}
+
+	// Execute the cat command to read the file
+	var stdout bytes.Buffer
+	session.Stdout = &stdout
+	if err := session.Run("cat " + filename); err != nil {
+		return nil, err
+	}
+
+	// Write the remote file content to the temporary file
+	if _, err := tmpFile.Write(stdout.Bytes()); err != nil {
+		return nil, err
+	}
+
+	// Seek to the beginning of the temporary file
+	if _, err := tmpFile.Seek(0, io.SeekStart); err != nil {
+		return nil, err
+	}
+
+	return tmpFile, nil
+}
+
+func sshFilesByPattern(pattern string, config *SSHConfig) ([]string, error) {
+	client, err := sshConnect(config)
+	if err != nil {
+		return nil, err
+	}
+	session, err := client.NewSession()
+	if err != nil {
+		return nil, err
+	}
+	defer session.Close()
+
+	var buf bytes.Buffer
+	session.Stdout = &buf
+
+	// Execute the ls command to list files matching the pattern
+	if err := session.Run("ls " + pattern); err != nil {
+		return nil, err
+	}
+
+	filePaths := buf.String()
+	return strings.Split(strings.TrimSpace(filePaths), "\n"), nil
 }
