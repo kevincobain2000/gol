@@ -15,9 +15,12 @@
         class="relative w-11 h-6 rounded-full peer bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-green-400"
       >
       </div>
-      <span class="ms-3 text-sm font-medium text-gray-300">Realtime</span>
+      <span class="ms-3 text-sm font-bold text-gray-400">Realtime</span>
     </label>
     <div class="text-sm pt-5">
+        <svg class="inline w-5 h-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+        </svg>
       Updated at <span x-text="loading.updated_at"></span>
     </div>
   </div>
@@ -44,7 +47,6 @@
       <thead class="text-xs bg-gray-700 text-gray-400">
         <tr>
           <th scope="col" class="px-3 py-3 uppercase">
-            Line No
             <template x-if="input.reverse">
               <button
                 class="text-white"
@@ -67,12 +69,12 @@
       <tbody>
         <template x-for="(item, index) in results.result.lines" :key="index">
           <tr
-                class="border-b bg-gray-800 border-gray-700"
-                :class="{'highlight': input.realtime == true && highlighter.line_from  > 0 && item.line_number-1 >= highlighter.line_from}"
-            >
-            <td class="px-3 py-2 w-1/12" x-text="item.line_number">
+            class="border-b bg-gray-800 border-gray-700"
+            :class="{'highlight': input.realtime == true && highlighter.line_from  > 0 && item.line_number-1 >= highlighter.line_from}"
+          >
+            <td class="px-3 py-2" x-text="item.line_number.toLocaleString()">
             </td>
-            <td class="px-3 py-2 w-1/12">
+            <td class="px-3 py-2">
               <template x-if="item.level == 'success'">
                 <span
                   class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-green-500 text-gray-900"
@@ -116,8 +118,7 @@
                 >
               </template>
             </td>
-            <td class="px-3 py-2 w-2/3 text-blue-200" x-text="item.content"
-            ></td>
+            <td class="px-3 py-2 text-blue-200" x-text="item.content"></td>
           </tr>
         </template>
       </tbody>
@@ -126,8 +127,6 @@
 </div>
 
 <div class="max-w-3xl mx-auto text-center">
-  <div class="text-sm"></div>
-
   <nav aria-label="Page navigation example" class="mt-5">
     <ul class="inline-flex -space-x-px text-sm">
       <li>
@@ -159,16 +158,16 @@
   </div>
 </div>
 <style>
-    @keyframes highlight {
-      from {
-        @apply bg-yellow-800;
-      }
-      to {
-        background-color: transparent;
-      }
+  @keyframes highlight {
+    from {
+      @apply opacity-50;
     }
+    to {
+      background-color: transparent;
+    }
+  }
 
-    .highlight {
-      animation: highlight 2s backwards;
-    }
+  .highlight {
+    animation: highlight 2s backwards;
+  }
 </style>
