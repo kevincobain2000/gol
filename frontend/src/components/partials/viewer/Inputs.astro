@@ -50,102 +50,112 @@
   <template x-if="loading.errorJSON">
     <pre
       x-text="loading.errorJSON"
-    class="text-rose-100 break-words text-sm block mt-2 text-wrap bg-rose-800 rounded mb-5 p-3">
+      class="text-rose-100 break-words text-sm block mt-2 text-wrap bg-rose-800 rounded mb-5 p-3">
     </pre>
   </template>
 
-  <div class="z-10 rounded-lg shadow w-full bg-gray-900 pb-5 mt-5">
-    <div class="p-3">
-      <div class="relative">
-        <div
-          class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-2 pointer-events-none"
+  <div class="z-10 rounded-lg shadow w-full bg-gray-900 pb-5 mt-5 pt-5">
+    <template x-for="type in ['file', 'ssh', 'stdin']">
+      <ul
+        class="max-h-48 px-3 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
+      >
+        <template
+          x-if="results.file_paths.filter((fp) => fp.type == type).length"
         >
-          <svg
-            class="w-4 h-4 text-blue-400"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 20"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
-          </svg>
-        </div>
-        <span class="block w-full p-2 ps-10 text-sm text-gray-200"
-          >File Paths</span
-        >
-      </div>
-    </div>
-    <ul
-      class="max-h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
-    >
-      <template x-for="(filepath, index) in results.file_paths">
-        <li
-          :class="{'shadow-2xl': filepath.file_path === results.result.file_path}"
-        >
-          <div
-            class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
-            :class="{'bg-gray-800 border-2 border-gray-900': filepath.file_path === results.result.file_path}"
-            @click="input.page=1; input.file_path = filepath.file_path; input.host = filepath.host; submit()"
-          >
-            <input
-              type="radio"
-              :value="filepath.file_path"
-              class="w-5 h-5 rounded border-blue-500 accent-blue-500"
-              x-model="input.file_path"
-            />
-
-            <label
-              :class="{'text-blue-400': filepath.file_path === results.result.file_path, 'text-slate-400': filepath.file_path !== results.result.file_path}"
-              class="w-full py-2 ms-2 text-sm font-mono rounded flex items-center"
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-2 pointer-events-none"
             >
-              <template x-if="filepath.type === 'ssh'">
-                <div>
-                  <span
-                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300"
-                    >SSH</span
-                  >
-                </div>
+              <template x-if="type === 'file'">
+                <svg class="w-6 h-6 text-sky-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>
+                  </svg>
+
               </template>
-              <template x-if="filepath.type == 'stdin'">
-                <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-blue-300"
-                  >STDIN</span
-                >
+              <template x-if="type === 'stdin'">
+                <svg class="w-6 h-6 text-sky-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11.782 5.72a4.773 4.773 0 0 0-4.8 4.173 3.43 3.43 0 0 1 2.741-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.934-2.865 3.137-3.921-.969 1.379-2.44 2.207-4.259 1.231-1.253-.673-2.19-3.438-5.959-3.318ZM6.8 11.979A4.772 4.772 0 0 0 2 16.151a3.431 3.431 0 0 1 2.745-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.933-2.865 3.137-3.921-.97 1.379-2.44 2.208-4.259 1.231-1.253-.673-2.19-3.443-5.963-3.317Z"/>
+                  </svg>
+
               </template>
-              <template x-if="filepath.type == 'file'">
-                <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300"
-                  >FILE</span
-                >
+              <template x-if="type === 'ssh'">
+                <svg class="w-6 h-6 text-sky-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1M5 12h14M5 12a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1m-2 3h.01M14 15h.01M17 9h.01M14 9h.01"/>
+                  </svg>
               </template>
-              <span
-                x-show="filepath.host"
-                class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300"
-                x-text="filepath.host"></span>
-              <span
-                x-text="filepath.file_path.split('/').slice(0, -1).join('/')"
-                :class="{'text-green-500 font-bold': filepath.file_path === results.result.file_path}"
-                class="truncate"></span>
-              <span class="text-slate-400">/</span>
-              <span
-                x-text="filepath.file_path.split('/').pop()"
-                class="truncate"
-                :class="{'font-bold text-blue-400': filepath.file_path === results.result.file_path}"
-              ></span>
-              <span
-                class="text-gray-400 ml-2"
-                x-text="`(${formatBytes(filepath.file_size)} - ${numberToK(filepath.lines_count)} lines)`"
-              ></span>
-            </label>
+            </div>
+            <span
+              class="block w-full p-2 ps-10 text-sm text-gray-200 uppercase font-bold"
+              x-text="type"></span>
           </div>
-        </li>
-      </template>
-    </ul>
+        </template>
+
+        <template
+          x-for="(filepath, index) in results.file_paths.filter((fp) => fp.type == type)"
+        >
+          <li
+            :class="{'shadow-2xl': filepath.file_path === results.result.file_path}"
+          >
+            <div
+              class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
+              :class="{'bg-gray-800 border-2 border-gray-900': filepath.file_path === results.result.file_path}"
+              @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host; submit()"
+            >
+              <input
+                type="radio"
+                :value="filepath.file_path"
+                class="w-5 h-5 rounded border-blue-500 accent-blue-500"
+                x-model="input.file_path"
+              />
+
+              <label
+                :class="{'text-blue-400': filepath.file_path === results.result.file_path, 'text-slate-400': filepath.file_path !== results.result.file_path}"
+                class="w-full py-2 ms-2 text-sm font-mono rounded flex items-center"
+              >
+                <template x-if="filepath.type === 'ssh'">
+                  <div>
+                    <span
+                      class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300"
+                      >SSH</span
+                    >
+                  </div>
+                </template>
+                <template x-if="filepath.type == 'stdin'">
+                  <span
+                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-blue-300"
+                    >STDIN</span
+                  >
+                </template>
+                <template x-if="filepath.type == 'file'">
+                  <span
+                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300"
+                    >FILE</span
+                  >
+                </template>
+                <span
+                  x-show="filepath.host"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300"
+                  x-text="filepath.host"></span>
+                <span
+                  x-text="filepath.file_path.split('/').slice(0, -1).join('/')"
+                  :class="{'text-green-500 font-bold': filepath.file_path === results.result.file_path}"
+                  class="truncate"></span>
+                <span class="text-slate-400">/</span>
+                <span
+                  x-text="filepath.file_path.split('/').pop()"
+                  class="truncate"
+                  :class="{'font-bold text-blue-400': filepath.file_path === results.result.file_path}"
+                ></span>
+                <span
+                  class="text-gray-400 ml-2"
+                  x-text="`(${formatBytes(filepath.file_size)} - ${numberToK(filepath.lines_count)} lines)`"
+                ></span>
+              </label>
+            </div>
+          </li>
+        </template>
+      </ul>
+    </template>
   </div>
 </div>
 
