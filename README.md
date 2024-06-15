@@ -11,6 +11,7 @@
 <p align="center">
   View realtime logs in browser<br>
   Advanced regex search<br>
+  Low Memory Footprint<br>
   Single binary
 </p>
 
@@ -85,8 +86,7 @@ curl -sL https://raw.githubusercontent.com/kevincobain2000/gol/master/install.sh
 ## Examples
 
 ```sh
-# run in current directory
-# (auto pick *log and ./*/*log)
+# run in current directory for *log & ./*/*log
 gol
 ```
 
@@ -120,3 +120,4 @@ gol -h
 - **v1.0.3** - Multiple file patterns, and pipe input support.
 - **v1.0.4** - Support os.Args for quick view.
 - **v1.0.5** - Support ssh logs.
+- **v1.0.6** - UI shows grouped output.
