@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/acarl005/stripansi"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -168,7 +169,7 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 			lineResult := LineResult{
 				LineNumber: lineNumber,
 				Content:    lineContent,
-				Level:      "info", // Placeholder: Replace with actual level determination
+				Level:      "",
 			}
 			lines = append(lines, lineResult)
 		}
@@ -196,6 +197,7 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 		lines = shifted
 	}
 
+	appendLogLevel(&lines)
 	scanResult := &ScanResult{
 		FilePath:     filePath,
 		Host:         containerID, // Assuming containerID represents the host
@@ -205,6 +207,21 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 	}
 
 	return scanResult, nil
+}
+
+func appendLogLevel(lines *[]LineResult) {
+	logLines := []string{}
+	for _, line := range *lines {
+		line.Content = stripansi.Strip(line.Content)
+		logLines = append(logLines, line.Content)
+	}
+
+	isConsistent, keywordPosition := ConsistentFormat(logLines)
+	if isConsistent {
+		for i, line := range *lines {
+			(*lines)[i].Level = JudgeLogLevel(line.Content, keywordPosition)
+		}
+	}
 }
 
 func GetContainerFileInfos(pattern string, limit int, containerID string) []FileInfo {
