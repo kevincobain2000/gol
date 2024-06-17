@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -17,12 +18,11 @@ import (
 func ListDockerContainers() ([]types.Container, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Docker client: %v", err)
+		return nil, fmt.Errorf("failed to create Docker client: %w", err)
 	}
 
 	// Get the list of containers
 	return cli.ContainerList(context.Background(), container.ListOptions{})
-
 }
 
 func ContainerStdoutToTmp(containerID string) *os.File {
@@ -40,7 +40,7 @@ func ContainerStdoutToTmp(containerID string) *os.File {
 		return nil
 	}
 	// defer out.Close() //donot close the stream
-	//  check if tmpFile already exists in GlobalFilePaths for container ID previously by watcher
+	// check if tmpFile already exists in GlobalFilePaths for container ID previously by watcher
 	var tmpFile *os.File
 	for _, fileInfo := range GlobalFilePaths {
 		if fileInfo.Host == containerID[:12] && fileInfo.Type == TypeDocker && strings.HasPrefix(fileInfo.FilePath, TmpContainerPath) {
@@ -83,19 +83,48 @@ func ContainerStdoutToTmp(containerID string) *os.File {
 	return tmpFile
 }
 
-// ContainerLogsFromFile retrieves logs from a file within a container, processes them and returns a ScanResult
+// ContainerLogsFromFile retrieves logs from a file within a container, processes them, and returns a ScanResult
 func ContainerLogsFromFile(containerID string, query string, filePath string, page, pageSize int, reverse bool) (*ScanResult, error) {
 	lines := []LineResult{}
 	// Create a new Docker client
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Docker client: %v", err)
+		return nil, fmt.Errorf("failed to create Docker client: %w", err)
 	}
 
 	// Compile the regex pattern
 	re, err := regexp.Compile(query)
 	if err != nil {
-		return nil, fmt.Errorf("invalid regex pattern: %v", err)
+		return nil, fmt.Errorf("invalid regex pattern: %w", err)
+	}
+
+	// Execute a command to count the total number of lines in the file
+	countCmd := []string{"sh", "-c", fmt.Sprintf("wc -l < %s", filePath)}
+	countExecConfig := container.ExecOptions{
+		Cmd:          countCmd,
+		AttachStdout: true,
+		AttachStderr: true,
+	}
+
+	// Create exec instance for counting lines
+	countExecIDResp, err := cli.ContainerExecCreate(context.Background(), containerID, countExecConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create exec instance for counting lines: %w", err)
+	}
+
+	// Attach to the exec instance for counting lines
+	countResp, err := cli.ContainerExecAttach(context.Background(), countExecIDResp.ID, container.ExecStartOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to attach to exec instance for counting lines: %w", err)
+	}
+	defer countResp.Close()
+
+	// Read the output of the line count command
+	countScanner := bufio.NewScanner(countResp.Reader)
+	countScanner.Scan()
+	totalLines, err := strconv.Atoi(strings.TrimSpace(CleanString(countScanner.Text())))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse line count: %w", err)
 	}
 
 	// Calculate the lines to fetch
@@ -104,7 +133,7 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 	// Build the command to fetch the required lines
 	var cmd []string
 	if reverse {
-		cmd = []string{"sh", "-c", fmt.Sprintf("tail -n +%d %s | head -n %d | cat", startLine+1, filePath, pageSize)}
+		cmd = []string{"sh", "-c", fmt.Sprintf("tac %s | tail -n +%d | head -n %d", filePath, startLine+1, pageSize)}
 	} else {
 		cmd = []string{"sh", "-c", fmt.Sprintf("tail -n +%d %s | head -n %d", startLine+1, filePath, pageSize)}
 	}
@@ -116,16 +145,16 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 		AttachStderr: true,
 	}
 
-	// Create exec instance
+	// Create exec instance for fetching logs
 	execIDResp, err := cli.ContainerExecCreate(context.Background(), containerID, execConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create exec instance: %v", err)
+		return nil, fmt.Errorf("failed to create exec instance: %w", err)
 	}
 
-	// Attach to the exec instance
+	// Attach to the exec instance for fetching logs
 	resp, err := cli.ContainerExecAttach(context.Background(), execIDResp.ID, container.ExecStartOptions{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to attach to exec instance: %v", err)
+		return nil, fmt.Errorf("failed to attach to exec instance: %w", err)
 	}
 	defer resp.Close()
 
@@ -146,14 +175,32 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 		lineNumber++
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading logs: %v", err)
+		return nil, fmt.Errorf("error reading logs: %w", err)
+	}
+
+	// If reverse flag is set, adjust the line numbers accordingly
+	if reverse {
+		for i := range lines {
+			lines[i].LineNumber = totalLines - (startLine + len(lines)) + i + 1
+		}
+		// line numbers are correct but the order of lines is reversed
+		shifted := make([]LineResult, len(lines))
+		for i := range lines {
+			newIndex := len(lines) - 1 - i
+			shifted[newIndex] = LineResult{
+				LineNumber: lines[len(lines)-1-i].LineNumber,
+				Content:    lines[i].Content,
+				Level:      lines[len(lines)-1-i].Level,
+			}
+		}
+		lines = shifted
 	}
 
 	scanResult := &ScanResult{
 		FilePath:     filePath,
 		Host:         containerID, // Assuming containerID represents the host
 		MatchPattern: query,
-		Total:        len(lines),
+		Total:        totalLines,
 		Lines:        lines,
 	}
 
@@ -229,22 +276,22 @@ func getFileStatsFromContainer(cli *client.Client, containerID string, filePath 
 
 	execIDResp, err := cli.ContainerExecCreate(context.Background(), containerID, execConfig)
 	if err != nil {
-		return 0, 0, fmt.Errorf("failed to create exec instance for wc: %v", err)
+		return 0, 0, fmt.Errorf("failed to create exec instance for wc: %w", err)
 	}
 
 	resp, err := cli.ContainerExecAttach(context.Background(), execIDResp.ID, container.ExecStartOptions{})
 	if err != nil {
-		return 0, 0, fmt.Errorf("failed to attach to exec instance for wc: %v", err)
+		return 0, 0, fmt.Errorf("failed to attach to exec instance for wc: %w", err)
 	}
 	defer resp.Close()
 
 	scanner := bufio.NewScanner(resp.Reader)
 	var linesCount int
 	if scanner.Scan() {
-		fmt.Sscanf(CleanString(scanner.Text()), "%d", &linesCount)
+		fmt.Sscanf(CleanString(scanner.Text()), "%d", &linesCount) //nolint: errcheck
 	}
 	if err := scanner.Err(); err != nil {
-		return 0, 0, fmt.Errorf("error reading wc output: %v", err)
+		return 0, 0, fmt.Errorf("error reading wc output: %w", err)
 	}
 
 	execConfig = container.ExecOptions{
@@ -255,22 +302,22 @@ func getFileStatsFromContainer(cli *client.Client, containerID string, filePath 
 
 	execIDResp, err = cli.ContainerExecCreate(context.Background(), containerID, execConfig)
 	if err != nil {
-		return 0, 0, fmt.Errorf("failed to create exec instance for stat: %v", err)
+		return 0, 0, fmt.Errorf("failed to create exec instance for stat: %w", err)
 	}
 
 	resp, err = cli.ContainerExecAttach(context.Background(), execIDResp.ID, container.ExecStartOptions{})
 	if err != nil {
-		return 0, 0, fmt.Errorf("failed to attach to exec instance for stat: %v", err)
+		return 0, 0, fmt.Errorf("failed to attach to exec instance for stat: %w", err)
 	}
 	defer resp.Close()
 
 	scanner = bufio.NewScanner(resp.Reader)
 	var fileSize int64
 	if scanner.Scan() {
-		fmt.Sscanf(CleanString(scanner.Text()), "%d", &fileSize)
+		fmt.Sscanf(CleanString(scanner.Text()), "%d", &fileSize) //nolint: errcheck
 	}
 	if err := scanner.Err(); err != nil {
-		return 0, 0, fmt.Errorf("error reading stat output: %v", err)
+		return 0, 0, fmt.Errorf("error reading stat output: %w", err)
 	}
 
 	return linesCount, fileSize, nil

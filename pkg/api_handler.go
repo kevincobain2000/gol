@@ -64,7 +64,6 @@ func (h *APIHandler) Get(c echo.Context) error {
 		req.FilePath = first.FilePath
 		req.Host = first.Host
 		req.Type = first.Type
-
 	}
 
 	if !FilePathInGlobalFilePaths(req.FilePath) {
