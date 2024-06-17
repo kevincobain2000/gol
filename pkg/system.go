@@ -8,7 +8,6 @@ import (
 	"runtime"
 
 	"github.com/gookit/color"
-	"github.com/k0kubun/pp"
 	g "github.com/kevincobain2000/go-human-uuid/lib"
 )
 
@@ -31,7 +30,7 @@ func IsInputFromPipe() bool {
 	return (fileInfo.Mode() & os.ModeCharDevice) == 0
 }
 
-func PipeLinesToTmp(tmpfile *os.File) error {
+func PipeLinesToTmp(tmpFile *os.File) error {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	color.Info.Println("tmp file created for stdin: ", GlobalPipeTmpFilePath)
@@ -44,21 +43,21 @@ func PipeLinesToTmp(tmpfile *os.File) error {
 	tempFileInfo := FileInfo{FilePath: GlobalPipeTmpFilePath, LinesCount: linesCount, FileSize: fileSize, Type: TypeStdin}
 
 	GlobalFilePaths = append([]FileInfo{tempFileInfo}, GlobalFilePaths...)
-	color.Info.Println("tmp file created added to global filepaths: ", pp.Sprint(GlobalFilePaths))
+	color.Info.Println("tmp file created added to global filepaths: ", GlobalFilePaths)
 
 	lineCount := 0
 	for scanner.Scan() {
 		line := scanner.Text()
 		if lineCount >= 10000 {
-			if err := tmpfile.Truncate(0); err != nil {
+			if err := tmpFile.Truncate(0); err != nil {
 				color.Danger.Println("error truncating file: ", err)
 			}
-			if _, err := tmpfile.Seek(0, 0); err != nil {
+			if _, err := tmpFile.Seek(0, 0); err != nil {
 				color.Danger.Println("error seeking file: ", err)
 			}
 			lineCount = 0
 		}
-		if _, err := tmpfile.WriteString(line + "\n"); err != nil {
+		if _, err := tmpFile.WriteString(line + "\n"); err != nil {
 			color.Danger.Println("error writing to file: ", err)
 		}
 		lineCount++
@@ -72,14 +71,24 @@ func PipeLinesToTmp(tmpfile *os.File) error {
 	return nil
 }
 
-func GetTmpFileName() string {
+func GetTmpFileNameForSTDIN() string {
 	gen, _ := g.NewGenerator([]g.Option{
 		func(opt *g.Options) error {
 			opt.Length = 2
 			return nil
 		},
 	}...)
-	return "/tmp/GOL-STDIN-" + gen.Generate()
+	return TmpStdinPath + gen.Generate()
+}
+
+func GetTmpFileNameForContainer() string {
+	gen, _ := g.NewGenerator([]g.Option{
+		func(opt *g.Options) error {
+			opt.Length = 2
+			return nil
+		},
+	}...)
+	return TmpContainerPath + gen.Generate()
 }
 
 func OpenBrowser(url string) {

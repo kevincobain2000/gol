@@ -2,7 +2,7 @@
 
 ---
 
-<div class="max-w-4xl mx-auto mt-10">
+<div class="mx-auto mt-10">
   <div class="relative">
     <div
       class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md font-bold"
@@ -44,7 +44,7 @@
     </template>
   </div>
   <template x-if="loading.error">
-    <span x-text="loading.error" class="text-rose-600 text-sm block mt-5"
+    <span x-text="loading.error" class="text-rose-400 text-sm block mt-5"
     ></span>
   </template>
   <template x-if="loading.errorJSON">
@@ -55,7 +55,7 @@
   </template>
 
   <div class="z-10 rounded-lg shadow w-full bg-gray-900 pb-5 mt-5 pt-5">
-    <template x-for="type in ['file', 'ssh', 'stdin']">
+    <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
       <ul
         class="max-h-48 px-3 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
       >
@@ -67,21 +67,80 @@
               class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-2 pointer-events-none"
             >
               <template x-if="type === 'file'">
-                <svg class="w-6 h-6 text-sky-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>
-                  </svg>
-
+                <svg
+                  class="w-6 h-6 text-sky-800"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                  ></path>
+                </svg>
               </template>
               <template x-if="type === 'stdin'">
-                <svg class="w-6 h-6 text-sky-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.782 5.72a4.773 4.773 0 0 0-4.8 4.173 3.43 3.43 0 0 1 2.741-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.934-2.865 3.137-3.921-.969 1.379-2.44 2.207-4.259 1.231-1.253-.673-2.19-3.438-5.959-3.318ZM6.8 11.979A4.772 4.772 0 0 0 2 16.151a3.431 3.431 0 0 1 2.745-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.933-2.865 3.137-3.921-.97 1.379-2.44 2.208-4.259 1.231-1.253-.673-2.19-3.443-5.963-3.317Z"/>
-                  </svg>
-
+                <svg
+                  class="w-6 h-6 text-sky-800"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M11.782 5.72a4.773 4.773 0 0 0-4.8 4.173 3.43 3.43 0 0 1 2.741-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.934-2.865 3.137-3.921-.969 1.379-2.44 2.207-4.259 1.231-1.253-.673-2.19-3.438-5.959-3.318ZM6.8 11.979A4.772 4.772 0 0 0 2 16.151a3.431 3.431 0 0 1 2.745-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.933-2.865 3.137-3.921-.97 1.379-2.44 2.208-4.259 1.231-1.253-.673-2.19-3.443-5.963-3.317Z"
+                  ></path>
+                </svg>
               </template>
               <template x-if="type === 'ssh'">
-                <svg class="w-6 h-6 text-sky-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1M5 12h14M5 12a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1m-2 3h.01M14 15h.01M17 9h.01M14 9h.01"/>
-                  </svg>
+                <svg
+                  class="w-6 h-6 text-sky-600"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 12a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1M5 12h14M5 12a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1m-2 3h.01M14 15h.01M17 9h.01M14 9h.01"
+                  ></path>
+                </svg>
+              </template>
+              <template x-if="type === 'docker'">
+                <svg
+                  class="w-6 h-6 text-sky-600"
+                  aria-label="Docker"
+                  role="img"
+                  viewBox="0 0 512 512"
+                  fill="#000000"
+                  ><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g
+                    id="SVGRepo_tracerCarrier"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"
+                    ><rect width="512" height="512" rx="15%" fill="#111827"
+                    ></rect><path
+                      stroke="#066da5"
+                      stroke-width="38"
+                      d="M296 226h42m-92 0h42m-91 0h42m-91 0h41m-91 0h42m8-46h41m8 0h42m7 0h42m-42-46h42"
+                    ></path><path
+                      fill="#066da5"
+                      d="m472 228s-18-17-55-11c-4-29-35-46-35-46s-29 35-8 74c-6 3-16 7-31 7H68c-5 19-5 145 133 145 99 0 173-46 208-130 52 4 63-39 63-39"
+                    ></path></g
+                  ></svg
+                >
               </template>
             </div>
             <span
@@ -99,7 +158,7 @@
             <div
               class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
               :class="{'bg-gray-800 border-2 border-gray-900': filepath.file_path === results.result.file_path}"
-              @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host; submit()"
+              @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host;input.type = filepath.type; submit()"
             >
               <input
                 type="radio"
@@ -132,10 +191,20 @@
                     >FILE</span
                   >
                 </template>
+                <template x-if="filepath.type == 'docker'">
+                  <span
+                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-sky-700 text-sky-100"
+                    >DOCKER</span
+                  >
+                </template>
                 <span
                   x-show="filepath.host"
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-yellow-700 text-gray-900"
                   x-text="filepath.host"></span>
+                <span
+                  x-show="filepath.name"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300 truncate"
+                  x-text="filepath.name"></span>
                 <span
                   x-text="filepath.file_path.split('/').slice(0, -1).join('/')"
                   :class="{'text-green-500 font-bold': filepath.file_path === results.result.file_path}"
@@ -147,10 +216,12 @@
                   :class="{'font-bold text-blue-400': filepath.file_path === results.result.file_path}"
                 ></span>
                 <span
-                  class="text-gray-400 ml-2"
-                  x-text="`(${formatBytes(filepath.file_size)} - ${numberToK(filepath.lines_count)} lines)`"
-                ></span>
+                  class="text-gray-600 ml-2 font-sans xl:hidden"
+                  x-text="`(${formatBytes(filepath.file_size)})`"></span>
               </label>
+              <span
+                class="text-gray-400 pr-2 text-right w-1/12"
+                x-text="`${numberToK(filepath.lines_count)}`"></span>
             </div>
           </li>
         </template>

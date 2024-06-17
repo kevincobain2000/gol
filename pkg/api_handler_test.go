@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -50,21 +51,22 @@ ERROR Another error occurred`
 		assert.Equal(t, http.StatusOK, rec.Code)
 		expected := `{
 			"result": {
-				"host": "",
 				"file_path": "test.log",
+				"host": "",
+				"type": "file",
 				"match_pattern": "ERROR",
 				"total": 2,
 				"lines": [
-					{
-						"line_number": 2,
-						"content": "ERROR An error occurred",
-						"level": "error"
-					},
-					{
-						"line_number": 4,
-						"content": "ERROR Another error occurred",
-						"level": "error"
-					}
+				{
+					"line_number": 2,
+					"content": "ERROR An error occurred",
+					"level": "error"
+				},
+				{
+					"line_number": 4,
+					"content": "ERROR Another error occurred",
+					"level": "error"
+				}
 				]
 			},
 			"file_paths": [
@@ -73,10 +75,12 @@ ERROR Another error occurred`
 					"lines_count": 4,
 					"file_size": 0,
 					"type": "file",
-					"host": ""
+					"host": "",
+					"name": ""
 				}
 			]
 		}`
+		fmt.Println(rec.Body.String())
 		assert.JSONEq(t, expected, rec.Body.String())
 	}
 }

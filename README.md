@@ -9,9 +9,10 @@
 </h1>
 
 <p align="center">
-  View realtime logs in browser<br>
+  View realtime logs in your fav browser<br>
+  Local, Docker, Remote, Pipes<br>
   Advanced regex search<br>
-  Low Memory Footprint<br>
+  Low Mem Footprint<br>
   Single binary
 </p>
 
@@ -21,13 +22,7 @@
 
 **Platform:** Supports (arm64, arch64, Mac, Mac M1, Ubuntu and Windows).
 
-**Flexible:** Works with multiple logs file, with massive size support.
-
-**Remote:** View remote logs over ssh in browser.
-
-**Pipe:** Supports piped inputs.
-
-**Supports** Plain text, piped inputs, ansii outputs, tar and gz compressed.
+**Flexible:** View docker logs, remote logs over ssh, files on disk and piped inputs in browser.
 
 **Intelligent** Smartly judges log level.
 
@@ -106,12 +101,21 @@ demsg | gol -f="/var/log/*.log"
 # over ssh
 # port optional (default 22), password optional (default ''), private_key optional (default $HOME/.ssh/id_rsa)
 gol -s="user@host[:port] [password=/path/to/password] [private_key=/path/to/key] /app/*logs"
-```
 
-Full Options
+# Docker all container logs
+gol -d=""
 
-```sh
-gol -h
+# Docker specific container logs
+gol -d="container-id"
+
+# Docker specific path on a container
+gol -d="container-id /app/logs.log"
+
+# All patterns combined
+gol -d="container-id" \
+    -d="container-id /app/logs.log" \
+    -s="user@host[:port] [password=/path/to/password] [private_key=/path/to/key] /app/*logs" \
+    -f="/var/log/*.log"
 ```
 
 ## CHANGE LOG
@@ -121,3 +125,8 @@ gol -h
 - **v1.0.4** - Support os.Args for quick view.
 - **v1.0.5** - Support ssh logs.
 - **v1.0.6** - UI shows grouped output.
+- **v1.0.7** - Support docker logs.
+
+## Limitations
+
+- **Docker Logs:** Only supports logs from containers running on the same machine.
