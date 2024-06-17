@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/kevincobain2000/gol">
-    <img alt="gol" src="https://imgur.com/sktoYPP.png" width="120">
+    <img alt="gol" src="https://imgur.com/FSKVvQS.png" width="320">
   </a>
 </p>
 

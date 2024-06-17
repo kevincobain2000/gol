@@ -15,6 +15,7 @@ type FileInfo struct {
 	FilePath   string `json:"file_path"`
 	LinesCount int    `json:"lines_count"`
 	FileSize   int64  `json:"file_size"`
+	Name       string `json:"name"`
 	Type       string `json:"type"`
 	Host       string `json:"host"`
 }

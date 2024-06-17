@@ -71,11 +71,12 @@ ERROR Another error occurred`
 			},
 			"file_paths": [
 				{
-				"file_path": "test.log",
-				"lines_count": 4,
-				"file_size": 0,
-				"type": "file",
-				"host": ""
+					"file_path": "test.log",
+					"lines_count": 4,
+					"file_size": 0,
+					"type": "file",
+					"host": "",
+					"name": ""
 				}
 			]
 		}`

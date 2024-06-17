@@ -2,7 +2,7 @@
 
 ---
 
-<div class="max-w-4xl mx-auto mt-10">
+<div class="mx-auto mt-10">
   <div class="relative">
     <div
       class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md font-bold"
@@ -199,8 +199,12 @@
                 </template>
                 <span
                   x-show="filepath.host"
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-yellow-700 text-gray-900"
                   x-text="filepath.host"></span>
+                <span
+                  x-show="filepath.name"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300 truncate"
+                  x-text="filepath.name"></span>
                 <span
                   x-text="filepath.file_path.split('/').slice(0, -1).join('/')"
                   :class="{'text-green-500 font-bold': filepath.file_path === results.result.file_path}"
@@ -212,14 +216,12 @@
                   :class="{'font-bold text-blue-400': filepath.file_path === results.result.file_path}"
                 ></span>
                 <span
-                  class="text-gray-600 ml-2 font-sans"
-                  x-text="`(${formatBytes(filepath.file_size)})`"
-                ></span>
+                  class="text-gray-600 ml-2 font-sans xl:hidden"
+                  x-text="`(${formatBytes(filepath.file_size)})`"></span>
               </label>
               <span
                 class="text-gray-400 pr-2 text-right w-1/12"
-                x-text="`${numberToK(filepath.lines_count)} rows`"
-                ></span>
+                x-text="`${numberToK(filepath.lines_count)}`"></span>
             </div>
           </li>
         </template>

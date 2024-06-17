@@ -184,6 +184,7 @@ func updateGlobalFilePaths() {
 				if len(fileInfo) > 0 {
 					fileInfo[0].Host = container.ID[:12]
 					fileInfo[0].Type = pkg.TypeDocker
+					fileInfo[0].Name = container.Names[0][1:]
 					fileInfos = append(fileInfo, fileInfos...)
 				}
 			}
