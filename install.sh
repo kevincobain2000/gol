@@ -54,6 +54,10 @@ if [ -z "$THE_ARCH_BIN" ]; then
    exit 1
 fi
 
+
+curl -kL --progress-bar https://github.com/kevincobain2000/$THIS_PROJECT_NAME/releases/latest/download/$THE_ARCH_BIN -o $THIS_PROJECT_NAME
+echo "Downloaded $THIS_PROJECT_NAME"
+
 SUDO=""
 
 # check if $DEST is writable and suppress an error message
@@ -65,7 +69,7 @@ if [ $? -eq 1 ]; then
     SUDO="sudo"
 fi
 
-$SUDO curl -kL --progress-bar https://github.com/kevincobain2000/$THIS_PROJECT_NAME/releases/latest/download/$THE_ARCH_BIN -o "$DEST"
+$SUDO mv $THIS_PROJECT_NAME "$BIN_DIR"/$THIS_PROJECT_NAME
 
 $SUDO chmod +x "$BIN_DIR"/$THIS_PROJECT_NAME
 
