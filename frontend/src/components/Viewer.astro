@@ -23,9 +23,10 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   let input = Alpine.reactive({
     query: "",
     file_path: "",
-    realtime: true,
+    realtime: false,
     reverse: true,
     host: "",
+    type: "",
     page: 1,
     per_page: 15,
   });
@@ -65,13 +66,15 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   }
 
   const init = async () => {
-    input.host = input.host.trim();
+    input.host = input.host ?? ""; // could be undefined
+    input.type = input.type ?? ""; // could be undefined
     loading.error = "";
     loading.errorJSON = "";
     loading.fetching = true;
 
-    const url = `${baseURL}/api?query=${input.query}&page=${input.page}&per_page=${input.per_page}&file_path=${input.file_path}&host=${input.host || ""}&reverse=${input.reverse}`;
+    const url = `${baseURL}/api?query=${input.query}&page=${input.page}&per_page=${input.per_page}&file_path=${input.file_path}&host=${input.host}&type=${input.type}&reverse=${input.reverse}`;
 
+    console.log(url)
     const response = await fetch(url).catch((error) => {
       loading.fetching = false;
       loading.error = error;
@@ -95,13 +98,14 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     if (input.reverse && res.result.lines) {
       res.result.lines = res.result.lines.reverse();
       highlighter.line_from =  highlighter.line_upto
-      highlighter.line_upto =  res.result.lines[0].line_number
+      highlighter.line_upto = res.result.lines.length > 0 ? res.result.lines[0].line_number : 0;
     }
     setTimeout(() => {
         results.file_paths = res.file_paths;
         results.result = res.result;
         input.file_path = res.result.file_path
         input.host = res.result.host
+        input.type = res.result.type
     }, 100);
 
 

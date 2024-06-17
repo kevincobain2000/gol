@@ -30,6 +30,25 @@ func StringInSlice(s string, ss []string) bool {
 	}
 	return false
 }
+func FilePathInGlobalFilePaths(filePath string) bool {
+	for _, fileInfo := range GlobalFilePaths {
+		if fileInfo.FilePath == filePath {
+			return true
+		}
+	}
+	return false
+}
+
+// CleanString removes non-printable characters from a string
+func CleanString(input string) string {
+	cleaned := make([]rune, 0, len(input))
+	for _, r := range input {
+		if unicode.IsPrint(r) {
+			cleaned = append(cleaned, r)
+		}
+	}
+	return string(cleaned)
+}
 
 // JudgeLogLevel returns the log level based on the content of the log line if the format is consistent
 func JudgeLogLevel(line string, keywordPosition int) string {

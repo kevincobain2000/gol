@@ -204,6 +204,26 @@ type SSHPathConfig struct {
 	FilePath       string
 }
 
+type DockerPathConfig struct {
+	ContainerID string
+	FilePath    string
+}
+
+// s is an input of the form "container_id /path/to/file"
+func StringToDockerPathConfig(s string) (*DockerPathConfig, error) {
+	// Split the input string into parts
+	parts := strings.Fields(s)
+
+	// There should be 2 parts: "container_id" and "/path/to/file"
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("input string does not have the correct format")
+	}
+	return &DockerPathConfig{
+		ContainerID: parts[0],
+		FilePath:    parts[1],
+	}, nil
+}
+
 // s is an input of the form "user@host[:port] [password=/path/to/password] [private_key=/path/to/key] /path/to/file"
 func StringToSSHPathConfig(s string) (*SSHPathConfig, error) {
 	config := &SSHPathConfig{}
@@ -298,7 +318,7 @@ func sshOpenFile(filename string, config *SSHConfig) (*os.File, error) {
 	}
 	defer session.Close()
 
-	tmpFile, err := os.Create(GetTmpFileName())
+	tmpFile, err := os.Create(GetTmpFileNameForSTDIN())
 	if err != nil {
 		return nil, err
 	}

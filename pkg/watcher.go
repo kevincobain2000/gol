@@ -77,6 +77,7 @@ type LineResult struct {
 type ScanResult struct {
 	FilePath     string       `json:"file_path"`
 	Host         string       `json:"host"`
+	Type         string       `json:"type"`
 	MatchPattern string       `json:"match_pattern"`
 	Total        int          `json:"total"`
 	Lines        []LineResult `json:"lines"`

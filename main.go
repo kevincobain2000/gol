@@ -28,17 +28,18 @@ func (i *sliceFlags) Set(value string) error {
 }
 
 type Flags struct {
-	host      string
-	port      int64
-	cors      int64
-	every     int64
-	limit     int
-	baseURL   string
-	filePaths sliceFlags
-	sshPaths  sliceFlags
-	access    bool
-	open      bool
-	version   bool
+	host        string
+	port        int64
+	cors        int64
+	every       int64
+	limit       int
+	baseURL     string
+	filePaths   sliceFlags
+	sshPaths    sliceFlags
+	dockerPaths sliceFlags
+	access      bool
+	open        bool
+	version     bool
 }
 
 var f Flags
@@ -50,7 +51,7 @@ func main() {
 	wantsVersion()
 
 	if pkg.IsInputFromPipe() {
-		tmpFile, err := os.Create(pkg.GetTmpFileName())
+		tmpFile, err := os.Create(pkg.GetTmpFileNameForSTDIN())
 		if err != nil {
 			color.New(color.FgRed).Println("error creating temp file: ", err)
 			return
@@ -110,15 +111,6 @@ func defaultFilePaths() {
 		f.filePaths = append(f.filePaths, pkg.GlobalPipeTmpFilePath)
 	}
 
-	if f.filePaths == nil && !pkg.IsInputFromPipe() {
-		dir, _ := os.Getwd()
-		f.filePaths = []string{
-			dir + "/*/*log",
-			dir + "/*log",
-		}
-		color.Info.Println("no file path provided, using ", f.filePaths)
-	}
-
 	if f.sshPaths != nil {
 		for _, sshPath := range f.sshPaths {
 			sshFilePathConfig, err := pkg.StringToSSHPathConfig(sshPath)
@@ -140,6 +132,15 @@ func defaultFilePaths() {
 		}
 	}
 
+	if f.filePaths == nil && !pkg.IsInputFromPipe() && f.sshPaths != nil && f.dockerPaths != nil {
+		dir, _ := os.Getwd()
+		f.filePaths = []string{
+			dir + "/*/*log",
+			dir + "/*log",
+		}
+		color.Info.Println("no file path provided, using ", f.filePaths)
+	}
+
 	updateGlobalFilePaths()
 }
 
@@ -155,16 +156,45 @@ func updateGlobalFilePaths() {
 			color.Danger.Println(err)
 			break
 		}
-		if sshFilePathConfig != nil {
-			sshConfig := pkg.SSHConfig{
-				Host:           sshFilePathConfig.Host,
-				Port:           sshFilePathConfig.Port,
-				User:           sshFilePathConfig.User,
-				Password:       sshFilePathConfig.Password,
-				PrivateKeyPath: sshFilePathConfig.PrivateKeyPath,
+		sshConfig := pkg.SSHConfig{
+			Host:           sshFilePathConfig.Host,
+			Port:           sshFilePathConfig.Port,
+			User:           sshFilePathConfig.User,
+			Password:       sshFilePathConfig.Password,
+			PrivateKeyPath: sshFilePathConfig.PrivateKeyPath,
+		}
+		pkg.GlobalPathSSHConfig = append(pkg.GlobalPathSSHConfig, *sshFilePathConfig)
+		fileInfo := pkg.GetFileInfos(sshFilePathConfig.FilePath, f.limit, true, &sshConfig)
+		fileInfos = append(fileInfo, fileInfos...)
+	}
+
+	for _, pattern := range f.dockerPaths {
+		containers, _ := pkg.ListDockerContainers()
+		if pattern == "" || len(strings.Fields(pattern)) == 1 {
+			for _, container := range containers {
+				if pattern != "" && !strings.Contains(container.Names[0], pattern) {
+					continue
+				}
+				tmpFile := pkg.ContainerStdoutToTmp(container.ID)
+				if tmpFile == nil {
+					color.Danger.Println("error creating temp file for container logs: " + container.ID)
+					continue
+				}
+				fileInfo := pkg.GetFileInfos(tmpFile.Name(), f.limit, false, nil)
+				if len(fileInfo) > 0 {
+					fileInfo[0].Host = container.ID[:12]
+					fileInfo[0].Type = pkg.TypeDocker
+					fileInfos = append(fileInfo, fileInfos...)
+				}
 			}
-			pkg.GlobalPathSSHConfig = append(pkg.GlobalPathSSHConfig, *sshFilePathConfig)
-			fileInfo := pkg.GetFileInfos(sshFilePathConfig.FilePath, f.limit, true, &sshConfig)
+		}
+		if len(strings.Fields(pattern)) == 2 {
+			dockerFilePathConfig, err := pkg.StringToDockerPathConfig(pattern)
+			if err != nil {
+				color.Danger.Println(err)
+				break
+			}
+			fileInfo := pkg.GetContainerFileInfos(dockerFilePathConfig.FilePath, f.limit, dockerFilePathConfig.ContainerID)
 			fileInfos = append(fileInfo, fileInfos...)
 		}
 	}
@@ -212,6 +242,7 @@ func uniqueFileInfos(fileInfos []pkg.FileInfo) []pkg.FileInfo {
 func flags() {
 	flag.Var(&f.filePaths, "f", "full path pattern to the log file")
 	flag.Var(&f.sshPaths, "s", "full ssh path pattern to the log file")
+	flag.Var(&f.dockerPaths, "d", "docker paths to the log file")
 	flag.BoolVar(&f.version, "version", false, "")
 	flag.BoolVar(&f.access, "access", false, "print access logs")
 	flag.StringVar(&f.host, "host", "localhost", "host to serve")
