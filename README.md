@@ -23,9 +23,13 @@
 
 **Flexible:** Works with multiple logs file, with massive size support.
 
-**Remote:** View remote logs over ssh in browser.
+**SSH Logs:** View remote logs over ssh in browser.
 
-**Pipe:** Supports piped inputs.
+**Pipe Logs:** Supports piped inputs.
+
+**Docker Logs:** Supports docker container logs.
+
+**Docker File Logs:** Supports logs from path to a file inside a container.
 
 **Supports** Plain text, piped inputs, ansii outputs, tar and gz compressed.
 
@@ -121,3 +125,5 @@ gol -h
 - **v1.0.4** - Support os.Args for quick view.
 - **v1.0.5** - Support ssh logs.
 - **v1.0.6** - UI shows grouped output.
+- **v1.0.7** - Support docker logs.
+
