@@ -17,7 +17,8 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func IsReadableFile(filename string, isRemote bool, sshConfig *SSHConfig) (bool, error) {
+// IsReadableFile checks if the file is readable and optionally checks for valid UTF-8 encoded content
+func IsReadableFile(filename string, isRemote bool, sshConfig *SSHConfig, checkUTF8 bool) (bool, error) {
 	var file *os.File
 	var err error
 
@@ -27,45 +28,53 @@ func IsReadableFile(filename string, isRemote bool, sshConfig *SSHConfig) (bool,
 		file, err = os.Open(filename)
 	}
 	if err != nil {
-		return false, tracerr.New(err.Error())
+		return false, tracerr.Wrap(err)
 	}
 	defer file.Close()
 
 	// Check if the file is empty
 	fileInfo, err := file.Stat()
 	if err != nil {
-		return false, tracerr.New(err.Error())
+		return false, tracerr.Wrap(err)
 	}
 	if fileInfo.Size() == 0 {
 		return true, nil
 	}
+
 	buffer := make([]byte, 512)
 	n, err := file.Read(buffer)
 	if err != nil {
-		return false, tracerr.New(err.Error())
+		return false, tracerr.Wrap(err)
 	}
+
 	// Check if the file is gzip compressed
 	if IsGzip(buffer[:n]) {
-		_, err := file.Seek(0, io.SeekStart) // Reset file pointer
+		_, err = file.Seek(0, io.SeekStart) // Reset file pointer
 		if err != nil {
-			return false, tracerr.New(err.Error())
+			return false, tracerr.Wrap(err)
 		}
 
 		gzipReader, err := gzip.NewReader(file)
 		if err != nil {
-			return false, tracerr.New(err.Error())
+			return false, tracerr.Wrap(err)
 		}
 		defer gzipReader.Close()
 
 		n, err = gzipReader.Read(buffer)
 		if err != nil && !errors.Is(err, io.EOF) {
-			return false, tracerr.New(err.Error())
+			return false, tracerr.Wrap(err)
 		}
 
-		return utf8.Valid(buffer[:n]), nil
+		if checkUTF8 {
+			return utf8.Valid(buffer[:n]), nil
+		}
+		return true, nil
 	}
 
-	return utf8.Valid(buffer[:n]), nil
+	if checkUTF8 {
+		return utf8.Valid(buffer[:n]), nil
+	}
+	return true, nil
 }
 
 // IsGzip checks if the given buffer starts with the gzip magic number
@@ -158,7 +167,7 @@ func GetFileInfos(pattern string, limit int, isRemote bool, sshConfig *SSHConfig
 		filePaths = filePaths[:limit]
 	}
 	for _, filePath := range filePaths {
-		isText, err := IsReadableFile(filePath, isRemote, sshConfig)
+		isText, err := IsReadableFile(filePath, isRemote, sshConfig, false)
 		if err != nil {
 			color.Danger.Println(err)
 			return nil

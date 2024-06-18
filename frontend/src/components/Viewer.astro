@@ -6,16 +6,14 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
 
 <div class="mx-auto" id="data" data-base-url={baseURL}>
   <Inputs />
-  <div class="inline-flex items-center justify-center w-full">
-    <hr class="w-1/2 h-px my-8 border-0 bg-gray-700" />
-  </div>
   <Table />
 </div>
 
 <script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js">
 </script>
 <script is:inline>
-  const currentURL = window.location.origin;
+  let currentURL = new URL(window.location.href);
+  currentURL = currentURL.origin + currentURL.pathname;
   let baseURL =
     document.querySelector("[data-base-url]")?.getAttribute("data-base-url") ||
     currentURL;

@@ -10,13 +10,32 @@
       REGEX
     </div>
     <input
-      type="search"
+      type="text"
       x-model="input.query"
       @keyup="submit"
       class="block font-mono w-full pl-22 p-3 ps-20 text-sm text-slate-300 hover:text-slate-100 border border-gray-300 hover:border-gray-100 rounded-lg bg-gray-900 focus:outline-none"
       placeholder=".*"
       required
     />
+    <template x-if="!loading.fetching">
+      <span
+        class="absolute end-0.5 bottom-1.5 text-slate-300 text-sm px-4 py-0"
+      >
+        <label class="inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            x-model="input.realtime"
+            @change="input.reverse=true;input.page=1;submit()"
+            class="sr-only peer"
+          />
+          <div
+            class="relative w-11 h-6 rounded-full peer bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-green-400"
+          >
+          </div>
+          <span class="ms-3 text-sm font-bold text-gray-400">Realtime</span>
+        </label>
+      </span>
+    </template>
     <template x-if="loading.fetching">
       <button
         x-bind:disabled="loading.fetching"
@@ -216,7 +235,7 @@
                   :class="{'font-bold text-blue-400': filepath.file_path === results.result.file_path}"
                 ></span>
                 <span
-                  class="text-gray-600 ml-2 font-sans xl:hidden"
+                  class="text-gray-600 ml-2 font-sans"
                   x-text="`(${formatBytes(filepath.file_size)})`"></span>
               </label>
               <span

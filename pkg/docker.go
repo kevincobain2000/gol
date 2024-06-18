@@ -232,7 +232,7 @@ func GetContainerFileInfos(pattern string, limit int, containerID string) []File
 	}
 
 	execConfig := container.ExecOptions{
-		Cmd:          []string{"ls", "-1", pattern},
+		Cmd:          []string{"sh", "-c", fmt.Sprintf("ls -1 %s", pattern)},
 		AttachStdout: true,
 		AttachStderr: true,
 	}

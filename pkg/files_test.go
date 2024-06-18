@@ -44,7 +44,7 @@ func TestIsReadableFile(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.filename, func(t *testing.T) {
-			result, err := IsReadableFile(test.filename, false, nil)
+			result, err := IsReadableFile(test.filename, false, nil, false)
 			if (err != nil) != test.expectErr {
 				t.Errorf("IsReadableFile(%q) error = %v, wantErr %v", test.filename, err, test.expectErr)
 				return
