@@ -15,7 +15,8 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
 <script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js">
 </script>
 <script is:inline>
-  const currentURL = window.location.origin;
+  let currentURL = new URL(window.location.href);
+  currentURL = currentURL.origin + currentURL.pathname;
   let baseURL =
     document.querySelector("[data-base-url]")?.getAttribute("data-base-url") ||
     currentURL;
