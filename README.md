@@ -38,7 +38,7 @@
 
 <p align="center">
   <a href="https://github.com/kevincobain2000/gol">
-    <img alt="gol" src="https://imgur.com/UJzkytB.png">
+    <img alt="gol" src="https://imgur.com/fBK0hGa.png">
   </a>
 </p>
 
