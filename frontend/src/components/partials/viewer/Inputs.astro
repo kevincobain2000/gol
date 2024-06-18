@@ -177,10 +177,10 @@
             <div
               class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
               :class="{'bg-gray-800 border-2 border-gray-900': filepath.file_path === results.result.file_path}"
-              @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host;input.type = filepath.type; submit()"
             >
               <input
                 type="radio"
+                @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host;input.type = filepath.type; submit()"
                 :value="filepath.file_path"
                 class="w-5 h-5 rounded border-blue-500 accent-blue-500"
                 x-model="input.file_path"
