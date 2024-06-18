@@ -47,6 +47,10 @@ func CleanString(input string) string {
 			cleaned = append(cleaned, r)
 		}
 	}
+	// remove first %
+	if len(cleaned) > 0 && cleaned[0] == '%' {
+		cleaned = cleaned[1:]
+	}
 	return string(cleaned)
 }
 

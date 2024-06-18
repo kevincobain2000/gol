@@ -87,7 +87,7 @@ gol
 
 ```sh
 # run in current directory for pattern
-gol "storage/*log" "access/*log"
+gol "storage/*log" "access/*log.tar.gz"
 ```
 
 ## Advanced Examples

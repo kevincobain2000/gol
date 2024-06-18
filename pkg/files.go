@@ -167,7 +167,7 @@ func GetFileInfos(pattern string, limit int, isRemote bool, sshConfig *SSHConfig
 		filePaths = filePaths[:limit]
 	}
 	for _, filePath := range filePaths {
-		isText, err := IsReadableFile(filePath, isRemote, sshConfig)
+		isText, err := IsReadableFile(filePath, isRemote, sshConfig, false)
 		if err != nil {
 			color.Danger.Println(err)
 			return nil

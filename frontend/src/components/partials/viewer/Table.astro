@@ -4,27 +4,6 @@
 
 <div class="grid grid-cols-2 gap-4">
   <div class="text-left">
-    <label class="inline-flex items-center cursor-pointer">
-      <input
-        type="checkbox"
-        x-model="input.realtime"
-        @change="input.reverse=true;input.page=1;submit()"
-        class="sr-only peer"
-      />
-      <div
-        class="relative w-11 h-6 rounded-full peer bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-green-400"
-      >
-      </div>
-      <span class="ms-3 text-sm font-bold text-gray-400">Realtime</span>
-    </label>
-    <div class="text-sm pt-5">
-        <svg class="inline w-5 h-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-      Updated at <span x-text="loading.updated_at"></span>
-    </div>
-  </div>
-  <div class="text-right">
     <label class="inline-flex items-center cursor-pointer mt-4">
       <span class="mr-2 text-sm font-medium text-gray-400">Per page:</span>
       <select
@@ -38,6 +17,11 @@
         <option value="1000">1000</option>
       </select>
     </label>
+  </div>
+  <div class="text-right pt-5">
+    <span class="text-sm text-slate-500">
+      Updated at <span x-text="loading.updated_at"></span>
+    </span>
   </div>
 </div>
 
