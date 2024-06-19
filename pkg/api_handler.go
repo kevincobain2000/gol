@@ -113,6 +113,7 @@ func (h *APIHandler) Get(c echo.Context) error {
 
 	result, err := watcher.Scan(req.Page, req.PerPage, req.Reverse)
 	result.Type = req.Type
+	result.Host = req.Host
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
