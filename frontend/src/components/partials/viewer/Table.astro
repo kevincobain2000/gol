@@ -30,7 +30,7 @@
     <table class="w-full text-sm font-mono text-left text-gray-400">
       <thead class="text-xs bg-gray-700 text-gray-400">
         <tr>
-          <th scope="col" class="px-3 py-3 uppercase">
+          <th scope="col" class="px-3 py-3 uppercase" style="width: 100px;">
             <template x-if="input.reverse">
               <button
                 class="text-white"
@@ -44,7 +44,9 @@
               >
             </template>
           </th>
-          <th scope="col" class="px-3 py-3 uppercase">Level</th>
+          <th scope="col" class="px-3 py-3 uppercase" style="width: 150px;"
+            >Level</th
+          >
           <th scope="col" class="px-3 py-3">
             <span class="font-mono" x-text="results.result.file_path"></span>
           </th>
@@ -56,8 +58,8 @@
             class="border-b bg-gray-800 border-gray-700"
             :class="{'highlight': input.realtime == true && highlighter.line_from  > 0 && item.line_number-1 >= highlighter.line_from}"
           >
-            <td class="px-3 py-2" x-text="item.line_number.toLocaleString()">
-            </td>
+            <td class="px-3 py-2" x-text="item.line_number.toLocaleString()"
+            ></td>
             <td class="px-3 py-2">
               <template x-if="item.level == 'success'">
                 <span
