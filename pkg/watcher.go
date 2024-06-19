@@ -102,7 +102,7 @@ func (w *Watcher) Scan(page, pageSize int, reverse bool) (*ScanResult, error) {
 
 	lines := w.paginateLines(allLines, page, pageSize, reverse)
 
-	w.appendLogLevel(&lines)
+	AppendLogLevel(&lines)
 
 	return &ScanResult{
 		FilePath:     w.filePath,
@@ -189,6 +189,7 @@ func (w *Watcher) collectMatchingLines(scanner *bufio.Scanner) ([]LineResult, in
 
 	for scanner.Scan() {
 		line := scanner.Text()
+		line = stripansi.Strip(line)
 		lineNumber++
 		if re.MatchString(line) {
 			allLines = append(allLines, LineResult{
@@ -230,19 +231,4 @@ func (w *Watcher) paginateLines(allLines []LineResult, page, pageSize int, rever
 	}
 
 	return []LineResult{}
-}
-
-func (w *Watcher) appendLogLevel(lines *[]LineResult) {
-	logLines := []string{}
-	for _, line := range *lines {
-		line.Content = stripansi.Strip(line.Content)
-		logLines = append(logLines, line.Content)
-	}
-
-	isConsistent, keywordPosition := ConsistentFormat(logLines)
-	if isConsistent {
-		for i, line := range *lines {
-			(*lines)[i].Level = JudgeLogLevel(line.Content, keywordPosition)
-		}
-	}
 }

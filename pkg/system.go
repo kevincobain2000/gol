@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"runtime"
 
+	"github.com/acarl005/stripansi"
 	"github.com/gookit/color"
 	g "github.com/kevincobain2000/go-human-uuid/lib"
 )
@@ -48,6 +49,7 @@ func PipeLinesToTmp(tmpFile *os.File) error {
 	lineCount := 0
 	for scanner.Scan() {
 		line := scanner.Text()
+		line = stripansi.Strip(line)
 		if lineCount >= 10000 {
 			if err := tmpFile.Truncate(0); err != nil {
 				color.Danger.Println("error truncating file: ", err)

@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/acarl005/stripansi"
 )
 
 func F64NumberToK(num *float64) string {
@@ -143,4 +145,19 @@ func ConsistentFormat(logLines []string) (bool, int) {
 	}
 
 	return true, consistentPosition
+}
+
+func AppendLogLevel(lines *[]LineResult) {
+	logLines := []string{}
+	for _, line := range *lines {
+		line.Content = stripansi.Strip(line.Content)
+		logLines = append(logLines, line.Content)
+	}
+
+	isConsistent, keywordPosition := ConsistentFormat(logLines)
+	if isConsistent {
+		for i, line := range *lines {
+			(*lines)[i].Level = JudgeLogLevel(line.Content, keywordPosition)
+		}
+	}
 }

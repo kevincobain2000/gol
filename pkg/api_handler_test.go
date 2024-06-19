@@ -117,6 +117,19 @@ func TestAPIHandler_Get404(t *testing.T) {
 	assert.Error(t, resp)
 	// nolint: errorlint
 	if he, ok := resp.(*echo.HTTPError); ok {
+		assert.Equal(t, http.StatusUnprocessableEntity, he.Code)
+	} else {
+		assert.Fail(t, "response is not an HTTP error")
+	}
+
+	req = httptest.NewRequest(http.MethodGet, "/api?file_path=wrong&type=file", nil)
+	rec = httptest.NewRecorder()
+	c = e.NewContext(req, rec)
+	resp = handler.Get(c)
+
+	assert.Error(t, resp)
+	// nolint: errorlint
+	if he, ok := resp.(*echo.HTTPError); ok {
 		assert.Equal(t, http.StatusNotFound, he.Code)
 	} else {
 		assert.Fail(t, "response is not an HTTP error")

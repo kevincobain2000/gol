@@ -66,6 +66,9 @@ func (h *APIHandler) Get(c echo.Context) error {
 		req.Host = first.Host
 		req.Type = first.Type
 	}
+	if req.FilePath != "" && req.Type == "" {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "type and host are required")
+	}
 
 	if !FilePathInGlobalFilePaths(req.FilePath) {
 		return echo.NewHTTPError(http.StatusNotFound, "file not found")

@@ -63,6 +63,7 @@ func ContainerStdoutToTmp(containerID string) *os.File {
 	lineCount := 0
 	for scanner.Scan() {
 		line := scanner.Text()
+		line = stripansi.Strip(line)
 		if lineCount >= 10000 {
 			if err := tmpFile.Truncate(0); err != nil {
 				color.Danger.Println("error truncating file: ", err)
@@ -163,7 +164,8 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 	scanner := bufio.NewScanner(resp.Reader)
 	lineNumber := startLine + 1
 	for scanner.Scan() {
-		lineContent := CleanString(scanner.Text())
+		lineContent := stripansi.Strip(scanner.Text())
+		lineContent = CleanString(lineContent)
 		if re.MatchString(lineContent) {
 			// Here, you might want to include logic to determine the 'Level' in the log line
 			lineResult := LineResult{
@@ -197,7 +199,7 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 		lines = shifted
 	}
 
-	appendLogLevel(&lines)
+	AppendLogLevel(&lines)
 	scanResult := &ScanResult{
 		FilePath:     filePath,
 		Host:         containerID, // Assuming containerID represents the host
@@ -207,21 +209,6 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 	}
 
 	return scanResult, nil
-}
-
-func appendLogLevel(lines *[]LineResult) {
-	logLines := []string{}
-	for _, line := range *lines {
-		line.Content = stripansi.Strip(line.Content)
-		logLines = append(logLines, line.Content)
-	}
-
-	isConsistent, keywordPosition := ConsistentFormat(logLines)
-	if isConsistent {
-		for i, line := range *lines {
-			(*lines)[i].Level = JudgeLogLevel(line.Content, keywordPosition)
-		}
-	}
 }
 
 func GetContainerFileInfos(pattern string, limit int, containerID string) []FileInfo {

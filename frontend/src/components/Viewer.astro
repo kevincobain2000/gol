@@ -9,8 +9,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   <Table />
 </div>
 
-<script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js">
-</script>
+<script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js"></script>
 <script is:inline>
   let currentURL = new URL(window.location.href);
   currentURL = currentURL.origin + currentURL.pathname;
@@ -32,7 +31,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   });
   let highlighter = Alpine.reactive({
     line_from: 0,
-    line_upto: 0
+    line_upto: 0,
   });
   let results = Alpine.reactive({
     result: {
@@ -40,7 +39,6 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
       match_pattern: "",
       total: 0,
       file_path: "",
-
     },
     file_paths: [],
   });
@@ -53,16 +51,15 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   let intervalId = null;
 
   function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
-
   function numberToK(number) {
-    return number > 999 ? (number / 1000).toFixed(1) + 'k' : number;
+    return number > 999 ? (number / 1000).toFixed(1) + "k" : number;
   }
 
   const init = async () => {
@@ -96,17 +93,17 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     let res = await response.json();
     if (input.reverse && res.result.lines) {
       res.result.lines = res.result.lines.reverse();
-      highlighter.line_from =  highlighter.line_upto
-      highlighter.line_upto = res.result.lines.length > 0 ? res.result.lines[0].line_number : 0;
+      highlighter.line_from = highlighter.line_upto;
+      highlighter.line_upto =
+        res.result.lines.length > 0 ? res.result.lines[0].line_number : 0;
     }
     setTimeout(() => {
-        results.file_paths = res.file_paths;
-        results.result = res.result;
-        input.file_path = res.result.file_path
-        input.host = res.result.host
-        input.type = res.result.type
+      results.file_paths = res.file_paths;
+      results.result = res.result;
+      input.file_path = res.result.file_path;
+      input.host = res.result.host;
+      input.type = res.result.type;
     }, 100);
-
 
     manageRealtimeUpdates();
   };
@@ -121,7 +118,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
       clearInterval(intervalId);
     }
     if (input.realtime) {
-      intervalId = setInterval(init, 3*1000);// 3 seconds
+      intervalId = setInterval(init, 3 * 1000); // 3 seconds
     }
   };
 
