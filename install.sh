@@ -57,6 +57,7 @@ fi
 
 curl -kL --progress-bar https://github.com/kevincobain2000/$THIS_PROJECT_NAME/releases/latest/download/$THE_ARCH_BIN -o $THIS_PROJECT_NAME
 echo "Downloaded $THIS_PROJECT_NAME"
+chmod +x $THIS_PROJECT_NAME
 
 SUDO=""
 
@@ -70,8 +71,6 @@ if [ $? -eq 1 ]; then
 fi
 
 $SUDO mv $THIS_PROJECT_NAME "$BIN_DIR"/$THIS_PROJECT_NAME
-
-$SUDO chmod +x "$BIN_DIR"/$THIS_PROJECT_NAME
 
 echo "Installed successfully to: $BIN_DIR/$THIS_PROJECT_NAME"
 
