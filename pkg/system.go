@@ -86,7 +86,7 @@ func GetTmpFileNameForSTDIN() string {
 func GetTmpFileNameForContainer() string {
 	gen, _ := g.NewGenerator([]g.Option{
 		func(opt *g.Options) error {
-			opt.Length = 2
+			opt.Length = 6
 			return nil
 		},
 	}...)

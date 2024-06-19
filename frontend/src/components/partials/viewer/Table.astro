@@ -48,7 +48,20 @@
             >Level</th
           >
           <th scope="col" class="px-3 py-3">
-            <span class="font-mono" x-text="results.result.file_path"></span>
+            <template x-if="results.result.type == 'file'" >
+                <span class="font-mono" x-text="results.result.file_path"></span>
+            </template>
+            <template x-if="results.result.type == 'docker'" >
+                <span  class="font-mono" x-text="results.result.host"></span>
+            </template>
+            <template x-if="results.result.type == 'docker' && !results.result.file_path.startsWith('/tmp/GOL-')" >
+                <span  class="font-mono" x-text="results.result.file_path"></span>
+            </template>
+            <template x-if="results.result.type == 'stdin'" >
+                <span  class="font-mono">STDIN</span>
+            </template>
+
+
           </th>
         </tr>
       </thead>
