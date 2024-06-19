@@ -18,6 +18,8 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     document.querySelector("[data-base-url]")?.getAttribute("data-base-url") ||
     currentURL;
   baseURL = baseURL.startsWith("http") ? baseURL : currentURL + baseURL;
+  // remove trailing slash
+  baseURL = baseURL.replace(/\/$/, "");
   let input = Alpine.reactive({
     query: "",
     file_path: "",
