@@ -225,11 +225,15 @@
                   class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300 truncate"
                   x-text="filepath.name"></span>
                 <span
+                  x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
                   x-text="filepath.file_path.split('/').slice(0, -1).join('/')"
                   :class="{'text-green-500 font-bold': filepath.file_path === results.result.file_path}"
                   class="truncate"></span>
-                <span class="text-slate-400">/</span>
                 <span
+                    x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
+                    class="text-slate-400">/</span>
+                <span
+                  x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
                   x-text="filepath.file_path.split('/').pop()"
                   class="truncate"
                   :class="{'font-bold text-blue-400': filepath.file_path === results.result.file_path}"
