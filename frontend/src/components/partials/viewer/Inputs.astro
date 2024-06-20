@@ -163,8 +163,10 @@
               </template>
             </div>
             <span
-              class="block w-full p-2 ps-10 text-sm text-gray-200 uppercase font-bold"
+              class="p-2 ps-10 text-sm text-gray-200 uppercase font-bold"
               x-text="type"></span>
+              <span class="text-slate-700" x-text="results.file_paths.filter((fp) => fp.type == type).length"></span>
+
           </div>
         </template>
 
@@ -175,12 +177,12 @@
             :class="{'shadow-2xl': filepath.file_path === results.result.file_path}"
           >
             <div
+              @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host;input.type = filepath.type; submit()"
               class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
               :class="{'bg-gray-800  border-gray-900': filepath.file_path === results.result.file_path}"
             >
               <input
                 type="radio"
-                @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host;input.type = filepath.type; submit()"
                 :value="filepath.file_path"
                 class="w-5 h-5 rounded border-blue-500 accent-blue-500"
                 x-model="input.file_path"
@@ -239,12 +241,9 @@
                   :class="{'font-bold text-blue-400': filepath.file_path === results.result.file_path}"
                 ></span>
                 <span
-                  class="text-gray-600 ml-2 font-sans"
-                  x-text="`(${formatBytes(filepath.file_size)})`"></span>
+                  class="text-gray-600 ml-2 font-sans text-xs"
+                  x-text="`(${formatBytes(filepath.file_size)}) ${numberToK(filepath.lines_count)} lines`"></span>
               </label>
-              <span
-                class="text-gray-600 pr-2 text-sm text-right w-1/12"
-                x-text="`${numberToK(filepath.lines_count)}`"></span>
             </div>
           </li>
         </template>
