@@ -60,12 +60,14 @@ ERROR Another error occurred`
 				{
 					"line_number": 2,
 					"content": "ERROR An error occurred",
-					"level": "error"
+					"level": "error",
+					"date": ""
 				},
 				{
 					"line_number": 4,
 					"content": "ERROR Another error occurred",
-					"level": "error"
+					"level": "error",
+					"date": ""
 				}
 				]
 			},

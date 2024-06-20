@@ -76,18 +76,18 @@
   <div class="z-10 rounded-lg shadow w-full bg-gray-900 pb-5 mt-5 pt-5">
     <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
       <ul
-        class="max-h-48 px-3 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
+        class="max-h-48 px-3 pt-2 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
       >
         <template
           x-if="results.file_paths.filter((fp) => fp.type == type).length"
         >
           <div class="relative">
             <div
-              class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-2 pointer-events-none"
+              class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
             >
               <template x-if="type === 'file'">
                 <svg
-                  class="w-6 h-6 text-sky-800"
+                  class="w-5 h-5 text-sky-800"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -106,7 +106,7 @@
               </template>
               <template x-if="type === 'stdin'">
                 <svg
-                  class="w-6 h-6 text-sky-800"
+                  class="w-5 h-5 text-sky-800"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -121,7 +121,7 @@
               </template>
               <template x-if="type === 'ssh'">
                 <svg
-                  class="w-6 h-6 text-sky-600"
+                  class="w-5 h-5 text-sky-600"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -140,7 +140,7 @@
               </template>
               <template x-if="type === 'docker'">
                 <svg
-                  class="w-6 h-6 text-sky-600"
+                  class="w-5 h-5 text-sky-600"
                   aria-label="Docker"
                   role="img"
                   viewBox="0 0 512 512"
@@ -162,11 +162,19 @@
                 >
               </template>
             </div>
-            <span
-              class="p-2 ps-10 text-sm text-gray-200 uppercase font-bold"
-              x-text="type"></span>
-              <span class="text-slate-700" x-text="results.file_paths.filter((fp) => fp.type == type).length"></span>
 
+            <span
+              class="relative inline-flex items-center pl-5 pr-5 ms-5 px-0.5 py-0.5 text-sm font-medium text-center text-white border-gray-700 border-dotted border-t-2 border-b-2 border-r-2"
+            >
+              <span
+                class="text-sm text-gray-200 uppercase font-bold"
+                x-text="type"></span>
+              <div
+                class="absolute inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-gray-200 bg-blue-500 rounded-full -top-2 -end-2 dark:border-gray-900"
+                x-text="results.file_paths.filter((fp) => fp.type == type).length"
+              >
+              </div>
+            </span>
           </div>
         </template>
 
@@ -181,12 +189,6 @@
               class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
               :class="{'bg-gray-800  border-gray-900': filepath.file_path === results.result.file_path}"
             >
-              <input
-                type="radio"
-                :value="filepath.file_path"
-                class="w-5 h-5 rounded border-blue-500 accent-blue-500"
-                x-model="input.file_path"
-              />
 
               <label
                 :class="{'text-blue-400': filepath.file_path === results.result.file_path, 'text-slate-400': filepath.file_path !== results.result.file_path}"
@@ -232,8 +234,9 @@
                   :class="{'text-green-500 font-bold': filepath.file_path === results.result.file_path}"
                   class="truncate"></span>
                 <span
-                    x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
-                    class="text-slate-400">/</span>
+                  x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
+                  class="text-slate-400">/</span
+                >
                 <span
                   x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
                   x-text="filepath.file_path.split('/').pop()"
@@ -242,7 +245,8 @@
                 ></span>
                 <span
                   class="text-gray-600 ml-2 font-sans text-xs"
-                  x-text="`(${formatBytes(filepath.file_size)}) ${numberToK(filepath.lines_count)} lines`"></span>
+                  x-text="`(${formatBytes(filepath.file_size)}) ${numberToK(filepath.lines_count)} lines`"
+                ></span>
               </label>
             </div>
           </li>

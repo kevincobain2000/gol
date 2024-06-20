@@ -200,6 +200,7 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 	}
 
 	AppendLogLevel(&lines)
+	AppendDates(&lines)
 	scanResult := &ScanResult{
 		FilePath:     filePath,
 		Host:         containerID, // Assuming containerID represents the host

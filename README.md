@@ -24,7 +24,7 @@
 
 **Flexible:** View docker logs, remote logs over ssh, files on disk and piped inputs in browser.
 
-**Intelligent** Smartly judges log level.
+**Intelligent** Smartly judges log level, and dates.
 
 **Search** Fast search with regex.
 
@@ -126,6 +126,7 @@ gol -d="container-id" \
 - **v1.0.5** - Support ssh logs.
 - **v1.0.6** - UI shows grouped output.
 - **v1.0.7** - Support docker logs.
+- **v1.0.14** - Sleak UI changes and support dates.
 
 ## Limitations
 

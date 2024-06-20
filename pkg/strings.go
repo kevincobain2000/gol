@@ -1,11 +1,13 @@
 package pkg
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
 
 	"github.com/acarl005/stripansi"
+	"github.com/gravwell/gravwell/v3/timegrinder"
 )
 
 func F64NumberToK(num *float64) string {
@@ -160,4 +162,32 @@ func AppendLogLevel(lines *[]LineResult) {
 			(*lines)[i].Level = JudgeLogLevel(line.Content, keywordPosition)
 		}
 	}
+}
+
+func AppendDates(lines *[]LineResult) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered from panic:", r)
+		}
+	}()
+	for i, line := range *lines {
+		date := searchDate(line.Content)
+		(*lines)[i].Date = date
+	}
+}
+
+func searchDate(input string) string {
+	cfg := timegrinder.Config{}
+	tg, err := timegrinder.NewTimeGrinder(cfg)
+	if err != nil {
+		return ""
+	}
+	ts, ok, err := tg.Extract([]byte(input))
+	if err != nil {
+		return ""
+	}
+	if !ok {
+		return ""
+	}
+	return ts.String()
 }

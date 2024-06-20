@@ -5,11 +5,11 @@
 <div class="grid grid-cols-2 gap-4">
   <div class="text-left">
     <label class="inline-flex items-center cursor-pointer mt-4">
-      <span class="mr-2 text-sm font-medium text-gray-400">Per page:</span>
+      <span class="mr-2 text-xs font-medium text-gray-400">Per page:</span>
       <select
         x-model="input.per_page"
         @change="input.page=1;submit()"
-        class="bg-gray-700 text-gray-300 rounded px-2 py-1"
+        class="bg-gray-700 text-gray-300 rounded px-2 py-1 text-xs"
       >
         <option value="15">15</option>
         <option value="50">50</option>
@@ -19,7 +19,7 @@
     </label>
   </div>
   <div class="text-right pt-5">
-    <span class="text-sm text-slate-500">
+    <span class="text-xs text-slate-500">
       Updated at <span x-text="loading.updated_at"></span>
     </span>
   </div>
@@ -44,8 +44,12 @@
               >
             </template>
           </th>
-          <th scope="col" class="px-3 py-3 uppercase" style="width: 150px;"
+
+          <th scope="col" class="px-3 py-3 uppercase" style="width: 100px;"
             >Level</th
+          >
+          <th scope="col" class="px-3 py-3 uppercase" style="width: 150px;"
+            >Time</th
           >
           <th scope="col" class="px-3 py-3">
             <template x-if="results.result.type == 'file'" >
@@ -68,7 +72,7 @@
       <tbody>
         <template x-for="(item, index) in results.result.lines" :key="index">
           <tr
-            class="border-b bg-gray-800 border-gray-700"
+            class="border-b bg-gray-800 border-gray-900"
             :class="{'highlight': input.realtime == true && highlighter.line_from  > 0 && item.line_number-1 >= highlighter.line_from}"
           >
             <td class="px-3 py-2" x-text="item.line_number.toLocaleString()"
@@ -117,6 +121,7 @@
                 >
               </template>
             </td>
+            <td class="px-3 py-2 text-gray-600" x-text="timeago(item.date)"></td>
             <td class="px-3 py-2 text-blue-200" x-text="item.content"></td>
           </tr>
         </template>
