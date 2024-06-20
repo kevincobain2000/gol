@@ -70,7 +70,7 @@ if [ $? -eq 1 ]; then
     SUDO="sudo"
 fi
 
-$SUDO mv $THIS_PROJECT_NAME "$DEST"
+$SUDO mv $THIS_PROJECT_NAME "$BIN_DIR"
 
 echo "Installed successfully to: $DEST"
 
