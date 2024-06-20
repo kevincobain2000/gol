@@ -69,12 +69,15 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     const now = new Date();
     const secondsPast = (now.getTime() - date.getTime()) / 1000;
 
+    if (secondsPast < 0) {
+        return "";
+    }
     if (secondsPast < 60) {
-        return `${Math.floor(secondsPast)} seconds ago`;
+        return `${Math.floor(secondsPast)} secs ago`;
     }
     if (secondsPast < 3600) {
         const minutes = Math.floor(secondsPast / 60);
-        return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+        return `${minutes} ${minutes === 1 ? 'min' : 'mins'} ago`;
     }
     if (secondsPast <= 86400) {
         const hours = Math.floor(secondsPast / 3600);
@@ -89,7 +92,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
         return `${months} ${months === 1 ? 'month' : 'months'} ago`;
     }
     const years = Math.floor(secondsPast / 31536000);
-    return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+    return `${years} ${years === 1 ? 'yr' : 'yrs'} ago`;
   }
 
   const init = async () => {
