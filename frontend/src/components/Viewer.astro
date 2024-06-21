@@ -21,13 +21,14 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   baseURL = baseURL.replace(/\/$/, "");
   let input = Alpine.reactive({
     query: "",
+    ignore: "",
     file_path: "",
     realtime: false,
     reverse: true,
     host: "",
     type: "",
     page: 1,
-    per_page: 15,
+    per_page: 100,
   });
   let highlighter = Alpine.reactive({
     line_from: 0,
@@ -102,7 +103,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     loading.errorJSON = "";
     loading.fetching = true;
 
-    const url = `${baseURL}/api?query=${input.query}&page=${input.page}&per_page=${input.per_page}&file_path=${input.file_path}&host=${input.host}&type=${input.type}&reverse=${input.reverse}`;
+    const url = `${baseURL}/api?query=${input.query}&ignore=${input.ignore}&page=${input.page}&per_page=${input.per_page}&file_path=${input.file_path}&host=${input.host}&type=${input.type}&reverse=${input.reverse}`;
 
     const response = await fetch(url).catch((error) => {
       loading.fetching = false;
@@ -151,7 +152,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
       clearInterval(intervalId);
     }
     if (input.realtime) {
-      intervalId = setInterval(init, 3 * 1000); // 3 seconds
+      intervalId = setInterval(init, 5 * 1000); // 5 seconds
     }
   };
 

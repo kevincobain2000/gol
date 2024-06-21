@@ -86,7 +86,7 @@ func ContainerStdoutToTmp(containerID string) *os.File {
 }
 
 // ContainerLogsFromFile retrieves logs from a file within a container, processes them, and returns a ScanResult
-func ContainerLogsFromFile(containerID string, query string, filePath string, page, pageSize int, reverse bool) (*ScanResult, error) {
+func ContainerLogsFromFile(containerID string, query string, ignorePattern string, filePath string, page, pageSize int, reverse bool) (*ScanResult, error) {
 	lines := []LineResult{}
 	// Create a new Docker client
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -98,6 +98,15 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 	re, err := regexp.Compile(query)
 	if err != nil {
 		return nil, fmt.Errorf("invalid regex pattern: %w", err)
+	}
+
+	// Compile the ignore regex pattern
+	var reIgnore *regexp.Regexp
+	if ignorePattern != "" {
+		reIgnore, err = regexp.Compile(ignorePattern)
+		if err != nil {
+			return nil, fmt.Errorf("invalid ignore regex pattern: %w", err)
+		}
 	}
 
 	// Execute a command to count the total number of lines in the file
@@ -166,6 +175,9 @@ func ContainerLogsFromFile(containerID string, query string, filePath string, pa
 	for scanner.Scan() {
 		lineContent := stripansi.Strip(scanner.Text())
 		lineContent = CleanString(lineContent)
+		if reIgnore != nil && reIgnore.MatchString(lineContent) {
+			continue
+		}
 		if re.MatchString(lineContent) {
 			// Here, you might want to include logic to determine the 'Level' in the log line
 			lineResult := LineResult{

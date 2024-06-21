@@ -16,18 +16,20 @@ import (
 )
 
 type Watcher struct {
-	filePath     string
-	matchPattern string
-	mutex        sync.Mutex
-	sshConfig    *ssh.ClientConfig
-	sshHost      string
-	sshPort      string
-	isRemote     bool
+	filePath      string
+	matchPattern  string
+	ignorePattern string
+	mutex         sync.Mutex
+	sshConfig     *ssh.ClientConfig
+	sshHost       string
+	sshPort       string
+	isRemote      bool
 }
 
 func NewWatcher(
 	filePath string,
 	matchPattern string,
+	ignorePattern string,
 	isRemote bool,
 	sshHost string,
 	sshPort string,
@@ -51,11 +53,12 @@ func NewWatcher(
 	}
 
 	watcher := &Watcher{
-		filePath:     filePath,
-		matchPattern: matchPattern,
-		isRemote:     isRemote,
-		sshHost:      sshHost,
-		sshPort:      sshPort,
+		filePath:      filePath,
+		matchPattern:  matchPattern,
+		ignorePattern: ignorePattern,
+		isRemote:      isRemote,
+		sshHost:       sshHost,
+		sshPort:       sshPort,
 		sshConfig: &ssh.ClientConfig{
 			User: sshUser,
 			Auth: []ssh.AuthMethod{
@@ -184,6 +187,14 @@ func (w *Watcher) collectMatchingLines(scanner *bufio.Scanner) ([]LineResult, in
 		return nil, 0, tracerr.New(err.Error())
 	}
 
+	var reIgnore *regexp.Regexp
+	if w.ignorePattern != "" {
+		reIgnore, err = regexp.Compile(w.ignorePattern)
+		if err != nil {
+			return nil, 0, tracerr.New(err.Error())
+		}
+	}
+
 	var allLines []LineResult
 	lineNumber := 0
 	counts := 0
@@ -192,6 +203,9 @@ func (w *Watcher) collectMatchingLines(scanner *bufio.Scanner) ([]LineResult, in
 		line := scanner.Text()
 		line = stripansi.Strip(line)
 		lineNumber++
+		if reIgnore != nil && reIgnore.MatchString(line) {
+			continue
+		}
 		if re.MatchString(line) {
 			allLines = append(allLines, LineResult{
 				LineNumber: lineNumber,

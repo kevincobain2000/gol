@@ -32,6 +32,7 @@ func NewAPIHandler() *APIHandler {
 
 type APIRequest struct {
 	Query    string `json:"query" query:"query"`
+	Ignore   string `json:"ignore" query:"ignore"`
 	FilePath string `json:"file_path" query:"file_path"`
 	Host     string `json:"host" query:"host"`
 	Type     string `json:"type" query:"type"`
@@ -77,7 +78,7 @@ func (h *APIHandler) Get(c echo.Context) error {
 	var watcher *Watcher
 	if req.Type == TypeDocker {
 		if !strings.HasPrefix(req.FilePath, TmpContainerPath) {
-			result, err := ContainerLogsFromFile(req.Host, req.Query, req.FilePath, req.Page, req.PerPage, req.Reverse)
+			result, err := ContainerLogsFromFile(req.Host, req.Query, req.Ignore, req.FilePath, req.Page, req.PerPage, req.Reverse)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, err)
 			}
@@ -88,7 +89,7 @@ func (h *APIHandler) Get(c echo.Context) error {
 			})
 		}
 
-		watcher, err = NewWatcher(req.FilePath, req.Query, false, "", "", "", "", "")
+		watcher, err = NewWatcher(req.FilePath, req.Query, req.Ignore, false, "", "", "", "", "")
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
@@ -99,13 +100,13 @@ func (h *APIHandler) Get(c echo.Context) error {
 		if sshConfig == nil {
 			return echo.NewHTTPError(http.StatusNotFound, "ssh config not found")
 		}
-		watcher, err = NewWatcher(req.FilePath, req.Query, true, sshConfig.Host, sshConfig.Port, sshConfig.User, sshConfig.Password, sshConfig.PrivateKeyPath)
+		watcher, err = NewWatcher(req.FilePath, req.Query, req.Ignore, true, sshConfig.Host, sshConfig.Port, sshConfig.User, sshConfig.Password, sshConfig.PrivateKeyPath)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
 	}
 	if req.Type == TypeFile || req.Type == TypeStdin {
-		watcher, err = NewWatcher(req.FilePath, req.Query, false, "", "", "", "", "")
+		watcher, err = NewWatcher(req.FilePath, req.Query, req.Ignore, false, "", "", "", "", "")
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
