@@ -132,7 +132,7 @@ func defaultFilePaths() {
 		}
 	}
 
-	if f.filePaths == nil && !pkg.IsInputFromPipe() && f.sshPaths != nil && f.dockerPaths != nil {
+	if f.filePaths == nil && !pkg.IsInputFromPipe() && f.sshPaths == nil && f.dockerPaths == nil {
 		dir, _ := os.Getwd()
 		f.filePaths = []string{
 			dir + "/*/*log",
