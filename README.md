@@ -81,13 +81,8 @@ curl -sL https://raw.githubusercontent.com/kevincobain2000/gol/master/install.sh
 ## Examples
 
 ```sh
-# run in current directory for *log & ./*/*log
-gol
-```
-
-```sh
 # run in current directory for pattern
-gol "storage/*log" "access/*log.tar.gz"
+gol "*log" "access/*log.tar.gz"
 ```
 
 ## Advanced Examples

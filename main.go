@@ -132,15 +132,6 @@ func defaultFilePaths() {
 		}
 	}
 
-	if f.filePaths == nil && !pkg.IsInputFromPipe() && f.sshPaths == nil && f.dockerPaths == nil {
-		dir, _ := os.Getwd()
-		f.filePaths = []string{
-			dir + "/*/*log",
-			dir + "/*log",
-		}
-		color.Info.Println("no file path provided, using ", f.filePaths)
-	}
-
 	updateGlobalFilePaths()
 }
 
