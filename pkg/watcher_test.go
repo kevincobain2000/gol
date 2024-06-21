@@ -12,7 +12,7 @@ import (
 
 // TestNewWatcher tests the NewWatcher function
 func TestNewWatcher(t *testing.T) {
-	watcher, err := NewWatcher("testfile.log", "ERROR", false, "", "", "", "", "")
+	watcher, err := NewWatcher("testfile.log", "ERROR", "", false, "", "", "", "", "")
 	assert.NoError(t, err)
 	assert.NotNil(t, watcher)
 	assert.Equal(t, "testfile.log", watcher.filePath)
@@ -33,7 +33,7 @@ ERROR Another error occurred`
 	assert.NoError(t, err)
 
 	// Create the Watcher
-	watcher, err := NewWatcher(logFile, "ERROR", false, "", "", "", "", "")
+	watcher, err := NewWatcher(logFile, "ERROR", "", false, "", "", "", "", "")
 	assert.NoError(t, err)
 
 	// Run the Scan method
@@ -63,7 +63,7 @@ func TestWatcher_InitializeScanner(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create the Watcher
-	watcher, err := NewWatcher(logFile, "ERROR", false, "", "", "", "", "")
+	watcher, err := NewWatcher(logFile, "ERROR", "", false, "", "", "", "", "")
 	assert.NoError(t, err)
 
 	// Initialize the scanner
@@ -96,7 +96,7 @@ ERROR Another error occurred`
 	assert.NoError(t, err)
 
 	// Create the Watcher
-	watcher, err := NewWatcher(logFile, "ERROR", false, "", "", "", "", "")
+	watcher, err := NewWatcher(logFile, "ERROR", "", false, "", "", "", "", "")
 	assert.NoError(t, err)
 
 	// Initialize the scanner

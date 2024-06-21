@@ -2,7 +2,7 @@
 
 ---
 
-<div class="grid grid-cols-2 gap-4">
+<div class="grid grid-cols-2 gap-4 mt-10">
   <div class="text-left">
     <label class="inline-flex items-center cursor-pointer mt-4">
       <span class="mr-2 text-xs font-medium text-gray-400">Per page:</span>
@@ -26,9 +26,9 @@
 </div>
 
 <div>
-  <div class="overflow-x-auto mt-5 rounded">
-    <table class="w-full text-sm font-mono text-left text-gray-400">
-      <thead class="text-xs bg-gray-700 text-gray-400">
+  <div class="overflow-x-auto mt-5 rounded shadow-2xl">
+    <table class="w-full text-sm font-mono text-left text-gray-400 border border-gray-900">
+      <thead class="text-xs bg-gray-900  text-gray-400">
         <tr>
           <th scope="col" class="px-3 py-3 uppercase" style="width: 100px;">
             <template x-if="input.reverse">
@@ -164,7 +164,7 @@
 <style>
   @keyframes highlight {
     from {
-      @apply opacity-50;
+      @apply opacity-10;
     }
     to {
       background-color: transparent;

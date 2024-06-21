@@ -3,21 +3,20 @@
 ---
 
 <div class="mx-auto mt-10">
-  <div class="relative">
-    <div
-      class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md font-bold"
-    >
-      REGEX
-    </div>
-    <input
-      type="text"
-      x-model="input.query"
-      @keyup="submit"
-      class="block font-mono w-full pl-22 p-3 ps-20 text-sm text-slate-300 hover:text-slate-100 border border-gray-300 hover:border-gray-100 rounded-lg bg-gray-900 focus:outline-none"
-      placeholder=".*"
-      required
-    />
-    <template x-if="!loading.fetching">
+  <div class="grid grid-cols-2 gap-4">
+    <div class="relative">
+      <div
+        class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-green-600"
+      >
+        MATCH REGEX
+      </div>
+      <input
+        type="text"
+        x-model="input.query"
+        @keyup="submit"
+        class="block font-mono w-full pl-36 p-3 ps-20 text-sm text-slate-300 hover:text-slate-200 border border-gray-600 hover:border-green-500 focus:border-green-500 rounded-lg bg-gray-900 focus:outline-none"
+        placeholder=".*"
+      />
       <span
         class="absolute end-0.5 bottom-1.5 text-slate-300 text-sm px-4 py-0"
       >
@@ -35,32 +34,21 @@
           <span class="ms-3 text-sm font-bold text-gray-400">Realtime</span>
         </label>
       </span>
-    </template>
-    <template x-if="loading.fetching">
-      <button
-        x-bind:disabled="loading.fetching"
-        type="button"
-        @click="submit"
-        class="text-white disabled:text-slate-400 absolute end-2.5 bottom-1.5 bg-blue-700 disabled:bg-gray-800 hover:bg-blue-800 focus:outline-none font-bold rounded-lg text-sm px-4 py-2"
+    </div>
+    <div class="relative">
+      <div
+        class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-rose-800"
       >
-        <svg
-          aria-hidden="true"
-          role="status"
-          class="inline w-4 h-4 me-3 text-white animate-spin"
-          viewBox="0 0 100 101"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-            fill="#E5E7EB"></path>
-          <path
-            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-            fill="currentColor"></path>
-        </svg>
-        <span>Updating</span>
-      </button>
-    </template>
+        IGNORE REGEX
+      </div>
+      <input
+        type="text"
+        x-model="input.ignore"
+        @keyup="submit"
+        class="block font-mono w-full pl-36 p-3 ps-20 text-sm text-slate-300 hover:text-slate-100 border border-gray-600 hover:border-rose-500 focus:border-rose-500 rounded-lg bg-gray-900 focus:outline-none"
+        placeholder=""
+      />
+    </div>
   </div>
   <template x-if="loading.error">
     <span x-text="loading.error" class="text-rose-400 text-sm block mt-5"
@@ -81,9 +69,9 @@
         <template
           x-if="results.file_paths.filter((fp) => fp.type == type).length"
         >
-          <div class="relative">
+          <div class="relative ml-1">
             <div
-              class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
+              class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-0 pointer-events-none"
             >
               <template x-if="type === 'file'">
                 <svg
@@ -164,16 +152,16 @@
             </div>
 
             <span
-              class="relative inline-flex items-center pl-5 pr-12 ms-5 px-0.5 py-0.5 text-sm font-medium text-center text-white border-gray-700 border-t-2 border-b-2 border-r-2"
+              class="relative inline-flex items-center pl-2 pr-2 ms-5 text-sm font-medium"
             >
               <span
                 class="text-sm text-gray-200 uppercase font-bold"
                 x-text="type"></span>
-              <div
-                class="absolute inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-gray-200 bg-blue-500 rounded-full -top-2 -end-2 dark:border-gray-900"
+              <span
+                class="pl-2 text-slate-600"
                 x-text="results.file_paths.filter((fp) => fp.type == type).length"
               >
-              </div>
+              </span>
             </span>
           </div>
         </template>
@@ -189,7 +177,6 @@
               class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
               :class="{'bg-gray-800  border-gray-900': filepath.file_path === results.result.file_path}"
             >
-
               <label
                 :class="{'text-blue-400': filepath.file_path === results.result.file_path, 'text-slate-400': filepath.file_path !== results.result.file_path}"
                 class="w-full py-2 ms-2 text-sm font-mono rounded flex items-center"
@@ -222,11 +209,11 @@
                 </template>
                 <span
                   x-show="filepath.host"
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-yellow-700 text-gray-900"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded border border-yellow-700 text-slate-300"
                   x-text="filepath.host"></span>
                 <span
                   x-show="filepath.name"
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-gray-300 truncate"
+                  class="text-xs font-medium truncate"
                   x-text="filepath.name"></span>
                 <span
                   x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
