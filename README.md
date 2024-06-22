@@ -123,6 +123,7 @@ gol -d="container-id" \
 - **v1.0.7** - Support docker logs.
 - **v1.0.14** - Sleak UI changes and support dates.
 - **v1.0.17** - Support both ignore and include patterns.
+- **v1.0.21** - Better logging.
 
 ## Limitations
 
