@@ -7,12 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"unicode/utf8"
 
-	"github.com/gookit/color"
 	"github.com/ztrue/tracerr"
 	"golang.org/x/crypto/ssh"
 )
@@ -154,32 +154,32 @@ func FileStats(filePath string, isRemote bool, sshConfig *SSHConfig) (int, int64
 func GetFileInfos(pattern string, limit int, isRemote bool, sshConfig *SSHConfig) []FileInfo {
 	filePaths, err := FilesByPattern(pattern, isRemote, sshConfig)
 	if err != nil {
-		color.Danger.Println(err)
+		slog.Error("Error getting file paths by pattern", err)
 		return nil
 	}
 	if len(filePaths) == 0 {
-		color.Danger.Println("no files found:", pattern)
+		slog.Error("No files found", "pattern", pattern)
 		return nil
 	}
 	fileInfos := make([]FileInfo, 0)
 	if len(filePaths) > limit {
-		color.Warn.Printf("limiting to %d files\n", limit)
+		slog.Warn("Limiting to files", "limit", limit)
 		filePaths = filePaths[:limit]
 	}
 
 	for _, filePath := range filePaths {
 		isText, err := IsReadableFile(filePath, isRemote, sshConfig, false)
 		if err != nil {
-			color.Danger.Println(err)
+			slog.Error("Error checking if file is readable", err)
 			return nil
 		}
 		if !isText {
-			color.Warn.Println("file is not a text file:", filePath)
+			slog.Warn("File is not a text file", "filePath", filePath)
 			continue
 		}
 		linesCount, fileSize, err := FileStats(filePath, isRemote, sshConfig)
 		if err != nil {
-			color.Danger.Println(err)
+			slog.Error("Error getting file stats", err)
 			return nil
 		}
 		t := TypeFile
@@ -353,7 +353,6 @@ func sshOpenFile(filename string, config *SSHConfig) (*os.File, error) {
 
 func sshFilesByPattern(pattern string, config *SSHConfig) ([]string, error) {
 	session, err := NewSession(config)
-
 	if err != nil {
 		return nil, err
 	}
