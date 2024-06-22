@@ -4,12 +4,10 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
-
-	"github.com/gookit/color"
-	"github.com/k0kubun/pp"
 
 	"github.com/kevincobain2000/gol/pkg"
 )
@@ -47,13 +45,14 @@ var f Flags
 var version = "dev"
 
 func main() {
+	pkg.SetupLoggingStdout()
 	flags()
 	wantsVersion()
 
 	if pkg.IsInputFromPipe() {
 		tmpFile, err := os.Create(pkg.GetTmpFileNameForSTDIN())
 		if err != nil {
-			color.New(color.FgRed).Println("error creating temp file: ", err)
+			slog.Error("creating temp file", tmpFile.Name(), err)
 			return
 		}
 		pkg.GlobalPipeTmpFilePath = tmpFile.Name()
@@ -61,7 +60,7 @@ func main() {
 		go func(tmpFile *os.File) {
 			err := pkg.PipeLinesToTmp(tmpFile)
 			if err != nil {
-				color.Danger.Println(err)
+				slog.Error("piping lines to temp file", tmpFile.Name(), err)
 				return
 			}
 		}(tmpFile)
@@ -69,8 +68,7 @@ func main() {
 	defaultFilePaths()
 
 	go watchFilePaths(f.every)
-	pp.Println(f)
-	pp.Println("global filepaths", pkg.GlobalFilePaths)
+	slog.Info("Flags", "host", f.host, "port", f.port, "baseURL", f.baseURL, "open", f.open, "cors", f.cors, "access", f.access)
 
 	if f.open {
 		pkg.OpenBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
@@ -88,7 +86,7 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		color.Danger.Println(err)
+		slog.Error("starting echo", "echo", err)
 		return
 	}
 }
@@ -115,7 +113,7 @@ func defaultFilePaths() {
 		for _, sshPath := range f.sshPaths {
 			sshFilePathConfig, err := pkg.StringToSSHPathConfig(sshPath)
 			if err != nil {
-				color.Danger.Println(err)
+				slog.Error("parsing SSH path", sshPath, err)
 				break
 			}
 			if sshFilePathConfig != nil {
@@ -144,7 +142,7 @@ func updateGlobalFilePaths() {
 	for _, pattern := range f.sshPaths {
 		sshFilePathConfig, err := pkg.StringToSSHPathConfig(pattern)
 		if err != nil {
-			color.Danger.Println(err)
+			slog.Error("parsing SSH path", pattern, err)
 			break
 		}
 		sshConfig := pkg.SSHConfig{
@@ -168,7 +166,7 @@ func updateGlobalFilePaths() {
 				}
 				tmpFile := pkg.ContainerStdoutToTmp(container.ID)
 				if tmpFile == nil {
-					color.Danger.Println("error creating temp file for container logs: " + container.ID)
+					slog.Error("creating temp file for container logs", "containerID", container.ID)
 					continue
 				}
 				fileInfo := pkg.GetFileInfos(tmpFile.Name(), f.limit, false, nil)
@@ -183,7 +181,7 @@ func updateGlobalFilePaths() {
 		if len(strings.Fields(pattern)) == 2 {
 			dockerFilePathConfig, err := pkg.StringToDockerPathConfig(pattern)
 			if err != nil {
-				color.Danger.Println(err)
+				slog.Error("parsing Docker path", pattern, err)
 				break
 			}
 			fileInfo := pkg.GetContainerFileInfos(dockerFilePathConfig.FilePath, f.limit, dockerFilePathConfig.ContainerID)
@@ -195,14 +193,14 @@ func updateGlobalFilePaths() {
 }
 
 func cleanup() {
-	color.Info.Println("cleaning up")
+	slog.Info("cleaning up")
 	if pkg.GlobalPipeTmpFilePath != "" {
 		err := os.Remove(pkg.GlobalPipeTmpFilePath)
 		if err != nil {
-			color.Danger.Println("error removing tmp file:", err)
+			slog.Error("removing temp file", pkg.GlobalPipeTmpFilePath, err)
 			return
 		}
-		color.New(color.FgYellow).Println("tmp file removed:", pkg.GlobalPipeTmpFilePath)
+		slog.Info("temp file removed", "path", pkg.GlobalPipeTmpFilePath)
 	}
 }
 
@@ -211,7 +209,7 @@ func watchFilePaths(seconds int64) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
-	color.Info.Println("Checking for filepaths every", interval)
+	slog.Info("Checking for filepaths", "interval", interval)
 
 	for range ticker.C {
 		updateGlobalFilePaths()
@@ -250,7 +248,7 @@ func flags() {
 
 func wantsVersion() {
 	if f.version {
-		color.Secondary.Println(version)
+		fmt.Println(version)
 		os.Exit(0)
 	}
 }

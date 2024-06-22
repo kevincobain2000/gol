@@ -3,9 +3,9 @@ package pkg
 import (
 	"embed"
 	"fmt"
+	"log/slog"
 	"net/http"
 
-	"github.com/gookit/color"
 	"github.com/k0kubun/pp"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -103,6 +103,6 @@ func HTTPErrorHandler(err error, c echo.Context) {
 		message = fmt.Sprintf("%v", err)
 	}
 	if err = c.JSON(code, &HTTPErrorResponse{Error: message}); err != nil {
-		color.Danger.Println(err.Error())
+		slog.Error("handling HTTP error", "handler", err)
 	}
 }
