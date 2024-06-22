@@ -52,7 +52,7 @@ func main() {
 	if pkg.IsInputFromPipe() {
 		tmpFile, err := os.Create(pkg.GetTmpFileNameForSTDIN())
 		if err != nil {
-			slog.Error("error creating temp file", err)
+			slog.Error("creating temp file", tmpFile.Name(), err)
 			return
 		}
 		pkg.GlobalPipeTmpFilePath = tmpFile.Name()
@@ -60,7 +60,7 @@ func main() {
 		go func(tmpFile *os.File) {
 			err := pkg.PipeLinesToTmp(tmpFile)
 			if err != nil {
-				slog.Error("error piping lines to temp file", err)
+				slog.Error("piping lines to temp file", tmpFile.Name(), err)
 				return
 			}
 		}(tmpFile)
@@ -86,7 +86,7 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		slog.Error("error starting echo", err)
+		slog.Error("starting echo", "echo", err)
 		return
 	}
 }
@@ -113,7 +113,7 @@ func defaultFilePaths() {
 		for _, sshPath := range f.sshPaths {
 			sshFilePathConfig, err := pkg.StringToSSHPathConfig(sshPath)
 			if err != nil {
-				slog.Error("error parsing SSH path", err)
+				slog.Error("parsing SSH path", sshPath, err)
 				break
 			}
 			if sshFilePathConfig != nil {
@@ -142,7 +142,7 @@ func updateGlobalFilePaths() {
 	for _, pattern := range f.sshPaths {
 		sshFilePathConfig, err := pkg.StringToSSHPathConfig(pattern)
 		if err != nil {
-			slog.Error("error parsing SSH path", err)
+			slog.Error("parsing SSH path", pattern, err)
 			break
 		}
 		sshConfig := pkg.SSHConfig{
@@ -166,7 +166,7 @@ func updateGlobalFilePaths() {
 				}
 				tmpFile := pkg.ContainerStdoutToTmp(container.ID)
 				if tmpFile == nil {
-					slog.Error("error creating temp file for container logs", "containerID", container.ID)
+					slog.Error("creating temp file for container logs", "containerID", container.ID)
 					continue
 				}
 				fileInfo := pkg.GetFileInfos(tmpFile.Name(), f.limit, false, nil)
@@ -181,7 +181,7 @@ func updateGlobalFilePaths() {
 		if len(strings.Fields(pattern)) == 2 {
 			dockerFilePathConfig, err := pkg.StringToDockerPathConfig(pattern)
 			if err != nil {
-				slog.Error("error parsing Docker path", err)
+				slog.Error("parsing Docker path", pattern, err)
 				break
 			}
 			fileInfo := pkg.GetContainerFileInfos(dockerFilePathConfig.FilePath, f.limit, dockerFilePathConfig.ContainerID)
@@ -197,7 +197,7 @@ func cleanup() {
 	if pkg.GlobalPipeTmpFilePath != "" {
 		err := os.Remove(pkg.GlobalPipeTmpFilePath)
 		if err != nil {
-			slog.Error("error removing temp file", err)
+			slog.Error("removing temp file", pkg.GlobalPipeTmpFilePath, err)
 			return
 		}
 		slog.Info("temp file removed", "path", pkg.GlobalPipeTmpFilePath)

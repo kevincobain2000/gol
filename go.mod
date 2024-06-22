@@ -14,7 +14,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/stretchr/testify v1.9.0
-	github.com/ztrue/tracerr v0.4.0
 	golang.org/x/crypto v0.24.0
 )
 

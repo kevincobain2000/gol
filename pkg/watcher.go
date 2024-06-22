@@ -11,7 +11,6 @@ import (
 	"sync"
 
 	"github.com/acarl005/stripansi"
-	"github.com/ztrue/tracerr"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -41,11 +40,11 @@ func NewWatcher(
 	if sshPrivateKeyPath != "" {
 		key, err := os.ReadFile(sshPrivateKeyPath)
 		if err != nil {
-			return nil, tracerr.New(fmt.Sprintf("Failed to read private key: %v", err))
+			return nil, err
 		}
 		signer, err := ssh.ParsePrivateKey(key)
 		if err != nil {
-			return nil, tracerr.New(fmt.Sprintf("Failed to parse private key: %v", err))
+			return nil, err
 		}
 		authMethod = ssh.PublicKeys(signer)
 	} else {
@@ -124,12 +123,12 @@ func (w *Watcher) initializeScanner() (*os.File, *bufio.Scanner, error) {
 
 	file, err := os.Open(w.filePath)
 	if err != nil {
-		return nil, nil, tracerr.New(err.Error())
+		return nil, nil, err
 	}
 
 	fileInfo, err := file.Stat()
 	if err != nil {
-		return nil, nil, tracerr.New(err.Error())
+		return nil, nil, err
 	}
 	if fileInfo.Size() == 0 {
 		return file, bufio.NewScanner(file), nil
@@ -137,17 +136,17 @@ func (w *Watcher) initializeScanner() (*os.File, *bufio.Scanner, error) {
 
 	buffer := make([]byte, 2)
 	if _, err := file.Read(buffer); err != nil {
-		return nil, nil, tracerr.New(err.Error())
+		return nil, nil, err
 	}
 	_, err = file.Seek(0, 0)
 	if err != nil {
-		return nil, nil, tracerr.New(err.Error())
+		return nil, nil, err
 	}
 
 	if IsGzip(buffer) {
 		gzipReader, err := gzip.NewReader(file)
 		if err != nil {
-			return nil, nil, tracerr.New(err.Error())
+			return nil, nil, err
 		}
 		return file, bufio.NewScanner(gzipReader), nil
 	}
@@ -162,7 +161,7 @@ func (w *Watcher) initializeRemoteScanner() (*os.File, *bufio.Scanner, error) {
 	}
 	session, err := NewSession(&sshConfig)
 	if err != nil {
-		return nil, nil, tracerr.New(err.Error())
+		return nil, nil, err
 	}
 	defer session.Close()
 
@@ -170,7 +169,7 @@ func (w *Watcher) initializeRemoteScanner() (*os.File, *bufio.Scanner, error) {
 	session.Stdout = &b
 	if err := session.Run(fmt.Sprintf("cat %s", w.filePath)); err != nil {
 		if err.Error() != ErrorMsgSessionAlreadyStarted {
-			return nil, nil, tracerr.New(err.Error())
+			return nil, nil, err
 		}
 	}
 
@@ -182,14 +181,14 @@ func (w *Watcher) initializeRemoteScanner() (*os.File, *bufio.Scanner, error) {
 func (w *Watcher) collectMatchingLines(scanner *bufio.Scanner) ([]LineResult, int, error) {
 	re, err := regexp.Compile(w.matchPattern)
 	if err != nil {
-		return nil, 0, tracerr.New(err.Error())
+		return nil, 0, err
 	}
 
 	var reIgnore *regexp.Regexp
 	if w.ignorePattern != "" {
 		reIgnore, err = regexp.Compile(w.ignorePattern)
 		if err != nil {
-			return nil, 0, tracerr.New(err.Error())
+			return nil, 0, err
 		}
 	}
 
@@ -214,7 +213,7 @@ func (w *Watcher) collectMatchingLines(scanner *bufio.Scanner) ([]LineResult, in
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, 0, tracerr.New(err.Error())
+		return nil, 0, err
 	}
 
 	return allLines, counts, nil

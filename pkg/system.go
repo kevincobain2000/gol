@@ -38,7 +38,7 @@ func PipeLinesToTmp(tmpFile *os.File) error {
 
 	linesCount, fileSize, err := FileStats(GlobalPipeTmpFilePath, false, nil)
 	if err != nil {
-		slog.Error("Error creating FileInfo for temp file", err)
+		slog.Error("creating FileInfo for temp file", GlobalPipeTmpFilePath, err)
 		return err
 	}
 	tempFileInfo := FileInfo{FilePath: GlobalPipeTmpFilePath, LinesCount: linesCount, FileSize: fileSize, Type: TypeStdin}
@@ -52,21 +52,21 @@ func PipeLinesToTmp(tmpFile *os.File) error {
 		line = stripansi.Strip(line)
 		if lineCount >= 10000 {
 			if err := tmpFile.Truncate(0); err != nil {
-				slog.Error("Error truncating file", err)
+				slog.Error("truncating file", GlobalPipeTmpFilePath, err)
 			}
 			if _, err := tmpFile.Seek(0, 0); err != nil {
-				slog.Error("Error seeking file", err)
+				slog.Error("seeking file", GlobalPipeTmpFilePath, err)
 			}
 			lineCount = 0
 		}
 		if _, err := tmpFile.WriteString(line + "\n"); err != nil {
-			slog.Error("Error writing to file", err)
+			slog.Error("writing to file", GlobalPipeTmpFilePath, err)
 		}
 		lineCount++
 	}
 
 	if err := scanner.Err(); err != nil {
-		slog.Error("Error reading from pipe", err)
+		slog.Error("reading from pipe", GlobalPipeTmpFilePath, err)
 		return err
 	}
 

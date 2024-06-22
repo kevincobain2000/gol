@@ -103,6 +103,6 @@ func HTTPErrorHandler(err error, c echo.Context) {
 		message = fmt.Sprintf("%v", err)
 	}
 	if err = c.JSON(code, &HTTPErrorResponse{Error: message}); err != nil {
-		slog.Error("error handling HTTP error", err)
+		slog.Error("handling HTTP error", "handler", err)
 	}
 }
