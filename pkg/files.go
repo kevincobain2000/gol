@@ -166,6 +166,7 @@ func GetFileInfos(pattern string, limit int, isRemote bool, sshConfig *SSHConfig
 		color.Warn.Printf("limiting to %d files\n", limit)
 		filePaths = filePaths[:limit]
 	}
+
 	for _, filePath := range filePaths {
 		isText, err := IsReadableFile(filePath, isRemote, sshConfig, false)
 		if err != nil {
@@ -317,11 +318,7 @@ func sshConnect(config *SSHConfig) (*ssh.Client, error) {
 }
 
 func sshOpenFile(filename string, config *SSHConfig) (*os.File, error) {
-	client, err := sshConnect(config)
-	if err != nil {
-		return nil, err
-	}
-	session, err := client.NewSession()
+	session, err := NewSession(config)
 	if err != nil {
 		return nil, err
 	}
@@ -336,7 +333,9 @@ func sshOpenFile(filename string, config *SSHConfig) (*os.File, error) {
 	var stdout bytes.Buffer
 	session.Stdout = &stdout
 	if err := session.Run("cat " + filename); err != nil {
-		return nil, err
+		if err.Error() != ErrorMsgSessionAlreadyStarted {
+			return nil, err
+		}
 	}
 
 	// Write the remote file content to the temporary file
@@ -353,11 +352,8 @@ func sshOpenFile(filename string, config *SSHConfig) (*os.File, error) {
 }
 
 func sshFilesByPattern(pattern string, config *SSHConfig) ([]string, error) {
-	client, err := sshConnect(config)
-	if err != nil {
-		return nil, err
-	}
-	session, err := client.NewSession()
+	session, err := NewSession(config)
+
 	if err != nil {
 		return nil, err
 	}
@@ -368,7 +364,9 @@ func sshFilesByPattern(pattern string, config *SSHConfig) ([]string, error) {
 
 	// Execute the ls command to list files matching the pattern
 	if err := session.Run("ls " + pattern); err != nil {
-		return nil, err
+		if err.Error() != ErrorMsgSessionAlreadyStarted {
+			return nil, err
+		}
 	}
 
 	filePaths := buf.String()

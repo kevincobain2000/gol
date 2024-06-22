@@ -9,6 +9,7 @@ require (
 	github.com/gookit/color v1.5.4
 	github.com/gravwell/gravwell/v3 v3.8.32
 	github.com/k0kubun/pp v3.0.1+incompatible
+	github.com/k0kubun/pp/v3 v3.2.0
 	github.com/kevincobain2000/go-human-uuid v0.0.0-20240321072653-0174cf7003de
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/mcuadros/go-defaults v1.2.0

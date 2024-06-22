@@ -20,10 +20,6 @@ type FileInfo struct {
 	Host       string `json:"host"`
 }
 
-var GlobalFilePaths []FileInfo
-var GlobalPipeTmpFilePath string
-var GlobalPathSSHConfig []SSHPathConfig
-
 func NewAPIHandler() *APIHandler {
 	return &APIHandler{
 		API: NewAPI(),
