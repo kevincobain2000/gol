@@ -156,25 +156,23 @@ func (w *Watcher) initializeScanner() (*os.File, *bufio.Scanner, error) {
 }
 
 func (w *Watcher) initializeRemoteScanner() (*os.File, *bufio.Scanner, error) {
-	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%s", w.sshHost, w.sshPort), w.sshConfig)
+	sshConfig := SSHConfig{
+		Host: w.sshHost,
+		Port: w.sshPort,
+	}
+	session, err := NewSession(&sshConfig)
 	if err != nil {
 		return nil, nil, tracerr.New(err.Error())
 	}
-
-	session, err := client.NewSession()
-	if err != nil {
-		return nil, nil, tracerr.New(err.Error())
-	}
+	defer session.Close()
 
 	var b bytes.Buffer
 	session.Stdout = &b
-	err = session.Run(fmt.Sprintf("cat %s", w.filePath))
-	if err != nil {
-		return nil, nil, tracerr.New(err.Error())
+	if err := session.Run(fmt.Sprintf("cat %s", w.filePath)); err != nil {
+		if err.Error() != ErrorMsgSessionAlreadyStarted {
+			return nil, nil, tracerr.New(err.Error())
+		}
 	}
-
-	session.Close()
-	client.Close()
 
 	scanner := bufio.NewScanner(strings.NewReader(b.String()))
 
