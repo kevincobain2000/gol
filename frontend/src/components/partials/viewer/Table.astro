@@ -28,7 +28,7 @@
 <div>
   <div class="overflow-x-auto mt-5 rounded shadow-2xl">
     <table
-      class="w-full text-sm font-mono text-left text-gray-400 border border-gray-900"
+      class="w-full text-sm font-mono text-left text-gray-400 border border-gray-900 table-fixed"
     >
       <thead class="text-xs bg-gray-900 text-gray-400">
         <tr>
@@ -123,10 +123,10 @@
                 >
               </template>
             </td>
-            <td class="px-3 py-2 text-gray-600">
+            <td class="px-3 py-2 text-gray-600 text-xs">
               <template x-if="item.agent.device === 'server'">
                 <svg
-                  class="w-6 h-6 text-gray-500 inline"
+                  class="w-4 h-4 text-gray-600 inline"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -145,7 +145,7 @@
               </template>
               <template x-if="item.agent.device === 'desktop'">
                 <svg
-                  class="w-6 h-6 text-gray-500 inline"
+                  class="w-4 h-4 text-gray-600 inline"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -164,7 +164,7 @@
               </template>
               <template x-if="item.agent.device === 'mobile'">
                 <svg
-                  class="w-6 h-6 text-gray-500 inline"
+                  class="w-4 h-4 text-gray-600 inline"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -180,7 +180,7 @@
               </template>
               <template x-if="item.agent.device === 'tablet'">
                 <svg
-                  class="w-6 h-6 text-gray-500 inline"
+                  class="w-4 h-4 text-gray-600 inline"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
