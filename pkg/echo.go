@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/k0kubun/pp"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -99,7 +98,6 @@ func HTTPErrorHandler(err error, c echo.Context) {
 	}
 
 	if code == http.StatusInternalServerError {
-		pp.Println(err)
 		message = fmt.Sprintf("%v", err)
 	}
 	if err = c.JSON(code, &HTTPErrorResponse{Error: message}); err != nil {

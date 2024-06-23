@@ -75,6 +75,9 @@ type LineResult struct {
 	Content    string `json:"content"`
 	Level      string `json:"level"`
 	Date       string `json:"date"`
+	Agent      struct {
+		Device string `json:"device"`
+	} `json:"agent"`
 }
 
 type ScanResult struct {
@@ -105,8 +108,7 @@ func (w *Watcher) Scan(page, pageSize int, reverse bool) (*ScanResult, error) {
 
 	lines := w.paginateLines(allLines, page, pageSize, reverse)
 
-	AppendLogLevel(&lines)
-	AppendDates(&lines)
+	AppendGeneralInfo(&lines)
 	return &ScanResult{
 		FilePath:     w.filePath,
 		Host:         w.sshHost,

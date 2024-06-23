@@ -27,8 +27,10 @@
 
 <div>
   <div class="overflow-x-auto mt-5 rounded shadow-2xl">
-    <table class="w-full text-sm font-mono text-left text-gray-400 border border-gray-900">
-      <thead class="text-xs bg-gray-900  text-gray-400">
+    <table
+      class="w-full text-sm font-mono text-left text-gray-400 border border-gray-900"
+    >
+      <thead class="text-xs bg-gray-900 text-gray-400">
         <tr>
           <th scope="col" class="px-3 py-3 uppercase" style="width: 100px;">
             <template x-if="input.reverse">
@@ -52,20 +54,20 @@
             >Time</th
           >
           <th scope="col" class="px-3 py-3">
-            <template x-if="results.result.type == 'file'" >
-                <span class="font-mono" x-text="results.result.file_path"></span>
+            <template x-if="results.result.type == 'file'">
+              <span class="font-mono" x-text="results.result.file_path"></span>
             </template>
-            <template x-if="results.result.type == 'docker'" >
-                <span  class="font-mono" x-text="results.result.host"></span>
+            <template x-if="results.result.type == 'docker'">
+              <span class="font-mono" x-text="results.result.host"></span>
             </template>
-            <template x-if="results.result.type == 'docker' && !results.result.file_path.startsWith('/tmp/GOL-')" >
-                <span  class="font-mono" x-text="results.result.file_path"></span>
+            <template
+              x-if="results.result.type == 'docker' && !results.result.file_path.startsWith('/tmp/GOL-')"
+            >
+              <span class="font-mono" x-text="results.result.file_path"></span>
             </template>
-            <template x-if="results.result.type == 'stdin'" >
-                <span  class="font-mono">STDIN</span>
+            <template x-if="results.result.type == 'stdin'">
+              <span class="font-mono">STDIN</span>
             </template>
-
-
           </th>
         </tr>
       </thead>
@@ -121,7 +123,82 @@
                 >
               </template>
             </td>
-            <td class="px-3 py-2 text-gray-600" x-text="timeago(item.date)"></td>
+            <td class="px-3 py-2 text-gray-600">
+              <template x-if="item.agent.device === 'server'">
+                <svg
+                  class="w-6 h-6 text-gray-500 inline"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 12a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1M5 12h14M5 12a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1m-2 3h.01M14 15h.01M17 9h.01M14 9h.01"
+                  ></path>
+                </svg>
+              </template>
+              <template x-if="item.agent.device === 'desktop'">
+                <svg
+                  class="w-6 h-6 text-gray-500 inline"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 15v5m-3 0h6M4 11h16M5 15h14a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1Z"
+                  ></path>
+                </svg>
+              </template>
+              <template x-if="item.agent.device === 'mobile'">
+                <svg
+                  class="w-6 h-6 text-gray-500 inline"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4Zm12 12V5H7v11h10Zm-5 1a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </template>
+              <template x-if="item.agent.device === 'tablet'">
+                <svg
+                  class="w-6 h-6 text-gray-500 inline"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 18h2M5.875 3h12.25c.483 0 .875.448.875 1v16c0 .552-.392 1-.875 1H5.875C5.392 21 5 20.552 5 20V4c0-.552.392-1 .875-1Z"
+                  ></path>
+                </svg>
+              </template>
+              <span x-text="timeago(item.date)"></span>
+            </td>
             <td class="px-3 py-2 text-blue-200" x-text="item.content"></td>
           </tr>
         </template>

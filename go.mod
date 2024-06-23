@@ -7,12 +7,12 @@ require (
 	github.com/docker/docker v27.0.0+incompatible
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/gravwell/gravwell/v3 v3.8.32
-	github.com/k0kubun/pp v3.0.1+incompatible
 	github.com/kevincobain2000/go-human-uuid v0.0.0-20240321072653-0174cf7003de
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/lmittmann/tint v1.0.4
 	github.com/mattn/go-isatty v0.0.20
 	github.com/mcuadros/go-defaults v1.2.0
+	github.com/mileusna/useragent v1.3.4
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.24.0
 )
@@ -31,7 +31,6 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect

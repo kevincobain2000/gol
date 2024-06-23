@@ -39,8 +39,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
       lines: [],
       match_pattern: "",
       total: 0,
-      file_path: "",
-      date: "",
+      file_path: ""
     },
     file_paths: [],
   });
@@ -74,26 +73,26 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
         return "";
     }
     if (secondsPast < 60) {
-        return `${Math.floor(secondsPast)} secs ago`;
+        return `${Math.floor(secondsPast)}s ago`;
     }
     if (secondsPast < 3600) {
         const minutes = Math.floor(secondsPast / 60);
-        return `${minutes} ${minutes === 1 ? 'min' : 'mins'} ago`;
+        return `${minutes}${minutes === 1 ? 'min' : 'mins'} ago`;
     }
     if (secondsPast <= 86400) {
         const hours = Math.floor(secondsPast / 3600);
-        return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+        return `${hours}${hours === 1 ? 'h' : 'h'} ago`;
     }
     if (secondsPast <= 2592000) {
         const days = Math.floor(secondsPast / 86400);
-        return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+        return `${days}${days === 1 ? 'd' : 'd'} ago`;
     }
     if (secondsPast <= 31536000) {
         const months = Math.floor(secondsPast / 2592000);
-        return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+        return `${months}${months === 1 ? 'mth' : 'mth'} ago`;
     }
     const years = Math.floor(secondsPast / 31536000);
-    return `${years} ${years === 1 ? 'yr' : 'yrs'} ago`;
+    return `${years}${years === 1 ? 'yr' : 'yrs'} ago`;
   }
 
   const init = async () => {

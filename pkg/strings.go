@@ -8,6 +8,7 @@ import (
 
 	"github.com/acarl005/stripansi"
 	"github.com/gravwell/gravwell/v3/timegrinder"
+	"github.com/mileusna/useragent"
 )
 
 func F64NumberToK(num *float64) string {
@@ -149,7 +150,13 @@ func ConsistentFormat(logLines []string) (bool, int) {
 	return true, consistentPosition
 }
 
-func AppendLogLevel(lines *[]LineResult) {
+func AppendGeneralInfo(lines *[]LineResult) {
+	appendAgent(lines)
+	appendDates(lines)
+	appendLogLevel(lines)
+}
+
+func appendLogLevel(lines *[]LineResult) {
 	logLines := []string{}
 	for _, line := range *lines {
 		line.Content = stripansi.Strip(line.Content)
@@ -164,7 +171,30 @@ func AppendLogLevel(lines *[]LineResult) {
 	}
 }
 
-func AppendDates(lines *[]LineResult) {
+func appendAgent(lines *[]LineResult) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered from panic:", r)
+		}
+	}()
+	for i, line := range *lines {
+		ua := useragent.Parse(line.Content)
+		device := "server"
+
+		switch {
+		case ua.Desktop:
+			device = "desktop"
+		case ua.Mobile:
+			device = "mobile"
+		case ua.Tablet:
+			device = "tablet"
+		}
+
+		(*lines)[i].Agent.Device = device
+	}
+}
+
+func appendDates(lines *[]LineResult) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered from panic:", r)
