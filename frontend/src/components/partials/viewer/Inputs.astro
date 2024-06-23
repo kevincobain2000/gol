@@ -6,15 +6,15 @@
   <div class="grid grid-cols-2 gap-4">
     <div class="relative">
       <div
-        class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-green-600"
+        class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500"
       >
-        MATCH REGEX
+        Match regex
       </div>
       <input
         type="text"
         x-model="input.query"
         @keyup="submit"
-        class="block font-mono font-bold w-full p-2.5 ps-32 text-sm text-slate-300 hover:text-slate-200 border-2 border-gray-600 hover:border-green-700 focus:border-green-500 rounded-lg bg-gray-900 focus:outline-none"
+        class="block font-mono font-bold w-full p-2.5 ps-32 text-sm text-slate-300 hover:text-slate-200 border-2 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
         placeholder=".*"
       />
       <span
@@ -35,17 +35,18 @@
         </label>
       </span>
     </div>
+
     <div class="relative">
       <div
-        class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-rose-800"
+        class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500"
       >
-        IGNORE REGEX
+        Ignore regex
       </div>
       <input
         type="text"
         x-model="input.ignore"
         @keyup="submit"
-        class="block font-mono font-bold w-full p-2.5 ps-32 text-sm text-slate-300 hover:text-slate-100 border-2 border-gray-600 hover:border-rose-700 focus:border-rose-500 rounded-lg bg-gray-900 focus:outline-none"
+        class="block font-mono font-bold w-full p-2.5 ps-32 text-sm text-slate-300 hover:text-slate-100 border-2 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
         placeholder=""
       />
     </div>
@@ -61,7 +62,130 @@
     </pre>
   </template>
 
-  <div class="z-10 rounded-lg shadow w-full bg-gray-900 pb-5 mt-5 pt-5">
+  <button
+    @click="input.drop_down_search_file = !input.drop_down_search_file"
+    class="text-white mt-5 w-full font-medium text-sm px-5 py-2.5 text-center inline-flex items-center bg-gray-900 rounded-t-lg"
+    :class="{'rounded-b-lg': !input.drop_down_search_file}"
+    type="button"
+  >
+    <template x-if="!input.drop_down_search_file">
+        <svg
+        class="w-2.5 h-2.5 mr-3"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 10 10"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M2 2 L8 5 L2 8"
+        ></path>
+      </svg>
+    </template>
+    <template x-if="input.drop_down_search_file">
+        <svg
+        class="w-2.5 h-2.5 mr-3"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 10 6"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="m1 1 4 4 4-4"></path>
+      </svg>
+    </template>
+    <template x-if="results.result.type === 'ssh'">
+      <div>
+        <span
+          class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300"
+          >SSH</span
+        >
+      </div>
+    </template>
+    <template x-if="results.result.type == 'stdin'">
+      <span
+        class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-blue-300"
+        >STDIN</span
+      >
+    </template>
+    <template x-if="results.result.type == 'file'">
+      <span
+        class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300"
+        >FILE</span
+      >
+    </template>
+    <template x-if="results.result.type == 'docker'">
+      <span
+        class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-sky-700 text-sky-100"
+        >DOCKER</span
+      >
+    </template>
+    <span
+      x-show="results.result.host"
+      class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded border border-yellow-700 text-slate-300"
+      x-text="results.result.host"></span>
+    <span
+      x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
+      x-text="results.result.file_path.split('/').slice(0, -1).join('/')"
+      :class="{'text-green-500 font-bold': results.result.file_path === results.result.file_path}"
+      class="truncate"></span>
+    <span
+      x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
+      class="text-slate-400">/</span
+    >
+    <span
+      x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
+      x-text="results.result.file_path.split('/').pop()"
+      class="truncate"
+      :class="{'font-bold text-blue-400': results.result.file_path === results.result.file_path}"
+    ></span>
+    <span
+      class="text-gray-600 ml-2 font-sans text-xs"
+      x-text="results.file_paths.filter(fp => fp.file_path == results.result.file_path).length > 0 ? `(${formatBytes(results.file_paths.filter(fp => fp.file_path == results.result.file_path)[0].file_size)}) ${numberToK(results.file_paths.filter(fp => fp.file_path == results.result.file_path)[0].lines_count)} lines` : 'No data available'"
+    ></span>
+  </button>
+
+  <!-- Dropdown menu -->
+  <div
+    class="shadow w-full bg-gray-900 rounded-b-lg"
+    :class="{'hidden': !input.drop_down_search_file}"
+  >
+    <!-- <div class="p-3">
+      <label for="input-group-search" class="sr-only">Search</label>
+      <div class="relative">
+        <div
+          class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
+        >
+          <svg
+            class="w-4 h-4 text-gray-500 dark:text-gray-400"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
+          </svg>
+        </div>
+        <input
+          type="text"
+          id="input-group-search"
+          class="w-full p-2 ps-10 text-sm border rounded-lg bg-gray-800 border-gray-500 placeholder-gray-400 text-white focus:outline-none"
+          placeholder="Search file"
+        />
+      </div>
+    </div> -->
     <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
       <ul
         class="max-h-48 px-3 pt-2 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
