@@ -61,13 +61,19 @@ ERROR Another error occurred`
 					"line_number": 2,
 					"content": "ERROR An error occurred",
 					"level": "error",
-					"date": ""
+					"date": "",
+					"agent": {
+						"device": "server"
+					}
 				},
 				{
 					"line_number": 4,
 					"content": "ERROR Another error occurred",
 					"level": "error",
-					"date": ""
+					"date": "",
+					"agent": {
+						"device": "server"
+					}
 				}
 				]
 			},
