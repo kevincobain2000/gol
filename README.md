@@ -125,7 +125,7 @@ gol -d="container-id" \
 - **v1.0.17** - Support both ignore and include patterns.
 - **v1.0.21** - Better logging.
 - **v1.0.22** - Support UA.
-- **v1.0.23** - Dropdown on files.
+- **v1.0.24** - Dropdown on files.
 
 ## Limitations
 
