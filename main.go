@@ -158,7 +158,11 @@ func updateGlobalFilePaths() {
 	}
 
 	for _, pattern := range f.dockerPaths {
-		containers, _ := pkg.ListDockerContainers()
+		containers, err := pkg.ListDockerContainers()
+		if err != nil {
+			slog.Error("listing Docker containers", pattern, err)
+			break
+		}
 		if pattern == "" || len(strings.Fields(pattern)) == 1 {
 			for _, container := range containers {
 				if pattern != "" && !strings.Contains(container.Names[0], pattern) {
