@@ -1,6 +1,7 @@
 ---
 import Inputs from "@components/partials/viewer/Inputs.astro";
 import Table from "@components/partials/viewer/Table.astro";
+import JS from "@components/JS.astro";
 const baseURL = import.meta.env.PUBLIC_BASE_URL;
 ---
 
@@ -10,6 +11,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
 </div>
 
 <script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js"></script>
+<JS />
 
 <script is:inline>
   let currentURL = new URL(window.location.href);
@@ -22,6 +24,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   baseURL = baseURL.replace(/\/$/, "");
   let input = Alpine.reactive({
     query: "",
+    query_file: "",
     ignore: "",
     file_path: "",
     realtime: false,
@@ -30,7 +33,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     type: "",
     page: 1,
     per_page: 100,
-    drop_down_search_file: false,
+    drop_down_search_file: true,
   });
   let highlighter = Alpine.reactive({
     line_from: 0,
@@ -41,9 +44,10 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
       lines: [],
       match_pattern: "",
       total: 0,
-      file_path: ""
+      file_path: "",
     },
     file_paths: [],
+    file_paths_backup: [],
   });
   let loading = Alpine.reactive({
     fetching: false,
@@ -52,50 +56,6 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     updated_at: "",
   });
   let intervalId = null;
-
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-  function numberToK(number) {
-    return number > 999 ? (number / 1000).toFixed(1) + "k" : number;
-  }
-  function timeago(str) {
-    if (!str) return "";
-    date = new Date(str);
-    if (isNaN(date)) return "";
-    const now = new Date();
-    const secondsPast = (now.getTime() - date.getTime()) / 1000;
-
-    if (secondsPast < 0) {
-        return "";
-    }
-    if (secondsPast < 60) {
-        return `${Math.floor(secondsPast)}s ago`;
-    }
-    if (secondsPast < 3600) {
-        const minutes = Math.floor(secondsPast / 60);
-        return `${minutes}${minutes === 1 ? 'min' : 'mins'} ago`;
-    }
-    if (secondsPast <= 86400) {
-        const hours = Math.floor(secondsPast / 3600);
-        return `${hours}${hours === 1 ? 'h' : 'h'} ago`;
-    }
-    if (secondsPast <= 2592000) {
-        const days = Math.floor(secondsPast / 86400);
-        return `${days}${days === 1 ? 'd' : 'd'} ago`;
-    }
-    if (secondsPast <= 31536000) {
-        const months = Math.floor(secondsPast / 2592000);
-        return `${months}${months === 1 ? 'mth' : 'mth'} ago`;
-    }
-    const years = Math.floor(secondsPast / 31536000);
-    return `${years}${years === 1 ? 'yr' : 'yrs'} ago`;
-  }
 
   const init = async () => {
     input.host = input.host ?? ""; // could be undefined
@@ -134,6 +94,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     }
     setTimeout(() => {
       results.file_paths = res.file_paths;
+      results.file_paths_backup = res.file_paths;
       results.result = res.result;
       input.file_path = res.result.file_path;
       input.host = res.result.host;
@@ -147,6 +108,39 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
   const submit = async () => {
     init();
   };
+  const submitFile = async () => {
+    if (input.query_file === "") {
+      results.file_paths = results.file_paths_backup;
+      return;
+    }
+    if (input.query_file.length < 3) {
+      return;
+    }
+
+    const minMatchLength = 3; // Minimum length of matching substring
+    const matching_file_paths = results.file_paths_backup.filter((curr) => {
+      if (curr.type === "file") {
+        return hasMatch(input.query_file, curr.type, minMatchLength)
+            || hasMatch(input.query_file, curr.file_path, minMatchLength);
+      }
+      if (curr.type === "docker") {
+        return hasMatch(input.query_file, curr.type, minMatchLength)
+        || hasMatch(input.query_file, curr.host, minMatchLength)
+        || hasMatch(input.query_file, curr.name, minMatchLength)
+        || (!curr.file_path.startsWith('/tmp/GOL-') && hasMatch(input.query_file, curr.file_path, minMatchLength));
+      }
+      if (curr.type === "ssh") {
+        return hasMatch(input.query_file, curr.host, minMatchLength)
+        || hasMatch(input.query_file, curr.file_path, minMatchLength)
+        || hasMatch(input.query_file, curr.type, minMatchLength);
+      }
+      if (curr.type === "stdin") {
+        return hasMatch(input.query_file, curr.type, minMatchLength);
+      }
+    });
+
+    results.file_paths = matching_file_paths;
+  };
 
   const manageRealtimeUpdates = () => {
     if (intervalId) {
@@ -159,6 +153,7 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
 
   const data = {
     submit,
+    submitFile,
     formatBytes,
     numberToK,
     timeago,
