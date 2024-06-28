@@ -135,15 +135,15 @@
       x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
       x-text="results.result.file_path.split('/').slice(0, -1).join('/')"
       :class="{'text-green-500 font-bold': results.result.file_path === results.result.file_path}"
-      class="truncate"></span>
+      class="font-mono truncate"></span>
     <span
       x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
-      class="text-slate-400">/</span
+      class="font-mono text-slate-400">/</span
     >
     <span
       x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
       x-text="results.result.file_path.split('/').pop()"
-      class="truncate"
+      class="font-mono truncate"
       :class="{'font-bold text-blue-400': results.result.file_path === results.result.file_path}"
     ></span>
     <span
@@ -157,8 +157,7 @@
     class="shadow w-full bg-gray-900 rounded-b-lg"
     :class="{'hidden': !input.drop_down_search_file}"
   >
-    <!-- <div class="p-3">
-      <label for="input-group-search" class="sr-only">Search</label>
+    <div class="p-3 ml-5">
       <div class="relative">
         <div
           class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
@@ -180,12 +179,13 @@
         </div>
         <input
           type="text"
-          id="input-group-search"
-          class="w-full p-2 ps-10 text-sm border rounded-lg bg-gray-800 border-gray-500 placeholder-gray-400 text-white focus:outline-none"
-          placeholder="Search file"
+          x-model="input.query_file"
+          @keyup="submitFile"
+          class="w-1/5 p-2 font-mono ps-10 text-sm border rounded-lg bg-gray-900 border-gray-700 placeholder-gray-400 text-white focus:outline-none"
+          placeholder="Filter file"
         />
       </div>
-    </div> -->
+    </div>
     <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
       <ul
         class="max-h-48 px-3 pt-2 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
