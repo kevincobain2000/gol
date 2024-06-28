@@ -126,6 +126,7 @@ gol -d="container-id" \
 - **v1.0.21** - Better logging.
 - **v1.0.22** - Support UA.
 - **v1.0.24** - Dropdown on files.
+- **v1.0.25** - Searchable files.
 
 ## Limitations
 
