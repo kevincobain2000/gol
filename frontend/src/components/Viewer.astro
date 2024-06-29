@@ -93,7 +93,10 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
         res.result.lines.length > 0 ? res.result.lines[0].line_number : 0;
     }
     setTimeout(() => {
-      results.file_paths = res.file_paths;
+      // keep the filter
+      if (input.query_file === "") {
+        results.file_paths = res.file_paths;
+      }
       results.file_paths_backup = res.file_paths;
       results.result = res.result;
       input.file_path = res.result.file_path;
@@ -120,19 +123,26 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
     const minMatchLength = 3; // Minimum length of matching substring
     const matching_file_paths = results.file_paths_backup.filter((curr) => {
       if (curr.type === "file") {
-        return hasMatch(input.query_file, curr.type, minMatchLength)
-            || hasMatch(input.query_file, curr.file_path, minMatchLength);
+        return (
+          hasMatch(input.query_file, curr.type, minMatchLength) ||
+          hasMatch(input.query_file, curr.file_path, minMatchLength)
+        );
       }
       if (curr.type === "docker") {
-        return hasMatch(input.query_file, curr.type, minMatchLength)
-        || hasMatch(input.query_file, curr.host, minMatchLength)
-        || hasMatch(input.query_file, curr.name, minMatchLength)
-        || (!curr.file_path.startsWith('/tmp/GOL-') && hasMatch(input.query_file, curr.file_path, minMatchLength));
+        return (
+          hasMatch(input.query_file, curr.type, minMatchLength) ||
+          hasMatch(input.query_file, curr.host, minMatchLength) ||
+          hasMatch(input.query_file, curr.name, minMatchLength) ||
+          (!curr.file_path.startsWith("/tmp/GOL-") &&
+            hasMatch(input.query_file, curr.file_path, minMatchLength))
+        );
       }
       if (curr.type === "ssh") {
-        return hasMatch(input.query_file, curr.host, minMatchLength)
-        || hasMatch(input.query_file, curr.file_path, minMatchLength)
-        || hasMatch(input.query_file, curr.type, minMatchLength);
+        return (
+          hasMatch(input.query_file, curr.host, minMatchLength) ||
+          hasMatch(input.query_file, curr.file_path, minMatchLength) ||
+          hasMatch(input.query_file, curr.type, minMatchLength)
+        );
       }
       if (curr.type === "stdin") {
         return hasMatch(input.query_file, curr.type, minMatchLength);
