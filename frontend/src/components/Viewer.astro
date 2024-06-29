@@ -96,8 +96,8 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
       // keep the filter
       if (input.query_file === "") {
         results.file_paths = res.file_paths;
-        results.file_paths_backup = res.file_paths;
       }
+      results.file_paths_backup = res.file_paths;
       results.result = res.result;
       input.file_path = res.result.file_path;
       input.host = res.result.host;
