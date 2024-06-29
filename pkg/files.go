@@ -370,3 +370,16 @@ func sshFilesByPattern(pattern string, config *SSHConfig) ([]string, error) {
 	filePaths := buf.String()
 	return strings.Split(strings.TrimSpace(filePaths), "\n"), nil
 }
+
+func UniqueFileInfos(fileInfos []FileInfo) []FileInfo {
+	keys := make(map[string]bool)
+	list := []FileInfo{}
+	for _, entry := range fileInfos {
+		key := entry.FilePath + entry.Type + entry.Host
+		if _, value := keys[key]; !value {
+			keys[key] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}

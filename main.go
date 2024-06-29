@@ -15,16 +15,6 @@ import (
 //go:embed all:frontend/dist/*
 var publicDir embed.FS
 
-type sliceFlags []string
-
-func (i *sliceFlags) String() string {
-	return "my string representation"
-}
-func (i *sliceFlags) Set(value string) error {
-	*i = append(*i, value)
-	return nil
-}
-
 type Flags struct {
 	host        string
 	port        int64
@@ -32,9 +22,9 @@ type Flags struct {
 	every       int64
 	limit       int
 	baseURL     string
-	filePaths   sliceFlags
-	sshPaths    sliceFlags
-	dockerPaths sliceFlags
+	filePaths   pkg.SliceFlags
+	sshPaths    pkg.SliceFlags
+	dockerPaths pkg.SliceFlags
 	access      bool
 	open        bool
 	version     bool
@@ -47,7 +37,6 @@ var version = "dev"
 func main() {
 	pkg.SetupLoggingStdout()
 	flags()
-	wantsVersion()
 
 	if pkg.IsInputFromPipe() {
 		tmpFile, err := os.Create(pkg.GetTmpFileNameForSTDIN())
@@ -65,7 +54,7 @@ func main() {
 			}
 		}(tmpFile)
 	}
-	defaultFilePaths()
+	setFilePaths()
 
 	go watchFilePaths(f.every)
 	slog.Info("Flags", "host", f.host, "port", f.port, "baseURL", f.baseURL, "open", f.open, "cors", f.cors, "access", f.access)
@@ -73,8 +62,8 @@ func main() {
 	if f.open {
 		pkg.OpenBrowser(fmt.Sprintf("http://%s:%d%s", f.host, f.port, f.baseURL))
 	}
-	defer cleanup()
-	pkg.HandleCltrC(cleanup)
+	defer pkg.Cleanup()
+	pkg.HandleCltrC(pkg.Cleanup)
 
 	err := pkg.NewEcho(func(o *pkg.EchoOptions) error {
 		o.Host = f.host
@@ -91,9 +80,9 @@ func main() {
 	}
 }
 
-func defaultFilePaths() {
+func setFilePaths() {
 	if len(os.Args) > 1 {
-		filePaths := sliceFlags{}
+		filePaths := pkg.SliceFlags{}
 		for _, arg := range os.Args[1:] {
 			if strings.HasPrefix(arg, "-") {
 				filePaths = []string{}
@@ -193,19 +182,7 @@ func updateGlobalFilePaths() {
 		}
 	}
 
-	pkg.GlobalFilePaths = uniqueFileInfos(fileInfos)
-}
-
-func cleanup() {
-	slog.Info("cleaning up")
-	if pkg.GlobalPipeTmpFilePath != "" {
-		err := os.Remove(pkg.GlobalPipeTmpFilePath)
-		if err != nil {
-			slog.Error("removing temp file", pkg.GlobalPipeTmpFilePath, err)
-			return
-		}
-		slog.Info("temp file removed", "path", pkg.GlobalPipeTmpFilePath)
-	}
+	pkg.GlobalFilePaths = pkg.UniqueFileInfos(fileInfos)
 }
 
 func watchFilePaths(seconds int64) {
@@ -218,19 +195,6 @@ func watchFilePaths(seconds int64) {
 	for range ticker.C {
 		updateGlobalFilePaths()
 	}
-}
-
-func uniqueFileInfos(fileInfos []pkg.FileInfo) []pkg.FileInfo {
-	keys := make(map[string]bool)
-	list := []pkg.FileInfo{}
-	for _, entry := range fileInfos {
-		key := entry.FilePath + entry.Type + entry.Host
-		if _, value := keys[key]; !value {
-			keys[key] = true
-			list = append(list, entry)
-		}
-	}
-	return list
 }
 
 func flags() {
@@ -248,10 +212,14 @@ func flags() {
 	flag.StringVar(&f.baseURL, "base-url", "/", "base url with slash")
 
 	flag.Parse()
+	wantsVersion()
 }
 
 func wantsVersion() {
-	if f.version {
+	if len(os.Args) == 2 &&
+		(os.Args[1] == "-version" || os.Args[1] == "--version" ||
+			os.Args[1] == "-v" || os.Args[1] == "--v" ||
+			os.Args[1] == "version") || f.version {
 		fmt.Println(version)
 		os.Exit(0)
 	}
