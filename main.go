@@ -216,10 +216,11 @@ func flags() {
 }
 
 func wantsVersion() {
-	if len(os.Args) == 2 &&
-		(os.Args[1] == "-version" || os.Args[1] == "--version" ||
-			os.Args[1] == "-v" || os.Args[1] == "--v" ||
-			os.Args[1] == "version") || f.version {
+	if len(os.Args) != 2 {
+		return
+	}
+	switch os.Args[1] {
+	case "-v", "--v", "-version", "--version":
 		fmt.Println(version)
 		os.Exit(0)
 	}
