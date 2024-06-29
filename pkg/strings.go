@@ -65,9 +65,9 @@ func JudgeLogLevel(line string, keywordPosition int) string {
 
 	// Keywords for different log levels
 	successKeywords := []string{"success"}
-	infoKeywords := []string{"info"}
-	errorKeywords := []string{"error"}
-	warnKeywords := []string{"warn", "warning"}
+	infoKeywords := []string{"info", "inf"}
+	errorKeywords := []string{"error", "err", "fail"}
+	warnKeywords := []string{"warn", "warning", "alert", "wrn"}
 	dangerKeywords := []string{"danger", "fatal", "severe", "critical"}
 	debugKeywords := []string{"debug"}
 
