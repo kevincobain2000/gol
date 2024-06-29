@@ -383,3 +383,10 @@ func UniqueFileInfos(fileInfos []FileInfo) []FileInfo {
 	}
 	return list
 }
+
+// func UniqueFileInfos(fileInfos []FileInfo) []FileInfo {
+// 	eq := func(a, b FileInfo) bool {
+// 		return a.FilePath == b.FilePath && a.Type == b.Type && a.Host == b.Host
+// 	}
+// 	return slices.CompactFunc(fileInfos, eq)
+// }

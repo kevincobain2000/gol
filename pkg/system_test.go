@@ -46,3 +46,17 @@ func TestIsInputFromPipe(t *testing.T) {
 		t.Error("Expected IsInputFromPipe to return true")
 	}
 }
+
+// func TestUniqueFileInfos(t *testing.T)
+// {
+// 	GlobalFilePaths = []FileInfo{
+// 		{FilePath: "/tmp/file1"},
+// 		{FilePath: "/tmp/file2"},
+// 		{FilePath: "/tmp/file1"},
+// 	}
+
+// 	uniqueFileInfos := UniqueFileInfos(GlobalFilePaths)
+// 	if len(uniqueFileInfos) != 2 {
+// 		t.Errorf("Expected 2 unique file infos, got %d", len(uniqueFileInfos))
+// 	}
+// }
