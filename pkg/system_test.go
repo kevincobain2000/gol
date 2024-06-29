@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"os"
+	"reflect"
 	"sync"
 	"testing"
 )
@@ -47,16 +48,60 @@ func TestIsInputFromPipe(t *testing.T) {
 	}
 }
 
-// func TestUniqueFileInfos(t *testing.T)
-// {
-// 	GlobalFilePaths = []FileInfo{
-// 		{FilePath: "/tmp/file1"},
-// 		{FilePath: "/tmp/file2"},
-// 		{FilePath: "/tmp/file1"},
-// 	}
+func TestUniqueFileInfos(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []FileInfo
+		expected []FileInfo
+	}{
+		{
+			name: "no duplicates",
+			input: []FileInfo{
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+				{FilePath: "path2", Type: "type2", Host: "host2"},
+			},
+			expected: []FileInfo{
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+				{FilePath: "path2", Type: "type2", Host: "host2"},
+			},
+		},
+		{
+			name: "with duplicates",
+			input: []FileInfo{
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+				{FilePath: "path2", Type: "type2", Host: "host2"},
+				{FilePath: "path2", Type: "type2", Host: "host2"},
+			},
+			expected: []FileInfo{
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+				{FilePath: "path2", Type: "type2", Host: "host2"},
+			},
+		},
+		{
+			name: "all duplicates",
+			input: []FileInfo{
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+			},
+			expected: []FileInfo{
+				{FilePath: "path1", Type: "type1", Host: "host1"},
+			},
+		},
+		{
+			name:     "empty input",
+			input:    []FileInfo{},
+			expected: []FileInfo{},
+		},
+	}
 
-// 	uniqueFileInfos := UniqueFileInfos(GlobalFilePaths)
-// 	if len(uniqueFileInfos) != 2 {
-// 		t.Errorf("Expected 2 unique file infos, got %d", len(uniqueFileInfos))
-// 	}
-// }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := UniqueFileInfos(tt.input)
+			if !reflect.DeepEqual(actual, tt.expected) {
+				t.Errorf("UniqueFileInfos(%v) = %v; want %v", tt.input, actual, tt.expected)
+			}
+		})
+	}
+}

@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"unicode/utf8"
 
@@ -372,21 +373,8 @@ func sshFilesByPattern(pattern string, config *SSHConfig) ([]string, error) {
 }
 
 func UniqueFileInfos(fileInfos []FileInfo) []FileInfo {
-	keys := make(map[string]bool)
-	list := []FileInfo{}
-	for _, entry := range fileInfos {
-		key := entry.FilePath + entry.Type + entry.Host
-		if _, value := keys[key]; !value {
-			keys[key] = true
-			list = append(list, entry)
-		}
+	eq := func(a, b FileInfo) bool {
+		return a.FilePath == b.FilePath && a.Type == b.Type && a.Host == b.Host
 	}
-	return list
+	return slices.CompactFunc(fileInfos, eq)
 }
-
-// func UniqueFileInfos(fileInfos []FileInfo) []FileInfo {
-// 	eq := func(a, b FileInfo) bool {
-// 		return a.FilePath == b.FilePath && a.Type == b.Type && a.Host == b.Host
-// 	}
-// 	return slices.CompactFunc(fileInfos, eq)
-// }
