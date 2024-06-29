@@ -125,7 +125,9 @@ func HandleCltrC(f func()) {
 }
 
 func Cleanup() {
-	if GlobalPipeTmpFilePath != "" {
+if GlobalPipeTmpFilePath == "" {
+       return
+}
 		err := os.Remove(GlobalPipeTmpFilePath)
 		if err != nil {
 			slog.Error("removing temp file", GlobalPipeTmpFilePath, err)
