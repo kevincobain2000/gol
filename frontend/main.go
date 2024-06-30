@@ -67,7 +67,7 @@ func main() {
 }
 
 func setFilePaths() {
-	// convinient method support for gol *logs
+	// convenient method support for gol *logs
 	if len(os.Args) > 1 {
 		filePaths := pkg.SliceFlags{}
 		for _, arg := range os.Args[1:] {

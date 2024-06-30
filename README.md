@@ -158,6 +158,7 @@ func main() {
 - **v1.0.22** - Support UA.
 - **v1.0.24** - Dropdown on files.
 - **v1.0.25** - Searchable files.
+- **v1.1.0** - Embed in GO.
 
 ## Limitations
 
