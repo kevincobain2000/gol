@@ -11,12 +11,12 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-func SetupLoggingStdout() {
+func SetupLoggingStdout(logLevel slog.Leveler) {
 	w := os.Stderr
 	handler := tint.NewHandler(w, &tint.Options{
 		NoColor:   !isatty.IsTerminal(w.Fd()),
 		AddSource: true,
-		Level:     slog.LevelInfo,
+		Level:     logLevel,
 		ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
 			if a.Key == slog.TimeKey {
 				t := a.Value.Time()

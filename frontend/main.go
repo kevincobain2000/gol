@@ -34,7 +34,7 @@ var f Flags
 var version = "dev"
 
 func main() {
-	pkg.SetupLoggingStdout()
+	pkg.SetupLoggingStdout(slog.LevelInfo)
 	flags()
 
 	if pkg.IsInputFromPipe() {
