@@ -2,10 +2,9 @@
 import Inputs from "@components/partials/viewer/Inputs.astro";
 import Table from "@components/partials/viewer/Table.astro";
 import JS from "@components/JS.astro";
-const baseURL = import.meta.env.PUBLIC_BASE_URL;
 ---
 
-<div class="mx-auto" id="data" data-base-url={baseURL}>
+<div class="mx-auto" id="data">
   <Inputs />
   <Table />
 </div>
@@ -14,11 +13,8 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
 <JS />
 
 <script is:inline>
-  let currentURL = new URL(window.location.href);
-  currentURL = currentURL.origin + currentURL.pathname;
-  let baseURL =
-    document.querySelector("[data-base-url]")?.getAttribute("data-base-url") ||
-    currentURL;
+  const currentURL = new URL(window.location.href);
+  let baseURL = currentURL.origin + currentURL.pathname;
   baseURL = baseURL.startsWith("http") ? baseURL : currentURL + baseURL;
   // remove trailing slash
   baseURL = baseURL.replace(/\/$/, "");

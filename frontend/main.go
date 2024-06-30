@@ -7,12 +7,11 @@ import (
 	"log/slog"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/kevincobain2000/gol/pkg"
 )
 
-//go:embed all:frontend/dist/*
+//go:embed all:dist/*
 var publicDir embed.FS
 
 type Flags struct {
@@ -39,24 +38,11 @@ func main() {
 	flags()
 
 	if pkg.IsInputFromPipe() {
-		tmpFile, err := os.Create(pkg.GetTmpFileNameForSTDIN())
-		if err != nil {
-			slog.Error("creating temp file", tmpFile.Name(), err)
-			return
-		}
-		pkg.GlobalPipeTmpFilePath = tmpFile.Name()
-		defer tmpFile.Close()
-		go func(tmpFile *os.File) {
-			err := pkg.PipeLinesToTmp(tmpFile)
-			if err != nil {
-				slog.Error("piping lines to temp file", tmpFile.Name(), err)
-				return
-			}
-		}(tmpFile)
+		pkg.HandleStdinPipe()
 	}
 	setFilePaths()
 
-	go watchFilePaths(f.every)
+	go pkg.WatchFilePaths(f.every, f.filePaths, f.sshPaths, f.dockerPaths, f.limit)
 	slog.Info("Flags", "host", f.host, "port", f.port, "baseURL", f.baseURL, "open", f.open, "cors", f.cors, "access", f.access)
 
 	if f.open {
@@ -81,29 +67,39 @@ func main() {
 }
 
 func setFilePaths() {
+	// convinient method support for gol *logs
 	if len(os.Args) > 1 {
 		filePaths := pkg.SliceFlags{}
 		for _, arg := range os.Args[1:] {
+			// Check if the argument is a flag (starts with '-')
 			if strings.HasPrefix(arg, "-") {
+				// If a flag is found, reset filePaths to an empty slice and break the loop
 				filePaths = []string{}
 				break
 			}
+			// Append argument to filePaths if it's not a flag
 			filePaths = append(filePaths, arg)
 		}
+		// If filePaths is not empty, set f.filePaths to filePaths
 		if len(filePaths) > 0 {
 			f.filePaths = filePaths
 		}
 	}
+
+	// Append GlobalPipeTmpFilePath to f.filePaths if it's not empty
+	// should be set if user has piped input
 	if pkg.GlobalPipeTmpFilePath != "" {
 		f.filePaths = append(f.filePaths, pkg.GlobalPipeTmpFilePath)
 	}
 
+	// If f.sshPaths is not nil, process each SSH path
 	if f.sshPaths != nil {
 		for _, sshPath := range f.sshPaths {
+			// Convert SSH path string to SSHPathConfig
 			sshFilePathConfig, err := pkg.StringToSSHPathConfig(sshPath)
 			if err != nil {
 				slog.Error("parsing SSH path", sshPath, err)
-				break
+				continue
 			}
 			if sshFilePathConfig != nil {
 				sshConfig := pkg.SSHConfig{
@@ -113,88 +109,15 @@ func setFilePaths() {
 					Password:       sshFilePathConfig.Password,
 					PrivateKeyPath: sshFilePathConfig.PrivateKeyPath,
 				}
+				// Get file information from the SSH path and append to GlobalFilePaths
 				fileInfos := pkg.GetFileInfos(sshFilePathConfig.FilePath, f.limit, true, &sshConfig)
 				pkg.GlobalFilePaths = append(pkg.GlobalFilePaths, fileInfos...)
 			}
 		}
 	}
 
-	updateGlobalFilePaths()
-}
-
-func updateGlobalFilePaths() {
-	fileInfos := []pkg.FileInfo{}
-	for _, pattern := range f.filePaths {
-		fileInfo := pkg.GetFileInfos(pattern, f.limit, false, nil)
-		fileInfos = append(fileInfo, fileInfos...)
-	}
-	for _, pattern := range f.sshPaths {
-		sshFilePathConfig, err := pkg.StringToSSHPathConfig(pattern)
-		if err != nil {
-			slog.Error("parsing SSH path", pattern, err)
-			break
-		}
-		sshConfig := pkg.SSHConfig{
-			Host:           sshFilePathConfig.Host,
-			Port:           sshFilePathConfig.Port,
-			User:           sshFilePathConfig.User,
-			Password:       sshFilePathConfig.Password,
-			PrivateKeyPath: sshFilePathConfig.PrivateKeyPath,
-		}
-		pkg.GlobalPathSSHConfig = append(pkg.GlobalPathSSHConfig, *sshFilePathConfig)
-		fileInfo := pkg.GetFileInfos(sshFilePathConfig.FilePath, f.limit, true, &sshConfig)
-		fileInfos = append(fileInfo, fileInfos...)
-	}
-
-	for _, pattern := range f.dockerPaths {
-		containers, err := pkg.ListDockerContainers()
-		if err != nil {
-			slog.Error("listing Docker containers", pattern, err)
-			break
-		}
-		if pattern == "" || len(strings.Fields(pattern)) == 1 {
-			for _, container := range containers {
-				if pattern != "" && !strings.Contains(container.Names[0], pattern) {
-					continue
-				}
-				tmpFile := pkg.ContainerStdoutToTmp(container.ID)
-				if tmpFile == nil {
-					slog.Error("creating temp file for container logs", "containerID", container.ID)
-					continue
-				}
-				fileInfo := pkg.GetFileInfos(tmpFile.Name(), f.limit, false, nil)
-				if len(fileInfo) > 0 {
-					fileInfo[0].Host = container.ID[:12]
-					fileInfo[0].Type = pkg.TypeDocker
-					fileInfo[0].Name = container.Names[0][1:]
-					fileInfos = append(fileInfo, fileInfos...)
-				}
-			}
-		}
-		if len(strings.Fields(pattern)) == 2 {
-			dockerFilePathConfig, err := pkg.StringToDockerPathConfig(pattern)
-			if err != nil {
-				slog.Error("parsing Docker path", pattern, err)
-				break
-			}
-			fileInfo := pkg.GetContainerFileInfos(dockerFilePathConfig.FilePath, f.limit, dockerFilePathConfig.ContainerID)
-			fileInfos = append(fileInfo, fileInfos...)
-		}
-	}
-
-	pkg.GlobalFilePaths = pkg.UniqueFileInfos(fileInfos)
-}
-
-func watchFilePaths(seconds int64) {
-	interval := time.Duration(seconds) * time.Second
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
-
-	slog.Info("Checking for filepaths", "interval", interval)
-
-	for range ticker.C {
-		updateGlobalFilePaths()
-	}
+	// Update global file paths with the current filePaths, stdin to tmp, sshPaths, and dockerPaths
+	pkg.UpdateGlobalFilePaths(f.filePaths, f.sshPaths, f.dockerPaths, f.limit)
 }
 
 func flags() {

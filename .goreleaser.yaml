@@ -3,7 +3,7 @@ before:
     - go mod tidy
 builds:
   -
-    main: main.go
+    main: frontend/main.go
     env:
       - CGO_ENABLED=0
     goos:

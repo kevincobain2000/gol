@@ -22,7 +22,6 @@ func SetupLoggingStdout() {
 				t := a.Value.Time()
 				a.Value = slog.StringValue(t.Format(time.DateTime))
 			}
-			// change file to short file with line number
 			if a.Key == slog.SourceKey {
 				source := a.Value.Any().(*slog.Source)
 				a.Value = slog.StringValue(filepath.Base(source.File) + ":" + fmt.Sprint(source.Line))

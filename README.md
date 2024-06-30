@@ -80,12 +80,14 @@ curl -sL https://raw.githubusercontent.com/kevincobain2000/gol/master/install.sh
 
 ## Examples
 
+### CLI - Basic Example
+
 ```sh
 # run in current directory for pattern
 gol "*log" "access/*log.tar.gz"
 ```
 
-## Advanced Examples
+### CLI - Advanced Examples
 
 All patterns work in combination with each other.
 
@@ -113,6 +115,35 @@ gol -d="container-id" \
     -f="/var/log/*.log"
 ```
 
+### Embed in GO
+
+If you don't want to use CLI to have seperate port and want to integrate within your existing Go app.
+
+
+```go
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/kevincobain2000/gol"
+)
+
+func main() {
+    // init with options of file path you want to watch
+	g := gol.NewGol(func(o *gol.GolOptions) error {
+		o.FilePaths = []string{"*.log"}
+		return nil
+	})
+
+    // register following two routes
+	http.HandleFunc("/gol/api", g.Adapter(g.NewAPIHandler().Get))
+	http.HandleFunc("/gol", g.Adapter(g.NewAssetsHandler().Get))
+
+    // start server as usual
+	http.ListenAndServe("localhost:8080", nil)
+}
+```
+
 ## CHANGE LOG
 
 - **v1.0.0** - Initial release.
@@ -131,3 +162,6 @@ gol -d="container-id" \
 ## Limitations
 
 - **Docker Logs:** Only supports logs from containers running on the same machine.
+- **fmt, stdout:** For embedded use, fmt and stdout logs are not intercepted.
+
+  **Tip:** If you want to capture, then run your app by piping output as `./app >> logs.log`.

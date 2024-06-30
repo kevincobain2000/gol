@@ -39,7 +39,7 @@ func (h *AssetsHandler) GetICO(c echo.Context) error {
 	return c.Blob(http.StatusOK, "image/x-icon", content)
 }
 
-func (h *AssetsHandler) GetHTML(c echo.Context) error {
+func (h *AssetsHandler) Get(c echo.Context) error {
 	filename := fmt.Sprintf("%s/%s", distDir, h.filename)
 	content, err := h.publicDir.ReadFile(filename)
 	if err != nil {
