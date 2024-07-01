@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	distDir = "frontend/dist"
+	distDir = "dist"
 )
 
 type EchoOptions struct {
