@@ -46,7 +46,7 @@ func (g *Gol) NewAPIHandler() *pkg.APIHandler {
 	return pkg.NewAPIHandler()
 }
 func (*Gol) NewAssetsHandler() *pkg.AssetsHandler {
-	return pkg.NewAssetsHandler(&publicDir, "index.html")
+	return pkg.NewAssetsHandler(&publicDir, "frontend/dist", "index.html")
 }
 
 func (*Gol) Adapter(echoHandler echo.HandlerFunc) http.HandlerFunc {

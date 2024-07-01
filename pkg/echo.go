@@ -10,10 +10,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-const (
-	distDir = "dist"
-)
-
 type EchoOptions struct {
 	Host      string
 	Port      int64
@@ -61,9 +57,8 @@ func SetupMiddlewares(e *echo.Echo) {
 }
 
 func SetupRoutes(e *echo.Echo, options *EchoOptions) {
-	e.GET(options.BaseURL+"", NewAssetsHandler(options.PublicDir, "index.html").Get)
-
-	e.GET(options.BaseURL+"favicon.ico", NewAssetsHandler(options.PublicDir, "favicon.ico").GetICO)
+	e.GET(options.BaseURL+"", NewAssetsHandler(options.PublicDir, "dist", "index.html").Get)
+	e.GET(options.BaseURL+"favicon.ico", NewAssetsHandler(options.PublicDir, "dist", "favicon.ico").GetICO)
 	e.GET(options.BaseURL+"api", NewAPIHandler().Get)
 }
 

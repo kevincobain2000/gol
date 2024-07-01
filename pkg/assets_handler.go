@@ -11,18 +11,20 @@ import (
 
 type AssetsHandler struct {
 	filename  string
+	distDir   string
 	publicDir *embed.FS
 }
 
-func NewAssetsHandler(publicDir *embed.FS, filename string) *AssetsHandler {
+func NewAssetsHandler(publicDir *embed.FS, distDir string, filename string) *AssetsHandler {
 	return &AssetsHandler{
 		publicDir: publicDir,
+		distDir:   distDir,
 		filename:  filename,
 	}
 }
 
 func (h *AssetsHandler) GetPlain(c echo.Context) error {
-	filename := fmt.Sprintf("%s/%s", distDir, h.filename)
+	filename := fmt.Sprintf("%s/%s", h.distDir, h.filename)
 	content, err := h.publicDir.ReadFile(filename)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Not Found")
@@ -30,7 +32,7 @@ func (h *AssetsHandler) GetPlain(c echo.Context) error {
 	return ResponsePlain(c, content, "0")
 }
 func (h *AssetsHandler) GetICO(c echo.Context) error {
-	filename := fmt.Sprintf("%s/%s", distDir, h.filename)
+	filename := fmt.Sprintf("%s/%s", h.distDir, h.filename)
 	content, err := h.publicDir.ReadFile(filename)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Not Found")
@@ -40,7 +42,7 @@ func (h *AssetsHandler) GetICO(c echo.Context) error {
 }
 
 func (h *AssetsHandler) Get(c echo.Context) error {
-	filename := fmt.Sprintf("%s/%s", distDir, h.filename)
+	filename := fmt.Sprintf("%s/%s", h.distDir, h.filename)
 	content, err := h.publicDir.ReadFile(filename)
 	if err != nil {
 		return c.String(http.StatusOK, os.Getenv("VERSION"))
