@@ -59,7 +59,7 @@ jobs:
         uses: kevincobain2000/action-coveritup@v2
         with:
           type: go-build-cli-time
-          command: go mod tidy;go build -ldflags '-s -w' -o main frontend/main.go
+          command: go mod tidy;go build -ldflags '-s -w' -o gol frontend/main.go
           record: runtime
 
       - name: Go Build All
@@ -92,7 +92,7 @@ jobs:
         uses: kevincobain2000/action-coveritup@v2
         with:
           type: go-binary-size
-          command: du -sk main | awk '{print $1}'
+          command: du -sk gol | awk '{print $1}'
 
       - name: Number of dependencies
         uses: kevincobain2000/action-coveritup@v2
