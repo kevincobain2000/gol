@@ -10,31 +10,49 @@
 
 <p align="center">
   View realtime logs in your fav browser<br>
-  Local, Docker, Remote, Pipes<br>
   Advanced regex search<br>
   Low Mem Footprint<br>
   Single binary
 </p>
 
-**Quick Setup:** One command to install and run.
+<h3 align="center">
+  Supports
+</h3>
 
-**Hassle Free:** Doesn't require elastic search or other shebang.
+<p align="center">
+  Docker Container logs from path<br>
+  Docker Container logs<br>
+  SSH remote logs<br>
+  STDIN logs<br>
+  Local logs<br>
+  Tar logs<br>
+</p>
 
-**Platform:** Supports (arm64, arch64, Mac, Mac M1, Ubuntu and Windows).
+- **Quick Setup:** One command to install and run.
 
-**Flexible:** View docker logs, remote logs over ssh, files on disk and piped inputs in browser.
+- **Hassle Free:** Doesn't require elastic search or other shebang.
 
-**Intelligent** Smartly judges log level, and dates.
+- **Platform:** Supports (arm64, arch64, Mac, Mac M1, Ubuntu and Windows).
 
-**Search** Fast search with regex.
+- **Flexible:** View docker logs, remote logs over ssh, files on disk and piped inputs in browser.
 
-**Realtime** Tail logs in real time in browser.
+- **Intelligent** Smartly judges log level, and dates.
 
-**Watch Changes** Supports log rotation and watch for new log files.
+- **Search** Fast search with regex.
+
+- **Realtime** Tail logs in real time in browser.
+
+- **Log Rotation** Supports log rotation and watch for new log files.
+
+- **Embed in GO** Easily embed in your existing Go app.
 
 <h1 align="center">
   View in Browser
 </h1>
+
+<p align="center">
+ Intuitive UI to view logs in browser
+</p>
 
 <p align="center">
   <a href="https://github.com/kevincobain2000/gol">
