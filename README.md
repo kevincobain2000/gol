@@ -52,8 +52,8 @@
 
 ![npm-install-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=npm-install-time)
 ![npm-build-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=npm-build-time)
-![go-build-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-build-time)
-![go-lint-errors](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-lint-errors)
+![go-build-cli-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-build-cli-time)
+![go-build-all-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-build-all-time)
 
 ![go-test-run-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-test-run-time)
 ![coverage](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=coverage)
@@ -62,8 +62,8 @@
 
 ![npm-install-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=npm-install-time&theme=light&line=fill&width=150&height=150&output=svg)
 ![npm-build-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=npm-build-time&theme=light&line=fill&width=150&height=150&output=svg)
-![go-build-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-build-time&theme=light&line=fill&width=150&height=150&output=svg)
-![go-lint-errors](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-lint-errors&theme=light&line=fill&width=150&height=150&output=svg)
+![go-build-cli-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-build-cli-time&theme=light&line=fill&width=150&height=150&output=svg)
+![go-build-all-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-build-all-time&theme=light&line=fill&width=150&height=150&output=svg)
 ![go-test-run-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-test-run-time&theme=light&line=fill&width=150&height=150&output=svg)
 ![coverage](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=coverage&theme=light&line=fill&width=150&height=150&output=svg)
 ![go-binary-size](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-binary-size&theme=light&line=fill&width=150&height=150&output=svg)
@@ -80,12 +80,14 @@ curl -sL https://raw.githubusercontent.com/kevincobain2000/gol/master/install.sh
 
 ## Examples
 
+### CLI - Basic Example
+
 ```sh
 # run in current directory for pattern
 gol "*log" "access/*log.tar.gz"
 ```
 
-## Advanced Examples
+### CLI - Advanced Examples
 
 All patterns work in combination with each other.
 
@@ -113,6 +115,35 @@ gol -d="container-id" \
     -f="/var/log/*.log"
 ```
 
+### Embed in GO
+
+If you don't want to use CLI to have seperate port and want to integrate within your existing Go app.
+
+
+```go
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/kevincobain2000/gol"
+)
+
+func main() {
+    // init with options of file path you want to watch
+	g := gol.NewGol(func(o *gol.GolOptions) error {
+		o.FilePaths = []string{"*.log"}
+		return nil
+	})
+
+    // register following two routes
+	http.HandleFunc("/gol/api", g.Adapter(g.NewAPIHandler().Get))
+	http.HandleFunc("/gol", g.Adapter(g.NewAssetsHandler().Get))
+
+    // start server as usual
+	http.ListenAndServe("localhost:8080", nil)
+}
+```
+
 ## CHANGE LOG
 
 - **v1.0.0** - Initial release.
@@ -127,7 +158,11 @@ gol -d="container-id" \
 - **v1.0.22** - Support UA.
 - **v1.0.24** - Dropdown on files.
 - **v1.0.25** - Searchable files.
+- **v1.1.0** - Embed in GO.
 
 ## Limitations
 
 - **Docker Logs:** Only supports logs from containers running on the same machine.
+- **fmt, stdout:** For embedded use, fmt and stdout logs are not intercepted.
+
+  **Tip:** If you want to capture, then run your app by piping output as `./app >> logs.log`.

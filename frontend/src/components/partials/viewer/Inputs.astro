@@ -8,13 +8,13 @@
       <div
         class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500"
       >
-        Match regex
+        <i>match regex</i>
       </div>
       <input
         type="text"
         x-model="input.query"
         @keyup="submit"
-        class="block font-mono font-bold w-full p-2.5 ps-32 text-sm text-slate-300 hover:text-slate-200 border-2 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
+        class="block font-mono font-bold w-full p-3 ps-32 text-sm text-slate-300 hover:text-slate-200 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
         placeholder=".*"
       />
       <span
@@ -40,13 +40,13 @@
       <div
         class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500"
       >
-        Ignore regex
+        <i>ignore regex</i>
       </div>
       <input
         type="text"
         x-model="input.ignore"
         @keyup="submit"
-        class="block font-mono font-bold w-full p-2.5 ps-32 text-sm text-slate-300 hover:text-slate-100 border-2 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
+        class="block font-mono font-bold w-full p-3 ps-32 text-sm text-slate-300 hover:text-slate-100 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
         placeholder=""
       />
     </div>
@@ -157,13 +157,13 @@
     class="shadow w-full bg-gray-900 rounded-b-lg"
     :class="{'hidden': !input.drop_down_search_file}"
   >
-    <div class="p-3 ml-5">
+    <div class="p-3 ml-2">
       <div class="relative">
         <div
           class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
         >
           <svg
-            class="w-4 h-4 text-gray-500 dark:text-gray-400"
+            class="w-4 h-4 text-gray-500"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -181,7 +181,7 @@
           type="text"
           x-model="input.query_file"
           @keyup="submitFile"
-          class="w-1/5 p-2 font-mono ps-10 text-sm border rounded-lg bg-gray-900 border-gray-700 placeholder-gray-400 text-white focus:outline-none"
+          class="w-1/5 p-2 font-mono ps-10 text-sm bg-gray-900 border-b border-b-gray-700 placeholder-gray-400 text-white focus:outline-none"
           placeholder="Filter file"
         />
       </div>

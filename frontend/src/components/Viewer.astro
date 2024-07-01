@@ -2,23 +2,24 @@
 import Inputs from "@components/partials/viewer/Inputs.astro";
 import Table from "@components/partials/viewer/Table.astro";
 import JS from "@components/JS.astro";
-const baseURL = import.meta.env.PUBLIC_BASE_URL;
+import Alpine from "@components/Alpine.astro";
 ---
 
-<div class="mx-auto" id="data" data-base-url={baseURL}>
+<div class="mx-auto" id="data">
   <Inputs />
   <Table />
 </div>
 
-<script is:inline src="//unpkg.com/alpinejs@3.0.7/dist/cdn.js"></script>
+<Alpine />
 <JS />
 
 <script is:inline>
-  let currentURL = new URL(window.location.href);
-  currentURL = currentURL.origin + currentURL.pathname;
-  let baseURL =
-    document.querySelector("[data-base-url]")?.getAttribute("data-base-url") ||
-    currentURL;
+  const currentURL = new URL(window.location.href);
+  let baseURL = currentURL.origin + currentURL.pathname;
+  // check if currentURL is 4321 then use http://localhost:3003 for baseURL (for local development)
+  if (currentURL.port === "4321") {
+    baseURL = "http://localhost:3003"
+  }
   baseURL = baseURL.startsWith("http") ? baseURL : currentURL + baseURL;
   // remove trailing slash
   baseURL = baseURL.replace(/\/$/, "");
@@ -93,7 +94,6 @@ const baseURL = import.meta.env.PUBLIC_BASE_URL;
         res.result.lines.length > 0 ? res.result.lines[0].line_number : 0;
     }
     setTimeout(() => {
-      // keep the filter
       if (input.query_file === "") {
         results.file_paths = res.file_paths;
       }

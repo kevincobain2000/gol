@@ -61,9 +61,7 @@ func SetupMiddlewares(e *echo.Echo) {
 }
 
 func SetupRoutes(e *echo.Echo, options *EchoOptions) {
-	e.GET(options.BaseURL+"", NewAssetsHandler(options.PublicDir, "index.html").GetHTML)
-	e.GET(options.BaseURL+"robots.txt", NewAssetsHandler(options.PublicDir, "robots.txt").GetPlain)
-	e.GET(options.BaseURL+"ads.txt", NewAssetsHandler(options.PublicDir, "ads.txt").GetPlain)
+	e.GET(options.BaseURL+"", NewAssetsHandler(options.PublicDir, "index.html").Get)
 
 	e.GET(options.BaseURL+"favicon.ico", NewAssetsHandler(options.PublicDir, "favicon.ico").GetICO)
 	e.GET(options.BaseURL+"api", NewAPIHandler().Get)
