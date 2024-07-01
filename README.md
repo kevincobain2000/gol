@@ -130,17 +130,17 @@ import (
 
 func main() {
     // init with options of file path you want to watch
-	g := gol.NewGol(func(o *gol.GolOptions) error {
-		o.FilePaths = []string{"*.log"}
-		return nil
-	})
+    g := gol.NewGol(func(o *gol.GolOptions) error {
+        o.FilePaths = []string{"*.log"}
+        return nil
+    })
 
     // register following two routes
-	http.HandleFunc("/gol/api", g.Adapter(g.NewAPIHandler().Get))
-	http.HandleFunc("/gol", g.Adapter(g.NewAssetsHandler().Get))
+    http.HandleFunc("/gol/api", g.Adapter(g.NewAPIHandler().Get))
+    http.HandleFunc("/gol", g.Adapter(g.NewAssetsHandler().Get))
 
     // start server as usual
-	http.ListenAndServe("localhost:8080", nil)
+    http.ListenAndServe("localhost:8080", nil)
 }
 ```
 
