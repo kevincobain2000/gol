@@ -4,7 +4,7 @@ go 1.22.3
 
 require (
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
-	github.com/docker/docker v27.0.0+incompatible
+	github.com/docker/docker v27.1.0+incompatible
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/gravwell/gravwell/v3 v3.8.32
 	github.com/kevincobain2000/go-human-uuid v0.0.0-20240321072653-0174cf7003de
