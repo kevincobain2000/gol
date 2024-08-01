@@ -9,7 +9,7 @@ require (
 	github.com/gravwell/gravwell/v3 v3.8.32
 	github.com/kevincobain2000/go-human-uuid v0.0.0-20240321072653-0174cf7003de
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/lmittmann/tint v1.0.4
+	github.com/lmittmann/tint v1.0.5
 	github.com/mattn/go-isatty v0.0.20
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/mileusna/useragent v1.3.4
