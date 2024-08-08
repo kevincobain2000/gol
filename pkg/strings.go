@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 	"sync"
@@ -212,17 +213,25 @@ var (
 	once sync.Once
 )
 
-func initTimeGrinder() {
+func initTimeGrinder() error {
 	cfg := timegrinder.Config{}
 	var err error
 	tg, err = timegrinder.NewTimeGrinder(cfg)
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 func searchDate(input string) string {
-	once.Do(initTimeGrinder)
+	var initErr error
+	once.Do(func() {
+		initErr = initTimeGrinder()
+	})
+	if initErr != nil {
+		slog.Error("Error initializing", "timegrinder", initErr)
+		return ""
+	}
 	ts, ok, err := tg.Extract([]byte(input))
 	if err != nil {
 		return ""
