@@ -2,8 +2,10 @@ package pkg
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode"
 
 	"github.com/acarl005/stripansi"
@@ -64,12 +66,12 @@ func JudgeLogLevel(line string, keywordPosition int) string {
 	line = strings.ToLower(line) // Convert the line to lowercase for easier comparison
 
 	// Keywords for different log levels
-	successKeywords := []string{"success"}
-	infoKeywords := []string{"info", "inf"}
-	errorKeywords := []string{"error", "err", "fail"}
-	warnKeywords := []string{"warn", "warning", "alert", "wrn"}
-	dangerKeywords := []string{"danger", "fatal", "severe", "critical"}
-	debugKeywords := []string{"debug"}
+	successKeywords := []string{"success", "SUCCESS", "succ", "SUCC", "Success"}
+	infoKeywords := []string{"info", "inf", "INFO", "INF", "Info", "Inf"}
+	errorKeywords := []string{"error", "err", "fail", "ERROR", "ERR", "FAIL", "Error", "Err", "Fail"}
+	warnKeywords := []string{"warn", "warning", "alert", "wrn", "WARN", "WARNING", "ALERT", "Wrn", "Wrning", "Alert"}
+	dangerKeywords := []string{"danger", "fatal", "severe", "critical", "DANGER", "FATAL", "SEVERE", "CRITICAL", "Danger", "Fatal", "Severe", "Critical"}
+	debugKeywords := []string{"debug", "dbg", "DEBUG", "DBG", "Debug"}
 
 	// Helper function to check if a keyword is at a specific position
 	isKeywordAtPosition := func(line, keyword string, position int) bool {
@@ -206,10 +208,28 @@ func appendDates(lines *[]LineResult) {
 	}
 }
 
-func searchDate(input string) string {
+var (
+	tg   *timegrinder.TimeGrinder
+	once sync.Once
+)
+
+func initTimeGrinder() error {
 	cfg := timegrinder.Config{}
-	tg, err := timegrinder.NewTimeGrinder(cfg)
+	var err error
+	tg, err = timegrinder.NewTimeGrinder(cfg)
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func searchDate(input string) string {
+	var initErr error
+	once.Do(func() {
+		initErr = initTimeGrinder()
+	})
+	if initErr != nil {
+		slog.Error("Error initializing", "timegrinder", initErr)
 		return ""
 	}
 	ts, ok, err := tg.Extract([]byte(input))
