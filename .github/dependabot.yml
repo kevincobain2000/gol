@@ -1,9 +1,0 @@
-version: 2
-updates:
-  - package-ecosystem: "gomod"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    commit-message:
-      prefix: "deps"
-    open-pull-requests-limit: 10
