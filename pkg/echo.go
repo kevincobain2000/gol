@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -54,6 +55,9 @@ func SetupMiddlewares(e *echo.Echo) {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 	e.Pre(middleware.RemoveTrailingSlash())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: ltsv(),
+	}))
 }
 
 func SetupRoutes(e *echo.Echo, options *EchoOptions) {
@@ -96,4 +100,28 @@ func HTTPErrorHandler(err error, c echo.Context) {
 	if err = c.JSON(code, &HTTPErrorResponse{Error: message}); err != nil {
 		slog.Error("handling HTTP error", "handler", err)
 	}
+}
+
+func ltsv() string {
+	timeCustom := time.Now().Format("2006-01-02 15:04:05")
+	var format string
+	format += fmt.Sprintf("time:%s\t", timeCustom)
+	format += "host:${remote_ip}\t"
+	format += "forwardedfor:${header:x-forwarded-for}\t"
+	format += "req:-\t"
+	format += "status:${status}\t"
+	format += "method:${method}\t"
+	format += "uri:${uri}\t"
+	format += "size:${bytes_out}\t"
+	format += "referer:${referer}\t"
+	format += "ua:${user_agent}\t"
+	format += "reqtime_ns:${latency}\t"
+	format += "cache:-\t"
+	format += "runtime:-\t"
+	format += "apptime:-\t"
+	format += "vhost:${host}\t"
+	format += "reqtime_human:${latency_human}\t"
+	format += "x-request-id:${id}\t"
+	format += "host:${host}\n"
+	return format
 }
