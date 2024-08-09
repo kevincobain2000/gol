@@ -178,6 +178,8 @@ func main() {
 - **v1.0.25** - Searchable files.
 - **v1.1.0** - Embed in GO, buggy.
 - **v1.1.1** - Embed in GO, stable.
+- **v1.1.2** - Go VUP
+- **v1.1.3** - Node VUP and debounce for better performance.
 
 ## Limitations
 
