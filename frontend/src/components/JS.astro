@@ -11,9 +11,12 @@
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
+
+
   function numberToK(number) {
     return number > 999 ? (number / 1000).toFixed(1) + "k" : number;
   }
+
   function timeago(str) {
     if (!str) return "";
     date = new Date(str);

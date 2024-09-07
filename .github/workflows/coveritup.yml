@@ -48,6 +48,12 @@ jobs:
           command: cd frontend; npm install
           record: runtime
 
+      - name: Astro Check
+        uses: kevincobain2000/action-coveritup@v2
+        with:
+          type: astro-warnings
+          command: cd frontend; npm run check
+
       - name: NPM Build
         uses: kevincobain2000/action-coveritup@v2
         with:

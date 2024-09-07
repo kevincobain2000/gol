@@ -187,3 +187,22 @@ func main() {
 - **fmt, stdout:** For embedded use, fmt and stdout logs are not intercepted.
 
   **Tip:** If you want to capture, then run your app by piping output as `./app >> logs.log`.
+
+
+## Development Notes
+
+```sh
+# Get some fake logs
+mkdir -p testdata
+while true; do date >> testdata/test.log; sleep 1; done
+
+# Start the API
+cd frontend
+go run main.go --cors=4321 --open=false -f="../testdata/*log"
+# API development on http://localhost:3003/api
+
+# Start the frontend
+npm install
+npm run dev
+# Frontend development on http://localhost:4321/
+```
