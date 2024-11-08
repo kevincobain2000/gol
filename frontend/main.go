@@ -71,6 +71,10 @@ func setFilePaths() {
 	if len(os.Args) > 1 {
 		filePaths := pkg.SliceFlags{}
 		for _, arg := range os.Args[1:] {
+			// ignore background process flag
+			if arg == "&" {
+				continue
+			}
 			// Check if the argument is a flag (starts with '-')
 			if strings.HasPrefix(arg, "-") {
 				// If a flag is found, reset filePaths to an empty slice and break the loop
