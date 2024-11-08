@@ -209,8 +209,14 @@ func GetFileInfos(pattern string, limit int, isRemote bool, sshConfig *SSHConfig
 		}
 		linesCount, fileSize, err := FileStats(filePath, isRemote, sshConfig)
 		if err != nil {
-			slog.Error("getting file stats", filePath, err)
-			continue
+			if errors.Is(err, io.EOF) {
+				slog.Warn("File is empty", "filePath", filePath)
+				linesCount = 0
+				fileSize = 0
+			} else {
+				slog.Error("getting file stats", filePath, err)
+				continue
+			}
 		}
 		t := TypeFile
 		h := ""
