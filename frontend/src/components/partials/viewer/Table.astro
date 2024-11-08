@@ -45,12 +45,16 @@
                 @click="input.reverse=true;input.page=1;submit()">▲</button
               >
             </template>
+            LINE No
           </th>
 
           <th scope="col" class="px-3 py-3 uppercase" style="width: 100px;"
             >Level</th
           >
-          <th scope="col" class="px-3 py-3 uppercase" style="width: 150px;"
+          <th scope="col" class="px-3 py-3 uppercase" style="width: 120px;"
+            >Device</th
+          >
+          <th scope="col" class="px-3 py-3 uppercase" style="width: 100px;"
             >Time</th
           >
           <th scope="col" class="px-3 py-3">
@@ -123,10 +127,10 @@
                 >
               </template>
             </td>
-            <td class="px-3 py-2 text-gray-600 text-xs">
+            <td class="px-3 py-2 text-gray-400 text-xs">
               <template x-if="item.agent.device === 'server'">
                 <svg
-                  class="w-4 h-4 text-gray-600 inline"
+                  class="w-4 h-4 text-gray-400 inline"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -145,7 +149,7 @@
               </template>
               <template x-if="item.agent.device === 'desktop'">
                 <svg
-                  class="w-4 h-4 text-gray-600 inline"
+                  class="w-4 h-4 text-gray-400 inline"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -164,7 +168,7 @@
               </template>
               <template x-if="item.agent.device === 'mobile'">
                 <svg
-                  class="w-4 h-4 text-gray-600 inline"
+                  class="w-4 h-4 text-gray-400 inline"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -180,7 +184,7 @@
               </template>
               <template x-if="item.agent.device === 'tablet'">
                 <svg
-                  class="w-4 h-4 text-gray-600 inline"
+                  class="w-4 h-4 text-gray-400 inline"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -197,8 +201,9 @@
                   ></path>
                 </svg>
               </template>
-              <span x-text="timeago(item.date)"></span>
+              <span class="uppercase" x-text="item.agent.device"></span>
             </td>
+            <td><span class="text-sm" x-text="timeago(item.date)"></span></td>
             <td class="px-3 py-2 text-blue-200" x-text="item.content"></td>
           </tr>
         </template>

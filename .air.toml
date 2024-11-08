@@ -13,7 +13,7 @@ cmd = "go mod tidy && go build -o ./tmp/main frontend/main.go"
 bin = "tmp/main"
 # Customize binary.
 # allow cors for astro
-full_bin = "PP_USER=air ./tmp/main --cors=4321 --open=false -f=testdata/*log"
+full_bin = "PP_USER=air ./tmp/main --cors=4321 --open=false -f=testdata/*log -f=testdata/*gz"
 # Watch these filename extensions.
 include_ext = ["go", "tpl", "tmpl", "html", "env", "conf"]
 # Ignore these filename extensions or directories.
