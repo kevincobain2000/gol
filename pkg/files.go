@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
@@ -115,6 +116,20 @@ func FilesByPattern(pattern string, isRemote bool, sshConfig *SSHConfig) ([]stri
 	return files, nil
 }
 
+func detectMimeType(file *os.File) (string, error) {
+	buffer := make([]byte, 512)
+	_, err := file.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	// Reset the file pointer to the beginning of the file
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return "", err
+	}
+	return http.DetectContentType(buffer), nil
+}
+
 // FileStats returns the number of lines and size of the file at the given path.
 func FileStats(filePath string, isRemote bool, sshConfig *SSHConfig) (int, int64, error) {
 	var file *os.File
@@ -130,10 +145,25 @@ func FileStats(filePath string, isRemote bool, sshConfig *SSHConfig) (int, int64
 	}
 	defer file.Close()
 
-	var linesCount int
-	var fileSize int64
+	mimeType, err := detectMimeType(file)
+	if err != nil {
+		return 0, 0, err
+	}
 
-	scanner := bufio.NewScanner(file)
+	var reader *bufio.Reader
+	if mimeType == "application/x-gzip" {
+		gzReader, err := gzip.NewReader(file)
+		if err != nil {
+			return 0, 0, err
+		}
+		defer gzReader.Close()
+		reader = bufio.NewReader(gzReader)
+	} else {
+		reader = bufio.NewReader(file)
+	}
+
+	var linesCount int
+	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		linesCount++
 	}
@@ -146,7 +176,7 @@ func FileStats(filePath string, isRemote bool, sshConfig *SSHConfig) (int, int64
 	if err != nil {
 		return 0, 0, err
 	}
-	fileSize = fileInfo.Size()
+	fileSize := fileInfo.Size()
 
 	return linesCount, fileSize, nil
 }
@@ -180,7 +210,7 @@ func GetFileInfos(pattern string, limit int, isRemote bool, sshConfig *SSHConfig
 		linesCount, fileSize, err := FileStats(filePath, isRemote, sshConfig)
 		if err != nil {
 			slog.Error("getting file stats", filePath, err)
-			return nil
+			continue
 		}
 		t := TypeFile
 		h := ""

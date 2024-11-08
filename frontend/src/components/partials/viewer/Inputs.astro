@@ -8,7 +8,7 @@
       <div
         class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500"
       >
-        <i>match regex</i>
+        <b class="text-green-400">Match Regex</b>
       </div>
       <input
         type="text"
@@ -40,7 +40,7 @@
       <div
         class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500"
       >
-        <i>ignore regex</i>
+        <b class="text-slate-500">Ignore Regex</b>
       </div>
       <input
         type="text"
@@ -157,7 +157,7 @@
     class="shadow w-full bg-gray-900 rounded-b-lg"
     :class="{'hidden': !input.drop_down_search_file}"
   >
-    <div class="p-3 ml-2">
+    <div class="p-3 xl:ml-10">
       <div class="relative">
         <div
           class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
@@ -188,7 +188,7 @@
     </div>
     <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
       <ul
-        class="max-h-48 px-3 pt-2 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
+        class="max-h-48 xl:ml-10 px-3 pt-2 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
       >
         <template
           x-if="results.file_paths.filter((fp) => fp.type == type).length"
