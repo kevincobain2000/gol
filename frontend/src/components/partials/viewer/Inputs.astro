@@ -180,6 +180,7 @@
         <input
           type="text"
           x-model="input.query_file"
+          @click="document.getElementById('files').scroll(0,0)"
           @keyup="submitFile"
           class="w-1/5 p-2 font-mono ps-10 text-sm bg-gray-900 border-b border-b-gray-700 placeholder-gray-400 text-white focus:outline-none"
           placeholder="Filter file"
@@ -189,6 +190,7 @@
     <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
       <ul
         class="max-h-48 xl:ml-10 px-3 pt-2 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
+        id="files"
       >
         <template
           x-if="results.file_paths.filter((fp) => fp.type == type).length"

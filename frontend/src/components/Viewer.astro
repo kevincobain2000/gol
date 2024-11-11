@@ -119,6 +119,10 @@ import Alpine from "@components/Alpine.astro";
     if (input.query_file.length < 3) {
       return;
     }
+    // scroll to top on file search with id files
+    document.getElementById("files").scroll(0,0)
+
+
 
     const minMatchLength = 3; // Minimum length of matching substring
     const matching_file_paths = results.file_paths_backup.filter((curr) => {
