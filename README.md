@@ -68,25 +68,6 @@
   </a>
 </p>
 
-![npm-install-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=npm-install-time)
-![npm-build-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=npm-build-time)
-![go-build-cli-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-build-cli-time)
-![go-build-all-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-build-all-time)
-
-![go-test-run-time](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-test-run-time)
-![coverage](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=coverage)
-![go-binary-size](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-binary-size)
-![go-mod-dependencies](https://coveritup.app/badge?org=kevincobain2000&repo=gol&branch=master&type=go-mod-dependencies)
-
-![npm-install-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=npm-install-time&theme=light&line=fill&width=150&height=150&output=svg)
-![npm-build-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=npm-build-time&theme=light&line=fill&width=150&height=150&output=svg)
-![go-build-cli-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-build-cli-time&theme=light&line=fill&width=150&height=150&output=svg)
-![go-build-all-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-build-all-time&theme=light&line=fill&width=150&height=150&output=svg)
-![go-test-run-time](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-test-run-time&theme=light&line=fill&width=150&height=150&output=svg)
-![coverage](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=coverage&theme=light&line=fill&width=150&height=150&output=svg)
-![go-binary-size](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-binary-size&theme=light&line=fill&width=150&height=150&output=svg)
-![go-mod-dependencies](https://coveritup.app/chart?org=kevincobain2000&repo=gol&branch=master&type=go-mod-dependencies&theme=light&line=fill&width=150&height=150&output=svg)
-
 
 ### Install using curl
 
