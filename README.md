@@ -60,15 +60,6 @@
   </a>
 </p>
 
-## Reports from [coveritup](https://coveritup.app/readme?org=kevincobain2000&repo=gol&branch=master)
-
-<p align="center">
-  <a href="https://coveritup.app/readme?org=kevincobain2000&repo=gol&branch=master">
-    <img alt="gol" src="https://coveritup.app/progress?org=kevincobain2000&repo=gol&branch=master&type=coverage&theme=dark&style=bar" width="150">
-  </a>
-</p>
-
-
 ### Install using curl
 
 Use this method if go is not installed on your server
