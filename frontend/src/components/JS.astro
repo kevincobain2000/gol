@@ -17,6 +17,15 @@
     return number > 999 ? (number / 1000).toFixed(1) + "k" : number;
   }
 
+  function formatLogString(str) {
+    try {
+      const json = JSON.parse(str);
+      return JSON.stringify(json, null, 2);
+    } catch (e) {
+      return str;
+    }
+  }
+
   function timeago(str) {
     if (!str) return "";
     date = new Date(str);
