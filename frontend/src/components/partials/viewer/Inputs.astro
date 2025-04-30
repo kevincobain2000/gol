@@ -8,13 +8,13 @@
       <div
         class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500"
       >
-        <b class="text-green-400">Match Regex</b>
+        <b class="text-green-400">Match</b>
       </div>
       <input
         type="text"
         x-model="input.query"
         @input.debounce.500ms="submit"
-        class="block font-mono font-bold w-full p-3 ps-32 text-sm text-slate-300 hover:text-slate-200 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
+        class="block font-mono font-bold w-full p-3 ps-24 text-sm text-slate-300 hover:text-slate-200 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
         placeholder=".*"
       />
       <span
@@ -40,13 +40,13 @@
       <div
         class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500"
       >
-        <b class="text-slate-500">Ignore Regex</b>
+        <b class="text-slate-500">Ignore</b>
       </div>
       <input
         type="text"
         x-model="input.ignore"
         @input.debounce.500ms="submit"
-        class="block font-mono font-bold w-full p-3 ps-32 text-sm text-slate-300 hover:text-slate-100 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
+        class="block font-mono font-bold w-full p-3 ps-24 text-sm text-slate-300 hover:text-slate-100 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
         placeholder=""
       />
     </div>
@@ -151,13 +151,15 @@
       x-text="results.file_paths.filter(fp => fp.file_path == results.result.file_path).length > 0 ? `(${formatBytes(results.file_paths.filter(fp => fp.file_path == results.result.file_path)[0].file_size)}) ${numberToK(results.file_paths.filter(fp => fp.file_path == results.result.file_path)[0].lines_count)} lines` : 'No data available'"
     ></span>
   </button>
+  <!-- seperator light -->
+  <div class="border-b border-b-slate-600"></div>
 
   <!-- Dropdown menu -->
   <div
     class="shadow w-full bg-gray-900 rounded-b-lg"
     :class="{'hidden': !input.drop_down_search_file}"
   >
-    <div class="p-3 xl:ml-10">
+    <div class="p-3">
       <div class="relative">
         <div
           class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
@@ -182,14 +184,14 @@
           x-model="input.query_file"
           @click="document.getElementById('files').scroll(0,0)"
           @keyup="submitFile"
-          class="w-1/5 p-2 font-mono ps-10 text-sm bg-gray-900 border-b border-b-gray-700 placeholder-gray-400 text-white focus:outline-none"
-          placeholder="Filter file"
+          class="w-1/5 p-2 font-mono ps-10 text-sm bg-gray-800 placeholder-gray-400 text-white focus:outline-none"
+          placeholder="Filter"
         />
       </div>
     </div>
     <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
       <ul
-        class="max-h-48 xl:ml-10 px-3 pt-2 pb-2 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
+        class="max-h-48 px-3  overflow-y-auto text-sm text-gray-200 no-scrollbar break-all"
         id="files"
       >
         <template
