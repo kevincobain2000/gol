@@ -11,7 +11,6 @@
             <input type="text" x-model="input.query" @input.debounce.500ms="submit"
                 class="block font-mono font-bold w-full p-3 ps-24 text-sm text-slate-300 hover:text-slate-200 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
                 placeholder=".*" />
-
         </div>
 
         <div class="relative">
@@ -93,7 +92,6 @@
     </button>
     <!-- seperator light -->
 
-
     <!-- Dropdown menu -->
     <div class="shadow w-full bg-gray-900 rounded-b-lg" :class="{ 'hidden': !input.drop_down_search_file }">
         <div class="border-b border-b-slate-600"></div>
@@ -113,7 +111,7 @@
             </div>
         </div>
         <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
-            <ul class="max-h-48 px-3  overflow-y-auto text-sm text-gray-200 no-scrollbar break-all" id="files">
+            <ul class="max-h-48 px-3 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all" id="files">
                 <template x-if="results.file_paths.filter((fp) => fp.type == type).length">
                     <div class="relative ml-1">
                         <div
@@ -178,10 +176,9 @@
                     <li :class="{ 'shadow-2xl': filepath.file_path === results.result.file_path }">
                         <div @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host;input.type = filepath.type; submit()"
                             class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
-                            :class="{ 'bg-gray-800  border-gray-900': filepath.file_path === results.result.file_path }">
+                            :class="{ 'bg-gray-800 border-gray-900': filepath.file_path === results.result.file_path }">
                             <label
-                                :class="{ 'text-blue-400': filepath.file_path === results.result
-                                    .file_path, 'text-slate-400': filepath.file_path !== results.result.file_path }"
+                                :class="{ 'text-blue-400': filepath.file_path === results.result.file_path, 'text-slate-400': filepath.file_path !== results.result.file_path }"
                                 class="w-full py-2 ms-2 text-sm font-mono rounded flex items-center">
                                 <template x-if="filepath.type === 'ssh'">
                                     <div>
