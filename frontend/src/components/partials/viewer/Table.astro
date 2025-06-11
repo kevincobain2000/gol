@@ -9,7 +9,7 @@
       <select
         x-model="input.per_page"
         @change="input.page=1;submit()"
-        class="bg-gray-700 text-gray-300 rounded px-2 py-1 text-xs"
+        class="bg-gray-800 text-gray-300 rounded px-2 py-1 text-xs border border-gray-700"
       >
         <option value="15">15</option>
         <option value="50">50</option>
@@ -19,18 +19,18 @@
     </label>
   </div>
   <div class="text-right pt-5">
-    <span class="text-xs text-slate-500">
+    <span class="text-xs text-gray-400">
       Updated at <span x-text="loading.updated_at"></span>
     </span>
   </div>
 </div>
 
 <div>
-  <div class="overflow-x-auto mt-5 rounded shadow-2xl">
+  <div class="overflow-x-auto mt-5 rounded-lg shadow-2xl bg-gray-900">
     <table
-      class="w-full text-sm font-mono text-left text-gray-400 border border-gray-900 table-fixed"
+      class="w-full text-sm font-mono text-left text-gray-500 border border-gray-800 table-fixed"
     >
-      <thead class="text-xs bg-gray-900 text-gray-400">
+      <thead class="text-xs bg-black text-gray-300">
         <tr>
           <th scope="col" class="px-3 py-3 uppercase" style="width: 100px;">
             <template x-if="input.reverse">
@@ -45,7 +45,7 @@
                 @click="input.reverse=true;input.page=1;submit()">▲</button
               >
             </template>
-            LINE No
+            No.
           </th>
 
           <th scope="col" class="px-3 py-3 uppercase" style="width: 100px;"
@@ -78,51 +78,51 @@
       <tbody>
         <template x-for="(item, index) in results.result.lines" :key="index">
           <tr
-            class="border-b bg-gray-800 border-gray-700 hover:bg-gray-900"
-            :class="{'highlight': input.realtime == true && highlighter.line_from  > 0 && item.line_number-1 >= highlighter.line_from}"
+            class="border-b border-gray-800 bg-gray-900 hover:bg-gray-800 transition-colors duration-150"
+            :class="{'highlight': input.realtime == true && highlighter.line_from > 0 && item.line_number-1 >= highlighter.line_from}"
           >
             <td class="px-3 py-2" x-text="item.line_number.toLocaleString()"
             ></td>
             <td class="px-3 py-2">
               <template x-if="item.level == 'success'">
                 <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-green-500 text-gray-900"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-green-900 text-green-300"
                   >Success</span
                 >
               </template>
               <template x-if="item.level == 'info'">
                 <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-blue-500 text-white"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-blue-900 text-blue-300"
                   >Info</span
                 >
               </template>
               <template x-if="item.level == 'error'">
                 <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-500 text-gray-800"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-900 text-red-300"
                   >Error</span
                 >
               </template>
               <template x-if="item.level == 'warn'">
                 <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-yellow-500 text-gray-900"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-yellow-900 text-yellow-300"
                   >Warn</span
                 >
               </template>
               <template x-if="item.level == 'danger'">
                 <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-700 text-white"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-red-900 text-red-300"
                   >Danger</span
                 >
               </template>
               <template x-if="item.level == 'debug'">
                 <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-500 text-white"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-700 text-gray-300"
                   >Debug</span
                 >
               </template>
               <template x-if="item.level == ''">
                 <span
-                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-700 text-gray-300"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-gray-800 text-gray-400"
                   >Line</span
                 >
               </template>
@@ -204,7 +204,7 @@
               <span class="uppercase" x-text="item.agent.device"></span>
             </td>
             <td><span class="text-sm" x-text="timeago(item.date)"></span></td>
-            <td class="px-3 py-2 text-blue-200 whitespace-pre-wrap" x-text="formatLogString(item.content)"></td>
+            <td class="px-3 py-2 text-blue-300 whitespace-pre-wrap" x-text="formatLogString(item.content)"></td>
           </tr>
         </template>
       </tbody>
@@ -219,7 +219,7 @@
         <button
           :disabled="input.page === 1"
           @click="input.page > 1 ? input.page-- : null; submit();"
-          class="flex items-center justify-center px-3 h-8 ms-0 leading-tight border-e-0 rounded-s-lg bg-gray-700 border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-white"
+          class="flex items-center justify-center px-3 h-8 ms-0 leading-tight border-e-0 rounded-s-lg bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150"
           :class="{'cursor-not-allowed opacity-50': input.page === 1}"
           >Previous</button
         >
@@ -230,14 +230,14 @@
           type="button"
           :disabled="input.page >= Math.ceil(results.result.total / input.per_page)"
           @click="input.page++; submit();"
-          class="flex items-center justify-center px-3 h-8 leading-tight rounded-e-lg bg-gray-700 border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-white"
+          class="flex items-center justify-center px-3 h-8 leading-tight rounded-e-lg bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150"
           :class="{'cursor-not-allowed opacity-50': input.page >= Math.ceil(results.result.total / input.per_page)}"
           >Next</button
         >
       </li>
     </ul>
   </nav>
-  <div class="pt-3 text-sm">
+  <div class="pt-3 text-sm text-gray-400">
     Page <span x-text="input.page.toLocaleString()"></span> of <span
       x-text="Math.ceil(results.result.total / input.per_page).toLocaleString()"
     ></span> (<span x-text="results.result.total.toLocaleString()"></span> rows)
@@ -249,11 +249,11 @@
       @apply opacity-10;
     }
     to {
-      background-color: transparent;
+      @apply opacity-100;
     }
   }
 
   .highlight {
-    animation: highlight 2s backwards;
+    animation: highlight 1s ease-in-out;
   }
 </style>

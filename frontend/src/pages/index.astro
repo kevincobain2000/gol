@@ -9,14 +9,19 @@ import Footer from "@components/Footer.astro";
   title="GOL - Log Viewer Free"
   description="GOL - Log Viewer Free"
 >
-  <div class="h-full">
+  <div class="min-h-screen flex flex-col">
     <Nav />
-    <Viewer />
-    <div class="mt-96">
-
-    </div>
+    <main class="flex-1 container mx-auto">
+      <div class="">
+        <Viewer />
+      </div>
+    </main>
     <Footer />
   </div>
 </Layout>
 
-<style></style>
+<style>
+  :global(body) {
+    @apply antialiased;
+  }
+</style>
