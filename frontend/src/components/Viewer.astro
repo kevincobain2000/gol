@@ -5,9 +5,13 @@ import JS from "@components/JS.astro";
 import Alpine from "@components/Alpine.astro";
 ---
 
-<div class="mx-auto" id="data">
-  <Inputs />
-  <Table />
+<div class="w-full space-y-6" id="data">
+  <div class="bg-white dark:bg-gray-800 lg:rounded-lg shadow-sm p-6">
+    <Inputs />
+  </div>
+  <div class="bg-white dark:bg-gray-800 lg:rounded-lg shadow-sm p-6">
+    <Table />
+  </div>
 </div>
 
 <Alpine />
@@ -176,4 +180,8 @@ import Alpine from "@components/Alpine.astro";
   Alpine.start();
 </script>
 
-<style></style>
+<style>
+  :global(.dark) {
+    color-scheme: dark;
+  }
+</style>

@@ -18,11 +18,13 @@
   }
 
   function formatLogString(str) {
+    // Remove unreadable xterm control characters
+    const clean = str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
     try {
-      const json = JSON.parse(str);
+      const json = JSON.parse(clean);
       return JSON.stringify(json, null, 2);
     } catch (e) {
-      return str;
+      return clean;
     }
   }
 

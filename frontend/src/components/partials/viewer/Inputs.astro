@@ -2,27 +2,21 @@
 
 ---
 
-<div class="mx-auto mt-10">
-    <div class="grid grid-cols-2 gap-4">
-        <div class="relative">
-            <div class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500">
-                <b class="text-green-400">Match</b>
-            </div>
-            <input type="text" x-model="input.query" @input.debounce.500ms="submit"
-                class="block font-mono font-bold w-full p-3 ps-24 text-sm text-slate-300 hover:text-slate-200 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
-                placeholder=".*" />
-        </div>
-
-        <div class="relative">
-            <div class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md text-gray-500">
-                <b class="text-slate-500">Ignore</b>
-            </div>
-            <input type="text" x-model="input.ignore" @input.debounce.500ms="submit"
-                class="block font-mono font-bold w-full p-3 ps-24 text-sm text-slate-300 hover:text-slate-100 border-gray-600 rounded-lg bg-gray-900 focus:outline-none"
-                placeholder="" />
-        </div>
+<div class="mx-auto">
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <input id="match-input" type="text" x-model="input.query" @input.debounce.500ms="submit"
+        class="block font-mono w-full p-3 ps-5 text-sm text-slate-300 border border-gray-700 rounded-lg bg-gray-800/50"
+        placeholder=".* Pattern to match" />
     </div>
-    <div class="text-slate-300 text-sm pt-5">
+
+    <div>
+      <input id="ignore-input" type="text" x-model="input.ignore" @input.debounce.500ms="submit"
+        class="block font-mono w-full p-3 ps-5 text-sm text-slate-300 border border-gray-700 rounded-lg bg-gray-800/50"
+        placeholder="^ Pattern to ignore" />
+    </div>
+  </div>
+  <!--     <div class="text-slate-300 text-sm pt-5">
         <label class="inline-flex items-center cursor-pointer">
             <input type="checkbox" x-model="input.realtime" @change="input.reverse=true;input.page=1;submit()"
                 class="sr-only peer" />
@@ -31,209 +25,196 @@
             </div>
             <span class="ms-3 text-sm font-bold text-gray-400">Realtime</span>
         </label>
-    </div>
-    <template x-if="loading.error">
-        <span x-text="loading.error" class="text-rose-400 text-sm block mt-5"></span>
-    </template>
-    <template x-if="loading.errorJSON">
-        <pre x-text="loading.errorJSON"
-            class="text-rose-100 break-words text-sm block mt-2 text-wrap bg-rose-800 rounded mb-5 p-3">
+    </div> -->
+  <template x-if="loading.error">
+    <span x-text="loading.error" class="text-rose-400 text-sm block mt-5"></span>
+  </template>
+  <template x-if="loading.errorJSON">
+    <pre x-text="loading.errorJSON"
+      class="text-rose-100 break-words text-sm block mt-2 text-wrap bg-rose-800 rounded mb-5 p-3">
     </pre>
+  </template>
+
+  <button @click="input.drop_down_search_file = !input.drop_down_search_file"
+    class="text-white mt-5 w-full font-medium text-sm px-5 py-2.5 text-center inline-flex items-center bg-black rounded-t-lg"
+    :class="{ 'rounded-b-lg': !input.drop_down_search_file }" type="button">
+    <template x-if="!input.drop_down_search_file">
+      <svg class="w-2.5 h-2.5 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 10 10">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 2 L8 5 L2 8">
+        </path>
+      </svg>
     </template>
+    <template x-if="input.drop_down_search_file">
+      <svg class="w-2.5 h-2.5 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 10 6">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4">
+        </path>
+      </svg>
+    </template>
+    <template x-if="results.result.type === 'ssh'">
+      <div>
+        <span class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300">SSH</span>
+      </div>
+    </template>
+    <template x-if="results.result.type == 'stdin'">
+      <span class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-blue-300">STDIN</span>
+    </template>
+    <template x-if="results.result.type == 'file'">
+      <span class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300">FILE</span>
+    </template>
+    <template x-if="results.result.type == 'docker'">
+      <span class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-sky-700 text-sky-100">DOCKER</span>
+    </template>
+    <span x-show="results.result.host"
+      class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded border border-yellow-700 text-slate-300"
+      x-text="results.result.host"></span>
+    <span x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
+      x-text="results.result.file_path.split('/').slice(0, -1).join('/')"
+      :class="{ 'text-green-500 font-bold': results.result.file_path === results.result.file_path }"
+      class="font-mono truncate"></span>
+    <span x-show="!results.result.file_path.startsWith('/tmp/GOL-')" class="font-mono text-slate-400">/</span>
+    <span x-show="!results.result.file_path.startsWith('/tmp/GOL-')" x-text="results.result.file_path.split('/').pop()"
+      class="font-mono truncate"
+      :class="{ 'font-bold text-blue-400': results.result.file_path === results.result.file_path }"></span>
+    <span class="text-gray-600 ml-2 font-sans text-xs"
+      x-text="results.file_paths.filter(fp => fp.file_path == results.result.file_path).length > 0 ? `(${formatBytes(results.file_paths.filter(fp => fp.file_path == results.result.file_path)[0].file_size)}) ${numberToK(results.file_paths.filter(fp => fp.file_path == results.result.file_path)[0].lines_count)} lines` : 'No data available'"></span>
+  </button>
+  <!-- seperator light -->
 
-    <button @click="input.drop_down_search_file = !input.drop_down_search_file"
-        class="text-white mt-5 w-full font-medium text-sm px-5 py-2.5 text-center inline-flex items-center bg-gray-900 rounded-t-lg"
-        :class="{ 'rounded-b-lg': !input.drop_down_search_file }" type="button">
-        <template x-if="!input.drop_down_search_file">
-            <svg class="w-2.5 h-2.5 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 10 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2 2 L8 5 L2 8"></path>
-            </svg>
-        </template>
-        <template x-if="input.drop_down_search_file">
-            <svg class="w-2.5 h-2.5 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 10 6">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m1 1 4 4 4-4"></path>
-            </svg>
-        </template>
-        <template x-if="results.result.type === 'ssh'">
-            <div>
-                <span
-                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300">SSH</span>
-            </div>
-        </template>
-        <template x-if="results.result.type == 'stdin'">
-            <span
-                class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-blue-300">STDIN</span>
-        </template>
-        <template x-if="results.result.type == 'file'">
-            <span
-                class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300">FILE</span>
-        </template>
-        <template x-if="results.result.type == 'docker'">
-            <span
-                class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-sky-700 text-sky-100">DOCKER</span>
-        </template>
-        <span x-show="results.result.host"
-            class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded border border-yellow-700 text-slate-300"
-            x-text="results.result.host"></span>
-        <span x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
-            x-text="results.result.file_path.split('/').slice(0, -1).join('/')"
-            :class="{ 'text-green-500 font-bold': results.result.file_path === results.result.file_path }"
-            class="font-mono truncate"></span>
-        <span x-show="!results.result.file_path.startsWith('/tmp/GOL-')" class="font-mono text-slate-400">/</span>
-        <span x-show="!results.result.file_path.startsWith('/tmp/GOL-')"
-            x-text="results.result.file_path.split('/').pop()" class="font-mono truncate"
-            :class="{ 'font-bold text-blue-400': results.result.file_path === results.result.file_path }"></span>
-        <span class="text-gray-600 ml-2 font-sans text-xs"
-            x-text="results.file_paths.filter(fp => fp.file_path == results.result.file_path).length > 0 ? `(${formatBytes(results.file_paths.filter(fp => fp.file_path == results.result.file_path)[0].file_size)}) ${numberToK(results.file_paths.filter(fp => fp.file_path == results.result.file_path)[0].lines_count)} lines` : 'No data available'"></span>
-    </button>
-    <!-- seperator light -->
-
-    <!-- Dropdown menu -->
-    <div class="shadow w-full bg-gray-900 rounded-b-lg" :class="{ 'hidden': !input.drop_down_search_file }">
-        <div class="border-b border-b-slate-600"></div>
-        <div class="p-3">
-            <div class="relative">
-                <div class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                        fill="none" viewBox="0 0 20 20">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
-                    </svg>
-                </div>
-                <input type="text" x-model="input.query_file" @click="document.getElementById('files').scroll(0,0)"
-                    @keyup="submitFile"
-                    class="w-1/5 p-2 ps-10 text-sm bg-gray-800 placeholder-gray-400 text-white focus:outline-none rounded"
-                    placeholder="Filter" />
-            </div>
+  <!-- Dropdown menu -->
+  <div class="shadow w-full bg-gray-900 rounded-b-lg" :class="{ 'hidden': !input.drop_down_search_file }">
+    <div class="border-b border-b-slate-600"></div>
+    <div class="p-3">
+      <div class="relative group">
+        <div class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+          <svg class="w-4 h-4 text-gray-500 group-focus-within:text-gray-400 transition-colors duration-200"
+            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
+          </svg>
         </div>
-        <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
-            <ul class="max-h-48 px-3 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all" id="files">
-                <template x-if="results.file_paths.filter((fp) => fp.type == type).length">
-                    <div class="relative ml-1">
-                        <div
-                            class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-0 pointer-events-none">
-                            <template x-if="type === 'file'">
-                                <svg class="w-5 h-5 text-sky-800" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z">
-                                    </path>
-                                </svg>
-                            </template>
-                            <template x-if="type === 'stdin'">
-                                <svg class="w-5 h-5 text-sky-800" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M11.782 5.72a4.773 4.773 0 0 0-4.8 4.173 3.43 3.43 0 0 1 2.741-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.934-2.865 3.137-3.921-.969 1.379-2.44 2.207-4.259 1.231-1.253-.673-2.19-3.438-5.959-3.318ZM6.8 11.979A4.772 4.772 0 0 0 2 16.151a3.431 3.431 0 0 1 2.745-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.933-2.865 3.137-3.921-.97 1.379-2.44 2.208-4.259 1.231-1.253-.673-2.19-3.443-5.963-3.317Z">
-                                    </path>
-                                </svg>
-                            </template>
-                            <template x-if="type === 'ssh'">
-                                <svg class="w-5 h-5 text-sky-600" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M5 12a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1M5 12h14M5 12a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1m-2 3h.01M14 15h.01M17 9h.01M14 9h.01">
-                                    </path>
-                                </svg>
-                            </template>
-                            <template x-if="type === 'docker'">
-                                <svg class="w-5 h-5 text-sky-600" aria-label="Docker" role="img"
-                                    viewBox="0 0 512 512" fill="#000000">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        <rect width="512" height="512" rx="15%" fill="#111827"></rect>
-                                        <path stroke="#066da5" stroke-width="38"
-                                            d="M296 226h42m-92 0h42m-91 0h42m-91 0h41m-91 0h42m8-46h41m8 0h42m7 0h42m-42-46h42">
-                                        </path>
-                                        <path fill="#066da5"
-                                            d="m472 228s-18-17-55-11c-4-29-35-46-35-46s-29 35-8 74c-6 3-16 7-31 7H68c-5 19-5 145 133 145 99 0 173-46 208-130 52 4 63-39 63-39">
-                                        </path>
-                                    </g>
-                                </svg>
-                            </template>
-                        </div>
-
-                        <span class="relative inline-flex items-center pl-2 pr-2 ms-5 text-sm font-medium">
-                            <span class="text-sm text-gray-200 uppercase font-bold" x-text="type"></span>
-                            <span class="pl-2 text-slate-600"
-                                x-text="results.file_paths.filter((fp) => fp.type == type).length">
-                            </span>
-                        </span>
-                    </div>
-                </template>
-
-                <template x-for="(filepath, index) in results.file_paths.filter((fp) => fp.type == type)">
-                    <li :class="{ 'shadow-2xl': filepath.file_path === results.result.file_path }">
-                        <div @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host;input.type = filepath.type; submit()"
-                            class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
-                            :class="{ 'bg-gray-800 border-gray-900': filepath.file_path === results.result.file_path }">
-                            <label
-                                :class="{ 'text-blue-400': filepath.file_path === results.result.file_path, 'text-slate-400': filepath.file_path !== results.result.file_path }"
-                                class="w-full py-2 ms-2 text-sm font-mono rounded flex items-center">
-                                <template x-if="filepath.type === 'ssh'">
-                                    <div>
-                                        <span
-                                            class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300">SSH</span>
-                                    </div>
-                                </template>
-                                <template x-if="filepath.type == 'stdin'">
-                                    <span
-                                        class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-blue-300">STDIN</span>
-                                </template>
-                                <template x-if="filepath.type == 'file'">
-                                    <span
-                                        class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300">FILE</span>
-                                </template>
-                                <template x-if="filepath.type == 'docker'">
-                                    <span
-                                        class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-sky-700 text-sky-100">DOCKER</span>
-                                </template>
-                                <span x-show="filepath.host"
-                                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded border border-yellow-700 text-slate-300"
-                                    x-text="filepath.host"></span>
-                                <span x-show="filepath.name" class="text-xs font-medium truncate"
-                                    x-text="filepath.name"></span>
-                                <span x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
-                                    x-text="filepath.file_path.split('/').slice(0, -1).join('/')"
-                                    :class="{ 'text-green-500 font-bold': filepath.file_path === results.result.file_path }"
-                                    class="truncate"></span>
-                                <span x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
-                                    class="text-slate-400">/</span>
-                                <span x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
-                                    x-text="filepath.file_path.split('/').pop()" class="truncate"
-                                    :class="{ 'font-bold text-blue-400': filepath.file_path === results.result.file_path }"></span>
-                                <span class="text-gray-600 ml-2 font-sans text-xs"
-                                    x-text="`(${formatBytes(filepath.file_size)}) ${numberToK(filepath.lines_count)} lines`"></span>
-                            </label>
-                        </div>
-                    </li>
-                </template>
-            </ul>
-        </template>
+        <input type="text" x-model="input.query_file" @click="document.getElementById('files').scroll(0,0)"
+          @keyup="submitFile"
+          class="w-full p-2 ps-10 text-sm text-slate-300 border border-gray-700 rounded-lg bg-gray-800/50 focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500/50 focus:outline-none transition-all duration-200 placeholder:text-gray-500"
+          placeholder="Filter files..." />
+      </div>
     </div>
+    <template x-for="type in ['file', 'ssh', 'stdin', 'docker']">
+      <ul class="max-h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-200 no-scrollbar break-all" id="files">
+        <template x-if="results.file_paths.filter((fp) => fp.type == type).length">
+          <div class="relative ml-1">
+            <div class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-0 pointer-events-none">
+              <template x-if="type === 'file'">
+                <svg class="w-5 h-5 text-sky-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                  height="24" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z">
+                  </path>
+                </svg>
+              </template>
+              <template x-if="type === 'stdin'">
+                <svg class="w-5 h-5 text-sky-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                  height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M11.782 5.72a4.773 4.773 0 0 0-4.8 4.173 3.43 3.43 0 0 1 2.741-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.934-2.865 3.137-3.921-.969 1.379-2.44 2.207-4.259 1.231-1.253-.673-2.19-3.438-5.959-3.318ZM6.8 11.979A4.772 4.772 0 0 0 2 16.151a3.431 3.431 0 0 1 2.745-1.687c1.689 0 2.974 1.972 3.758 2.587a5.733 5.733 0 0 0 5.382.935c2-.638 2.933-2.865 3.137-3.921-.97 1.379-2.44 2.208-4.259 1.231-1.253-.673-2.19-3.443-5.963-3.317Z">
+                  </path>
+                </svg>
+              </template>
+              <template x-if="type === 'ssh'">
+                <svg class="w-5 h-5 text-sky-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                  height="24" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 12a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1M5 12h14M5 12a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1m-2 3h.01M14 15h.01M17 9h.01M14 9h.01">
+                  </path>
+                </svg>
+              </template>
+              <template x-if="type === 'docker'">
+                <svg class="w-5 h-5 text-sky-600" aria-label="Docker" role="img" viewBox="0 0 512 512" fill="#000000">
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <rect width="512" height="512" rx="15%" fill="#111827"></rect>
+                    <path stroke="#066da5" stroke-width="38"
+                      d="M296 226h42m-92 0h42m-91 0h42m-91 0h41m-91 0h42m8-46h41m8 0h42m7 0h42m-42-46h42">
+                    </path>
+                    <path fill="#066da5"
+                      d="m472 228s-18-17-55-11c-4-29-35-46-35-46s-29 35-8 74c-6 3-16 7-31 7H68c-5 19-5 145 133 145 99 0 173-46 208-130 52 4 63-39 63-39">
+                    </path>
+                  </g>
+                </svg>
+              </template>
+            </div>
+
+            <span class="relative inline-flex items-center pl-2 pr-2 ms-5 text-sm font-medium">
+              <span class="text-sm text-gray-200 uppercase font-bold" x-text="type"></span>
+              <span class="pl-2 text-slate-600" x-text="results.file_paths.filter((fp) => fp.type == type).length">
+              </span>
+            </span>
+          </div>
+        </template>
+
+        <template x-for="(filepath, index) in results.file_paths.filter((fp) => fp.type == type)">
+          <li :class="{ 'shadow-2xl': filepath.file_path === results.result.file_path }">
+            <div
+              @click="input.page=1; input.query='';input.line_from=0;input.line_upto=0;input.file_path = filepath.file_path; input.host = filepath.host;input.type = filepath.type; submit()"
+              class="flex items-center ps-2 m-1 rounded hover:bg-gray-800"
+              :class="{ 'bg-gray-800 border-gray-900': filepath.file_path === results.result.file_path }">
+              <label
+                :class="{ 'text-blue-400': filepath.file_path === results.result.file_path, 'text-slate-400': filepath.file_path !== results.result.file_path }"
+                class="w-full py-2 ms-2 text-sm font-mono rounded flex items-center">
+                <template x-if="filepath.type === 'ssh'">
+                  <div>
+                    <span
+                      class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-yellow-300">SSH</span>
+                  </div>
+                </template>
+                <template x-if="filepath.type == 'stdin'">
+                  <span
+                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-blue-300">STDIN</span>
+                </template>
+                <template x-if="filepath.type == 'file'">
+                  <span
+                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-gray-700 text-green-300">FILE</span>
+                </template>
+                <template x-if="filepath.type == 'docker'">
+                  <span
+                    class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded bg-sky-700 text-sky-100">DOCKER</span>
+                </template>
+                <span x-show="filepath.host"
+                  class="text-xs font-medium me-2 px-2.5 py-0.5 text-center rounded border border-yellow-700 text-slate-300"
+                  x-text="filepath.host"></span>
+                <span x-show="filepath.name" class="text-xs font-medium truncate" x-text="filepath.name"></span>
+                <span x-show="!filepath.file_path.startsWith('/tmp/GOL-')"
+                  x-text="filepath.file_path.split('/').slice(0, -1).join('/')"
+                  :class="{ 'text-green-500 font-bold': filepath.file_path === results.result.file_path }"
+                  class="truncate"></span>
+                <span x-show="!filepath.file_path.startsWith('/tmp/GOL-')" class="text-slate-400">/</span>
+                <span x-show="!filepath.file_path.startsWith('/tmp/GOL-')" x-text="filepath.file_path.split('/').pop()"
+                  class="truncate"
+                  :class="{ 'font-bold text-blue-400': filepath.file_path === results.result.file_path }"></span>
+                <span class="text-gray-600 ml-2 font-sans text-xs"
+                  x-text="`(${formatBytes(filepath.file_size)}) ${numberToK(filepath.lines_count)} lines`"></span>
+              </label>
+            </div>
+          </li>
+        </template>
+      </ul>
+    </template>
+  </div>
 </div>
 
 <style>
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 
-    /* Hide scrollbar for IE, Edge and Firefox */
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        /* IE and Edge */
-        scrollbar-width: none;
-        /* Firefox */
-    }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
 </style>
