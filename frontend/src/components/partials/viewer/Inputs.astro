@@ -2,24 +2,18 @@
 
 ---
 
-<div class="mx-auto mt-10">
+<div class="mx-auto">
   <div class="grid grid-cols-2 gap-4">
-    <div class="relative group">
-      <div class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md">
-        <b class="text-green-400 group-focus-within:text-green-300 transition-colors duration-200">Match</b>
-      </div>
-      <input type="text" x-model="input.query" @input.debounce.500ms="submit"
-        class="block font-mono w-full p-3 ps-24 text-sm text-slate-300 border border-gray-700 rounded-lg bg-gray-800/50 focus:ring-2 focus:ring-green-500/20 focus:border-green-500/50 focus:outline-none transition-all duration-200 placeholder:text-gray-500"
-        placeholder=".*" />
+    <div>
+      <input id="match-input" type="text" x-model="input.query" @input.debounce.500ms="submit"
+        class="block font-mono w-full p-3 ps-5 text-sm text-slate-300 border border-gray-700 rounded-lg bg-gray-800/50"
+        placeholder=".* Pattern to match" />
     </div>
 
-    <div class="relative group">
-      <div class="absolute pt-2.5 start-0 flex items-center ps-3 pointer-events-none text-md">
-        <b class="text-slate-400 group-focus-within:text-slate-300 transition-colors duration-200">Ignore</b>
-      </div>
-      <input type="text" x-model="input.ignore" @input.debounce.500ms="submit"
-        class="block font-mono w-full p-3 ps-24 text-sm text-slate-300 border border-gray-700 rounded-lg bg-gray-800/50 focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500/50 focus:outline-none transition-all duration-200 placeholder:text-gray-500"
-        placeholder="Pattern to ignore" />
+    <div>
+      <input id="ignore-input" type="text" x-model="input.ignore" @input.debounce.500ms="submit"
+        class="block font-mono w-full p-3 ps-5 text-sm text-slate-300 border border-gray-700 rounded-lg bg-gray-800/50"
+        placeholder="^ Pattern to ignore" />
     </div>
   </div>
   <!--     <div class="text-slate-300 text-sm pt-5">
