@@ -11,12 +11,11 @@ import (
 	"strings"
 
 	"github.com/acarl005/stripansi"
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 )
 
-func ListDockerContainers() ([]types.Container, error) {
+func ListDockerContainers() ([]container.Summary, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Docker client: %w", err)
